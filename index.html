@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f7f4" />
+    <meta name="description" content="Oportunidades para carreras de Sistemas con condiciones, evidencia y riesgos claros." />
+    <title>Ruta Sistemas — oportunidades con evidencia</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#inicio" aria-label="Ruta Sistemas, inicio">
+        <span class="brand-mark" aria-hidden="true">r<span>/</span></span>
+        <span>ruta<span class="brand-light">sistemas</span></span>
+      </a>
+      <nav aria-label="Navegación principal">
+        <a class="nav-active" href="#oportunidades">Oportunidades</a>
+        <a href="#como-evaluamos">Cómo evaluamos</a>
+      </nav>
+      <a class="top-link" href="#fuentes">Fuentes y método <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main id="inicio">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="live-dot"></span> PERÚ · CARRERAS DE SISTEMAS</p>
+          <h1 id="hero-title">Tu siguiente paso<br /><em>merece tener sentido.</em></h1>
+          <p class="hero-intro">Vacantes de tecnología evaluadas por lo que harás, lo que puedes aprender y las condiciones reales del puesto.</p>
+          <a class="hero-cta" href="#oportunidades">Explorar oportunidades <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="hero-stamp"><span>OPORTUNIDADES</span><strong>con<br />evidencia</strong><small>NO PROMESAS</small></div>
+          <div class="hero-note note-top"><span class="note-icon">↗</span><span><b>Experiencia útil</b><small>funciones y tecnologías</small></span></div>
+          <div class="hero-note note-bottom"><span class="note-icon note-warn">!</span><span><b>Riesgos visibles</b><small>plazo, modalidad y fuente</small></span></div>
+          <span class="hero-spark spark-a">✳</span><span class="hero-spark spark-b">✳</span>
+        </div>
+      </section>
+
+      <section class="snapshot" aria-label="Resumen del piloto">
+        <div class="snapshot-label"><span class="snapshot-dot"></span> MUESTRA PILOTO <span class="snapshot-date">03 OCT 2026</span></div>
+        <div class="snapshot-metrics">
+          <div><strong id="metric-total">—</strong><span>publicaciones halladas</span></div>
+          <div><strong id="metric-primary">—</strong><span>comprobadas en fuente oficial</span></div>
+          <div><strong id="metric-secondary">—</strong><span>pendientes de corroborar</span></div>
+        </div>
+        <p class="snapshot-note">La muestra es pequeña y curada. Estos números no representan todo el mercado.</p>
+      </section>
+
+      <section class="opportunities section-wrap" id="oportunidades" aria-labelledby="op-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">BUSCA CON CRITERIO</p>
+            <h2 id="op-title">Oportunidades para ti<span class="heading-period">.</span></h2>
+            <p class="section-subtitle">Mira más allá del nombre de la empresa. Revisa la función, las condiciones y quién publica.</p>
+          </div>
+          <label class="history-toggle"><input type="checkbox" id="include-history" /> Incluir convocatorias cerradas</label>
+        </div>
+
+        <form class="filters" id="filters" role="search">
+          <label class="search-box">
+            <span class="sr-only">Buscar puesto, empresa o tecnología</span>
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input type="search" id="query" placeholder="Puesto, empresa o tecnología" autocomplete="off" />
+            <kbd>/</kbd>
+          </label>
+          <label class="select-wrap"><span class="sr-only">Modalidad</span><select id="mode"><option value="">Modalidad</option><option>Presencial</option><option>Híbrido</option><option>Remoto</option><option>Flexible</option></select></label>
+          <label class="select-wrap"><span class="sr-only">Tipo de oportunidad</span><select id="kind"><option value="">Tipo de oportunidad</option><option>Práctica profesional</option><option>Práctica preprofesional</option><option>Junior / profesional</option></select></label>
+          <label class="select-wrap"><span class="sr-only">Familia profesional</span><select id="family"><option value="">Familia profesional</option><option>Desarrollo y QA</option><option>Datos y BI</option><option>Sistemas empresariales</option></select></label>
+          <button class="clear-filters" type="reset" id="clear-filters">Limpiar filtros</button>
+        </form>
+
+        <div class="results-toolbar">
+          <p id="result-count" aria-live="polite">Cargando oportunidades…</p>
+          <div class="toolbar-right"><span class="sort-label">Ordenar: <b>Mejor documentadas</b></span></div>
+        </div>
+
+        <div class="job-list" id="job-list" aria-live="polite"></div>
+        <div class="empty-state" id="empty-state" hidden>
+          <span class="empty-icon" aria-hidden="true">⌕</span><h3>No encontramos coincidencias</h3><p>Prueba quitar algún filtro o buscar con otras palabras.</p><button type="button" id="empty-clear" class="text-button">Limpiar búsqueda</button>
+        </div>
+        <p class="list-footnote"><span class="footnote-mark">i</span> Las oportunidades de fuente secundaria pueden haber cambiado. Comprueba el enlace original antes de postular.</p>
+      </section>
+
+      <section class="method section-wrap" id="como-evaluamos" aria-labelledby="method-title">
+        <div class="method-header"><p class="eyebrow">NO PROMETEMOS EL FUTURO</p><h2 id="method-title">Te mostramos las señales<br /><em>para que decidas mejor.</em></h2></div>
+        <div class="method-grid">
+          <article><span class="method-index">01</span><span class="method-icon">↗</span><h3>Encaje profesional</h3><p>Funciones y tecnologías que puedes llevar a tu próximo paso.</p></article>
+          <article><span class="method-index">02</span><span class="method-icon">◷</span><h3>Continuidad clara</h3><p>Plazos, suplencias y renovaciones tal como aparecen en la fuente.</p></article>
+          <article><span class="method-index">03</span><span class="method-icon">◎</span><h3>Origen comprobable</h3><p>Quién publicó la vacante, dónde postular y cuándo la revisamos.</p></article>
+        </div>
+        <p class="method-disclaimer">Una empresa conocida no convierte automáticamente cada puesto en una buena oportunidad. Una señal de crecimiento tampoco es una garantía de ascenso.</p>
+      </section>
+
+      <section class="sources section-wrap" id="fuentes">
+        <div><p class="eyebrow">TRANSPARENCIA</p><h2>El origen importa<span class="heading-period">.</span></h2><p>Siempre enlazamos la publicación encontrada. “Verificada” significa que revisamos la fuente indicada, no que podamos garantizar que el puesto siga disponible después de la consulta.</p></div>
+        <a class="sources-link" href="./collector/README.md">Fuentes permitidas, reglas y plan técnico <span aria-hidden="true">↗</span></a>
+      </section>
+    </main>
+
+    <footer class="footer"><a class="brand footer-brand" href="#inicio"><span class="brand-mark" aria-hidden="true">r<span>/</span></span><span>ruta<span class="brand-light">sistemas</span></span></a><span>Hecho para decisiones laborales más informadas.</span><span class="footer-date">PERÚ · PILOTO 2026</span></footer>
+
+    <dialog class="job-dialog" id="job-dialog" aria-labelledby="dialog-title">
+      <form method="dialog"><button class="dialog-close" aria-label="Cerrar detalle">×</button></form>
+      <div class="dialog-content" id="dialog-content"></div>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
