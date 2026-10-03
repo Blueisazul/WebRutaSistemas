@@ -20,7 +20,7 @@ GitHub Pages no ejecuta el backend Python. La interfaz pública lee `data/opport
 - La aplicación no registra búsquedas ni carga analítica. Tailwind es la única petición a un tercero al abrirla; la API de vacantes no se consulta en vivo.
 - El usuario abre el sitio de empleo externo solo al seguir un enlace. La página no consulta empleadores ni APIs automáticamente.
 - `collector/sources.json` contiene fuentes modelo apagadas. Greenhouse/Lever no deben activarse hasta revisar y registrar las condiciones, permisos y límites para cada empleador.
-- `.github/workflows/refresh-catalog.yml` está preparado para correr semanalmente/manual con GitHub Actions. Sigue sin actualizar ofertas hasta aprobar fuentes ATS; la configuración de Pages también debe permitir publicación mediante Actions.
+- `.github/workflows/refresh-catalog.yml` despliega los cambios del sitio al subirlos a `main` y está preparado para refrescar el catálogo semanalmente/manual con GitHub Actions. Sigue sin recoger nuevas ofertas hasta aprobar y configurar fuentes ATS.
 - Mantén una copia local de `data/opportunities.sqlite3` al hacer cambios curatoriales importantes. No sincronices la base ni futuras cuentas con un servicio externo sin diseñar primero acceso, retención y eliminación.
 - El gasto de software puede ser cero usando hardware e internet ya disponibles; electricidad, conectividad, mantenimiento y trabajo de verificación siguen teniendo costo. No se promete alojamiento público gratuito.
 

@@ -8,9 +8,14 @@ const dialog = document.querySelector('#job-dialog');
 const dialogContent = document.querySelector('#dialog-content');
 const filters = {
   query: document.querySelector('#query'),
+  location: document.querySelector('#location'),
   mode: document.querySelector('#mode'),
   kind: document.querySelector('#kind'),
   family: document.querySelector('#family'),
+  sector: document.querySelector('#sector'),
+  level: document.querySelector('#level'),
+  salary: document.querySelector('#salary-filter'),
+  risk: document.querySelector('#risk-filter'),
   history: document.querySelector('#include-history'),
 };
 let toastTimer;
@@ -33,9 +38,14 @@ function initials(name) {
 }
 
 function statusTag(job) {
-  if (job.status === 'verified') return '<span class="tag verified">✓ Fuente oficial revisada</span>';
+  if (job.status === 'verified') {
+    const label = job.verificationStatus === 'official_board_present' ? '✓ Fuente oficial detectada' : '✓ Fuente oficial revisada';
+    return `<span class="tag verified">${label}</span>`;
+  }
+  if (job.status === 'closed') return '<span class="tag closed">Convocatoria cerrada</span>';
+  if (job.verificationStatus === 'not_seen_in_latest_run') return '<span class="tag unverified">! No reapareció en la última revisión</span>';
   if (job.status === 'secondary') return '<span class="tag unverified">! Fuente secundaria</span>';
-  return '<span class="tag closed">Convocatoria cerrada</span>';
+  return '<span class="tag unverified">! Fuente no verificada</span>';
 }
 
 function modeTag(job) {
@@ -47,7 +57,8 @@ function modeTag(job) {
 function renderCard(job) {
   const id = escapeHTML(job.id);
   const targetClass = job.sector === 'Sector público' ? 'public' : (job.sector === 'Banca y finanzas' ? 'bank' : '');
-  const salary = job.salary && job.salary !== 'No publicado' ? escapeHTML(job.salary) : 'No publicado';
+  const salaryKnown = job.salary && !/no publicado|no especificado/i.test(job.salary);
+  const salary = salaryKnown ? escapeHTML(job.salary) : 'No publicado';
   const familyLabel = job.family === 'Desarrollo y QA' ? job.family : job.family;
   const metaDate = `Revisada ${escapeHTML(job.checked || '—')}`;
   const typeLabel = job.history ? 'Histórica' : (job.kind === 'Profesional' ? job.level : job.kind);
@@ -80,15 +91,24 @@ function normalized(value) {
 
 function getVisibleJobs() {
   const tokens = normalized(filters.query.value).split(/\s+/).filter(Boolean);
+  const location = normalized(filters.location.value);
   const mode = normalized(filters.mode.value);
   const kind = filters.kind.value;
   const family = normalized(filters.family.value);
+  const sector = filters.sector.value;
+  const level = filters.level.value;
+  const temporarySignal = /suplencia|reemplaz|temporal|plazo fijo|hasta el|por \d+ meses|renovaci[oó]n condicionada|convocatoria cerrada|vencid|por necesidad|campaña/i;
   return catalog.filter((job) => {
     if (!filters.history.checked && job.history) return false;
+    if (location && !normalized(job.location + ' ' + job.eligibility).includes(location)) return false;
     if (mode && !normalized(job.mode).includes(mode)) return false;
     if (kind === 'Junior / profesional' && job.kind !== 'Profesional') return false;
     if (kind && kind !== 'Junior / profesional' && job.kind !== kind) return false;
     if (family && !normalized(job.family).includes(family)) return false;
+    if (sector && job.sector !== sector) return false;
+    if (level && job.level !== level) return false;
+    if (filters.salary.value === 'published' && (!job.salary || /no publicado|no especificado/i.test(job.salary))) return false;
+    if (filters.risk.value === 'temporary' && !temporarySignal.test([job.title, job.duration, job.deadline, job.continuity, job.risk].join(' '))) return false;
     const searchable = normalized([
       job.title, job.employer, job.sector, job.family, job.level,
       job.kind, job.mode, job.location, job.eligibility, job.skills,
@@ -109,13 +129,31 @@ function updateCatalogView() {
   render();
 }
 
+function setFilterOptions(select, values, placeholder, selectedValue = '') {
+  const options = [...new Set(values.filter((value) => value && value !== 'No especificado' && value !== 'Por clasificar'))]
+    .sort((a, b) => a.localeCompare(b, 'es'));
+  select.replaceChildren(new Option(placeholder, ''), ...options.map((value) => new Option(value, value)));
+  if (options.includes(selectedValue)) select.value = selectedValue;
+}
+
+function populateFilters() {
+  setFilterOptions(filters.kind, catalog.map((job) => job.kind === 'Profesional' ? 'Junior / profesional' : job.kind), 'Tipo de oportunidad', filters.kind.value);
+  setFilterOptions(filters.sector, catalog.map((job) => job.sector), 'Todos los sectores', filters.sector.value);
+  setFilterOptions(filters.level, catalog.map((job) => job.level), 'Todos los niveles', filters.level.value);
+  setFilterOptions(filters.family, catalog.map((job) => job.family), 'Familia profesional', filters.family.value);
+}
+
 function renderDialog(job) {
   const sourceUrl = safeHttpsUrl(job.sourceUrl);
   const applyUrl = safeHttpsUrl(job.applyUrl || job.sourceUrl);
   const risk = job.risk || 'La fuente no especifica esta condición. Confírmala en el anuncio original.';
-  const statusText = job.status === 'verified'
-    ? `Revisamos la publicación oficial el ${job.checked}. La fecha no garantiza disponibilidad después de esa revisión.`
-    : job.status === 'secondary'
+  const statusText = job.verificationStatus === 'not_seen_in_latest_run'
+    ? 'La oferta no apareció en la última consulta del tablero oficial. Se conserva con estado incierto; comprueba el enlace antes de postular.'
+    : job.verificationStatus === 'official_board_present'
+      ? `El tablero oficial devolvió esta publicación el ${job.checked}. La ficha automática no analiza funciones ni condiciones y la fecha no garantiza disponibilidad posterior.`
+      : job.status === 'verified'
+        ? `Revisamos la publicación oficial el ${job.checked}. La fecha no garantiza disponibilidad después de esa revisión.`
+        : job.status === 'secondary'
       ? `La publicación se encontró en ${job.sourceKind || 'una fuente secundaria'} y aparece disponible allí. No se encontró una confirmación equivalente en el portal corporativo durante esta revisión.`
       : 'La convocatoria está cerrada y se conserva solo como referencia histórica.';
   const applyLabel = job.status === 'closed' ? 'Ver publicación original' : (job.status === 'verified' ? 'Ir a la postulación oficial' : 'Comprobar publicación y postulación');
@@ -123,7 +161,7 @@ function renderDialog(job) {
   dialogContent.innerHTML = `<p class="dialog-eyebrow">${escapeHTML(job.requisition || job.id)} · ${escapeHTML(job.sourceKind || 'Fuente de empleo')}</p>
     <h2 class="dialog-title" id="dialog-title">${escapeHTML(job.title)}</h2><p class="dialog-company">${escapeHTML(job.employer)} · ${escapeHTML(job.sector)}</p>
     <div class="dialog-tags">${statusTag(job)}${modeTag(job)}<span class="tag">${escapeHTML(job.level || 'Nivel no especificado')}</span></div>
-    <div class="evidence-box ${job.status === 'verified' ? '' : 'warning'}"><b>${job.status === 'verified' ? 'Qué se verificó' : 'Qué falta comprobar'}</b><p>${escapeHTML(statusText)}</p></div>
+    <div class="evidence-box ${job.status === 'verified' && job.verificationStatus !== 'official_board_present' ? '' : 'warning'}"><b>${job.status === 'verified' && job.verificationStatus !== 'official_board_present' ? 'Qué se verificó' : 'Qué falta comprobar'}</b><p>${escapeHTML(statusText)}</p></div>
     <div class="detail-grid">
       <div class="detail-item"><label>Modalidad</label><p>${escapeHTML(job.mode || 'No especificada')}</p></div>
       <div class="detail-item"><label>Elegibilidad / ubicación</label><p>${escapeHTML(job.eligibility || job.location || 'No confirmada')}</p></div>
@@ -155,17 +193,30 @@ function notify(message) {
 let searchDebounce;
 
 async function loadCatalog() {
+  const refreshButton = document.querySelector('#catalog-refresh');
+  refreshButton.disabled = true;
+  refreshButton.textContent = 'Actualizando…';
   try {
-    const response = await fetch('./data/opportunities.json', { headers: { Accept: 'application/json' } });
+    const response = await fetch('./data/opportunities.json', { headers: { Accept: 'application/json' }, cache: 'no-cache' });
     if (!response.ok) throw new Error('El catálogo publicado no respondió.');
     const result = await response.json();
     catalog = Array.isArray(result.opportunities) ? result.opportunities : [];
+    populateFilters();
     const activeJobs = catalog.filter((job) => !job.history);
     document.querySelector('#metric-total').textContent = activeJobs.length;
     document.querySelector('#metric-primary').textContent = activeJobs.filter((job) => job.status === 'verified').length;
-    document.querySelector('#metric-secondary').textContent = activeJobs.filter((job) => job.status === 'secondary').length;
+    document.querySelector('#metric-secondary').textContent = activeJobs.filter((job) => job.status !== 'verified').length;
+    const generatedAt = result.generatedAt ? new Date(result.generatedAt) : null;
+    document.querySelector('#catalog-updated-at').textContent = generatedAt && !Number.isNaN(generatedAt.valueOf())
+      ? `Actualizado ${generatedAt.toLocaleString('es-PE', { timeZone: 'America/Lima', dateStyle: 'medium', timeStyle: 'short' })}`
+      : 'Fecha de actualización no disponible';
+    document.querySelector('#catalog-source-note').textContent = result.sourceNote || 'Revisa cada publicación en su fuente original.';
     updateCatalogView();
   } catch {
+    if (catalog.length) {
+      document.querySelector('#catalog-source-note').textContent = 'No se pudo actualizar ahora; se mantiene la última carga disponible.';
+      return;
+    }
     catalog = [];
     opportunities = [];
     list.innerHTML = '';
@@ -175,6 +226,10 @@ async function loadCatalog() {
     empty.querySelector('p').textContent = 'Inténtalo de nuevo más tarde. Si el problema continúa, avísanos.';
     document.querySelector('#empty-clear').hidden = true;
     count.textContent = 'Catálogo local no disponible';
+    document.querySelector('#catalog-source-note').textContent = 'No se pudo cargar el catálogo. Reintenta en unos momentos.';
+  } finally {
+    refreshButton.disabled = false;
+    refreshButton.textContent = '↻ Actualizar';
   }
 }
 
@@ -182,14 +237,26 @@ filters.query.addEventListener('input', () => {
   clearTimeout(searchDebounce);
   searchDebounce = setTimeout(updateCatalogView, 120);
 });
+filters.location.addEventListener('input', () => {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(updateCatalogView, 120);
+});
 filters.mode.addEventListener('change', updateCatalogView);
 filters.kind.addEventListener('change', updateCatalogView);
 filters.family.addEventListener('change', updateCatalogView);
+filters.sector.addEventListener('change', updateCatalogView);
+filters.level.addEventListener('change', updateCatalogView);
+filters.salary.addEventListener('change', updateCatalogView);
+filters.risk.addEventListener('change', updateCatalogView);
 filters.history.addEventListener('change', updateCatalogView);
 document.querySelector('#filters').addEventListener('submit', (event) => event.preventDefault());
-document.querySelector('#filters').addEventListener('reset', () => setTimeout(updateCatalogView, 0));
+document.querySelector('#filters').addEventListener('reset', () => setTimeout(() => {
+  filters.family.value = '';
+  updateCatalogView();
+}, 0));
 
 document.querySelector('#empty-clear').addEventListener('click', () => document.querySelector('#filters').reset());
+document.querySelector('#catalog-refresh').addEventListener('click', loadCatalog);
 list.addEventListener('click', (event) => {
   const button = event.target.closest('[data-open]');
   if (!button) return;

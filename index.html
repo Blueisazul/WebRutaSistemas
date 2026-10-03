@@ -41,13 +41,13 @@
       </section>
 
       <section class="snapshot grid items-center gap-4 border border-[#e5e9e4] bg-white px-5 py-4" aria-label="Resumen del piloto">
-        <div class="snapshot-label"><span class="snapshot-dot"></span> MUESTRA PILOTO <span class="snapshot-date">03 OCT 2026</span></div>
+        <div class="snapshot-label"><span class="snapshot-dot"></span> CATÁLOGO <span class="snapshot-date" id="catalog-updated-at">Fecha de actualización pendiente</span></div>
         <div class="snapshot-metrics">
-          <div><strong id="metric-total">—</strong><span>publicaciones halladas</span></div>
-          <div><strong id="metric-primary">—</strong><span>comprobadas en fuente oficial</span></div>
-          <div><strong id="metric-secondary">—</strong><span>pendientes de corroborar</span></div>
+          <div><strong id="metric-total">—</strong><span>vacantes en el catálogo</span></div>
+          <div><strong id="metric-primary">—</strong><span>vistas en fuente oficial</span></div>
+          <div><strong id="metric-secondary">—</strong><span>secundarias o por revisar</span></div>
         </div>
-        <p class="snapshot-note">La muestra es pequeña y curada. Estos números no representan todo el mercado.</p>
+        <p class="snapshot-note"><span id="catalog-source-note">Cargando información del catálogo…</span> <button type="button" id="catalog-refresh" aria-label="Actualizar catálogo">↻ Actualizar</button></p>
       </section>
 
       <section class="opportunities section-wrap mx-auto w-[calc(100%-2rem)] max-w-[1180px]" id="oportunidades" aria-labelledby="op-title">
@@ -67,9 +67,14 @@
             <input type="search" id="query" placeholder="Puesto, empresa o tecnología" autocomplete="off" />
             <kbd>/</kbd>
           </label>
+          <label class="search-box location-search"><span class="sr-only">Ciudad o país</span><input type="search" id="location" placeholder="Ciudad o país" autocomplete="off" /></label>
           <label class="select-wrap"><span class="sr-only">Modalidad</span><select id="mode"><option value="">Modalidad</option><option>Presencial</option><option>Híbrido</option><option>Remoto</option><option>Flexible</option></select></label>
           <label class="select-wrap"><span class="sr-only">Tipo de oportunidad</span><select id="kind"><option value="">Tipo de oportunidad</option><option>Práctica profesional</option><option>Práctica preprofesional</option><option>Junior / profesional</option></select></label>
+          <label class="select-wrap"><span class="sr-only">Sector</span><select id="sector"><option value="">Todos los sectores</option></select></label>
+          <label class="select-wrap"><span class="sr-only">Nivel profesional</span><select id="level"><option value="">Todos los niveles</option></select></label>
           <label class="select-wrap"><span class="sr-only">Familia profesional</span><select id="family"><option value="">Familia profesional</option><option>Desarrollo y QA</option><option>Datos y BI</option><option>Sistemas empresariales</option></select></label>
+          <label class="select-wrap"><span class="sr-only">Sueldo</span><select id="salary-filter"><option value="">Cualquier sueldo</option><option value="published">Sueldo publicado</option></select></label>
+          <label class="select-wrap"><span class="sr-only">Riesgo</span><select id="risk-filter"><option value="">Cualquier condición</option><option value="temporary">Mostrar señales temporales</option></select></label>
           <button class="clear-filters" type="reset" id="clear-filters">Limpiar filtros</button>
         </form>
 
@@ -97,7 +102,7 @@
 
       <section class="sources section-wrap mx-auto flex w-[calc(100%-2rem)] max-w-[1180px] items-center justify-between gap-8 rounded-lg bg-[#e9efe8] p-6">
         <div><p class="eyebrow">TRANSPARENCIA</p><h2>El origen importa<span class="heading-period">.</span></h2><p>Siempre enlazamos la publicación encontrada. “Verificada” significa que revisamos la fuente indicada, no que podamos garantizar que el puesto siga disponible después de la consulta.</p></div>
-        <a class="sources-link" href="./collector/README.md">Fuentes permitidas, reglas y plan técnico <span aria-hidden="true">↗</span></a>
+        <a class="sources-link" href="https://github.com/Blueisazul/WebRutaSistemas/blob/main/collector/README.md" target="_blank" rel="noopener noreferrer">Fuentes permitidas, reglas y plan técnico <span aria-hidden="true">↗</span></a>
       </section>
     </main>
 

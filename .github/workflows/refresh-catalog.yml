@@ -1,13 +1,22 @@
 name: Refresh jobs catalog
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "app.js"
+      - "styles.css"
+      - "data/**"
+      - "collector/**"
+      - ".github/workflows/refresh-catalog.yml"
   schedule:
     # Weekly; scheduled workflows can be delayed by GitHub.
     - cron: "17 15 * * 1"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -27,21 +36,36 @@ jobs:
           python-version: "3.12"
       - name: Collect approved sources and build catalog
         id: catalog
+        if: github.event_name != 'push'
         run: python -m collector.refresh_catalog
-      - name: Stage public site files
+      - name: Set publication flag for code updates
+        id: push
+        if: github.event_name == 'push'
+        run: echo "publish=true" >> "$GITHUB_OUTPUT"
+      - name: Save refreshed catalog history
         if: steps.catalog.outputs.publish == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/opportunities.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: refresh opportunities catalog"
+            git push origin HEAD:main
+          fi
+      - name: Stage public site files
+        if: steps.catalog.outputs.publish == 'true' || steps.push.outputs.publish == 'true'
         run: |
           mkdir -p dist/data
           cp index.html app.js styles.css dist/
           cp data/opportunities.json dist/data/
       - name: Configure Pages
-        if: steps.catalog.outputs.publish == 'true'
+        if: steps.catalog.outputs.publish == 'true' || steps.push.outputs.publish == 'true'
         uses: actions/configure-pages@v5
       - name: Upload site artifact
-        if: steps.catalog.outputs.publish == 'true'
+        if: steps.catalog.outputs.publish == 'true' || steps.push.outputs.publish == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
       - name: Publish to GitHub Pages
-        if: steps.catalog.outputs.publish == 'true'
+        if: steps.catalog.outputs.publish == 'true' || steps.push.outputs.publish == 'true'
         uses: actions/deploy-pages@v4

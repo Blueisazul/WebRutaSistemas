@@ -10,7 +10,7 @@ Antes de usar un conector, hay que identificar el empleador y su tablero, verifi
 
 ## Actualización programada
 
-`.github/workflows/refresh-catalog.yml` añade una ejecución semanal (lunes, 10:17 a. m. hora de Perú/Colombia) y ejecución manual. `python -m collector.refresh_catalog` consulta solo fuentes `enabled` que pasen la política fail-closed, mezcla los resultados con la muestra curada, y conserva los registros anteriores que ya no aparezcan como “no verificados” para evitar borrarlos en silencio. Si cualquier fuente aprobada falla, la ejecución termina sin tocar/publicar el catálogo. El flujo no publica nada si todavía no hay fuentes activadas o si no hay cambios.
+`.github/workflows/refresh-catalog.yml` despliega cambios de la web al subirlos a `main`; además corre semanalmente (lunes, 10:17 a. m. hora de Perú/Colombia) y permite ejecución manual. `python -m collector.refresh_catalog` consulta solo fuentes `enabled` que pasen la política fail-closed, mezcla los resultados con la muestra curada, y conserva los registros anteriores que ya no aparezcan como “no verificados” para evitar borrarlos en silencio. Si cualquier fuente aprobada falla, la ejecución termina sin tocar/publicar el catálogo. Cuando hay cambios, Actions guarda el JSON en `main` para que la próxima corrida tenga el historial anterior y luego publica el sitio. El flujo no publica nada si todavía no hay fuentes activadas o si no hay cambios.
 
 Las fuentes del registro permanecen apagadas. Antes de activar una, completa sus campos de empleador/tablero y registra una revisión real de términos y derechos; el sistema rechaza los estados `pending`. Un registro encontrado en el ATS confirma presencia en el tablero oficial al momento de consulta, pero no evalúa funciones, requisitos, sueldo, beneficios ni proyección. Esos campos quedan como no especificados o pendientes de revisión; una persona debe completar la evaluación antes de presentar la oportunidad como recomendada.
 
@@ -22,7 +22,7 @@ Las fuentes del registro permanecen apagadas. Antes de activar una, completa sus
 
 Por eso el primer flujo técnico queda preparado para Greenhouse/Lever, pero estos tres bancos no se fuerzan dentro de conectores incompatibles. La cohorte inicial combina seguimiento manual de fuentes bancarias oficiales con cualquier portal ATS que publique un feed accesible y cuyos términos permitan el uso previsto.
 
-Para que Actions publique en GitHub Pages, configura una vez el repositorio en **Settings → Pages → Build and deployment → Source: GitHub Actions**. La publicación incluye solo `index.html`, `app.js`, `styles.css` y el JSON del catálogo. Se puede iniciar manualmente desde **Actions → Refresh jobs catalog → Run workflow**. Mientras no se apruebe y configure al menos una fuente, el flujo será intencionalmente un no-op: no fabricará actualizaciones ni consultará portales.
+Para que Actions publique en GitHub Pages, configura una vez el repositorio en **Settings → Pages → Build and deployment → Source: GitHub Actions**. La publicación incluye solo `index.html`, `app.js`, `styles.css` y el JSON del catálogo. Se puede iniciar manualmente desde **Actions → Refresh jobs catalog → Run workflow**. Mientras no se apruebe y configure al menos una fuente, las corridas programadas serán intencionalmente un no-op: no fabricarán actualizaciones ni consultarán portales. El permiso `contents: write` se usa solo para versionar el JSON cuando sí cambia; el flujo de despliegue no guarda cuentas, perfiles ni datos de postulantes.
 
 ## Cuándo reutilizar un crawler
 
