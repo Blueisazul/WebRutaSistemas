@@ -1,3 +1,4 @@
+let catalog = [];
 let opportunities = [];
 
 const list = document.querySelector('#job-list');
@@ -50,18 +51,18 @@ function renderCard(job) {
   const familyLabel = job.family === 'Desarrollo y QA' ? job.family : job.family;
   const metaDate = `Revisada ${escapeHTML(job.checked || '—')}`;
   const typeLabel = job.history ? 'Histórica' : (job.kind === 'Profesional' ? job.level : job.kind);
-  return `<article class="job-card" data-id="${id}">
-    <div class="job-main">
+  return `<article class="job-card grid grid-cols-1 items-center gap-3 rounded-lg border border-[#e5e9e4] bg-white p-4 transition hover:-translate-y-px hover:border-[#cbd8cb] md:grid-cols-[minmax(0,1fr)_150px_154px]" data-id="${id}">
+    <div class="job-main flex min-w-0 items-start gap-3">
       <div class="company-mark ${targetClass}" aria-hidden="true">${escapeHTML(initials(job.employer))}</div>
-      <div class="job-copy">
+      <div class="job-copy min-w-0">
         <div class="job-title-row"><h3 class="job-title" role="button" tabindex="0" data-open="${id}">${escapeHTML(job.title)}</h3>${statusTag(job)}</div>
         <p class="company-name">${escapeHTML(job.employer)} <span>·</span> ${escapeHTML(job.sector)}</p>
-        <div class="job-tags">${modeTag(job)}<span class="tag">${escapeHTML(familyLabel)}</span><span class="tag ${job.level === 'Senior' ? 'senior' : ''}">${escapeHTML(typeLabel)}</span></div>
+        <div class="job-tags flex flex-wrap gap-1">${modeTag(job)}<span class="tag">${escapeHTML(familyLabel)}</span><span class="tag ${job.level === 'Senior' ? 'senior' : ''}">${escapeHTML(typeLabel)}</span></div>
         <p class="job-location">⌖ ${escapeHTML(job.location || 'Ubicación no especificada')} <span>·</span> ${escapeHTML(job.eligibility || 'Elegibilidad no confirmada')}</p>
       </div>
     </div>
     <div class="job-fit"><strong>${job.status === 'closed' ? 'Solo referencia histórica' : escapeHTML(job.fitLabel || 'Encaje por revisar')}</strong><span>${escapeHTML(job.growth || '')}</span></div>
-    <div class="job-meta"><strong class="salary ${salary === 'No publicado' ? 'missing' : ''}">${salary}</strong><span class="check-date">${metaDate}</span><button class="card-button" type="button" data-open="${id}">Ver evidencia <span aria-hidden="true">↗</span></button></div>
+    <div class="job-meta flex flex-col items-end gap-2 md:col-auto md:row-auto"> <strong class="salary ${salary === 'No publicado' ? 'missing' : ''}">${salary}</strong><span class="check-date">${metaDate}</span><button class="card-button rounded border border-[#dae4da] bg-white px-3 py-2 text-[#345d44] hover:bg-[#eef4ee]" type="button" data-open="${id}">Ver evidencia <span aria-hidden="true">↗</span></button></div>
   </article>`;
 }
 
@@ -71,6 +72,41 @@ function render() {
   list.hidden = jobs.length === 0;
   empty.hidden = jobs.length > 0;
   count.textContent = `${jobs.length} ${jobs.length === 1 ? 'resultado' : 'resultados'}`;
+}
+
+function normalized(value) {
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
+}
+
+function getVisibleJobs() {
+  const tokens = normalized(filters.query.value).split(/\s+/).filter(Boolean);
+  const mode = normalized(filters.mode.value);
+  const kind = filters.kind.value;
+  const family = normalized(filters.family.value);
+  return catalog.filter((job) => {
+    if (!filters.history.checked && job.history) return false;
+    if (mode && !normalized(job.mode).includes(mode)) return false;
+    if (kind === 'Junior / profesional' && job.kind !== 'Profesional') return false;
+    if (kind && kind !== 'Junior / profesional' && job.kind !== kind) return false;
+    if (family && !normalized(job.family).includes(family)) return false;
+    const searchable = normalized([
+      job.title, job.employer, job.sector, job.family, job.level,
+      job.kind, job.mode, job.location, job.eligibility, job.skills,
+      job.tasks, job.requirements,
+    ].join(' '));
+    return tokens.every((token) => searchable.includes(token));
+  }).sort((a, b) => {
+    const rank = (job) => job.status === 'closed' ? 2 : job.status === 'verified' ? 0 : 1;
+    return rank(a) - rank(b) || a.employer.localeCompare(b.employer, 'es') || a.title.localeCompare(b.title, 'es');
+  });
+}
+
+function updateCatalogView() {
+  opportunities = getVisibleJobs();
+  empty.querySelector('h3').textContent = 'No encontramos coincidencias';
+  empty.querySelector('p').textContent = 'Prueba quitar algún filtro o buscar con otras palabras.';
+  document.querySelector('#empty-clear').hidden = false;
+  render();
 }
 
 function renderDialog(job) {
@@ -116,39 +152,27 @@ function notify(message) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
-let catalogRequestId = 0;
 let searchDebounce;
 
 async function loadCatalog() {
-  const requestId = ++catalogRequestId;
-  const params = new URLSearchParams();
-  if (filters.query.value.trim()) params.set('q', filters.query.value.trim());
-  if (filters.mode.value) params.set('mode', filters.mode.value);
-  if (filters.kind.value) params.set('kind', filters.kind.value);
-  if (filters.family.value) params.set('family', filters.family.value);
-  if (filters.history.checked) params.set('history', '1');
-
   try {
-    const response = await fetch(`/api/opportunities?${params.toString()}`, { headers: { Accept: 'application/json' } });
-    if (!response.ok) throw new Error('El catálogo local no respondió.');
+    const response = await fetch('./data/opportunities.json', { headers: { Accept: 'application/json' } });
+    if (!response.ok) throw new Error('El catálogo publicado no respondió.');
     const result = await response.json();
-    if (requestId !== catalogRequestId) return;
-    opportunities = Array.isArray(result.opportunities) ? result.opportunities : [];
-    document.querySelector('#metric-total').textContent = result.metrics.total;
-    document.querySelector('#metric-primary').textContent = result.metrics.primary;
-    document.querySelector('#metric-secondary').textContent = result.metrics.secondary;
-    empty.querySelector('h3').textContent = 'No encontramos coincidencias';
-    empty.querySelector('p').textContent = 'Prueba quitar algún filtro o buscar con otras palabras.';
-    document.querySelector('#empty-clear').hidden = false;
-    render();
+    catalog = Array.isArray(result.opportunities) ? result.opportunities : [];
+    const activeJobs = catalog.filter((job) => !job.history);
+    document.querySelector('#metric-total').textContent = activeJobs.length;
+    document.querySelector('#metric-primary').textContent = activeJobs.filter((job) => job.status === 'verified').length;
+    document.querySelector('#metric-secondary').textContent = activeJobs.filter((job) => job.status === 'secondary').length;
+    updateCatalogView();
   } catch {
-    if (requestId !== catalogRequestId) return;
+    catalog = [];
     opportunities = [];
     list.innerHTML = '';
     list.hidden = true;
     empty.hidden = false;
-    empty.querySelector('h3').textContent = 'No se pudo cargar el catálogo local';
-    empty.querySelector('p').textContent = 'Inicia el servidor local con “python server.py” y vuelve a cargar esta página.';
+    empty.querySelector('h3').textContent = 'No se pudo cargar el catálogo';
+    empty.querySelector('p').textContent = 'Inténtalo de nuevo más tarde. Si el problema continúa, avísanos.';
     document.querySelector('#empty-clear').hidden = true;
     count.textContent = 'Catálogo local no disponible';
   }
@@ -156,14 +180,14 @@ async function loadCatalog() {
 
 filters.query.addEventListener('input', () => {
   clearTimeout(searchDebounce);
-  searchDebounce = setTimeout(loadCatalog, 160);
+  searchDebounce = setTimeout(updateCatalogView, 120);
 });
-filters.mode.addEventListener('change', loadCatalog);
-filters.kind.addEventListener('change', loadCatalog);
-filters.family.addEventListener('change', loadCatalog);
-filters.history.addEventListener('change', loadCatalog);
+filters.mode.addEventListener('change', updateCatalogView);
+filters.kind.addEventListener('change', updateCatalogView);
+filters.family.addEventListener('change', updateCatalogView);
+filters.history.addEventListener('change', updateCatalogView);
 document.querySelector('#filters').addEventListener('submit', (event) => event.preventDefault());
-document.querySelector('#filters').addEventListener('reset', () => setTimeout(loadCatalog, 0));
+document.querySelector('#filters').addEventListener('reset', () => setTimeout(updateCatalogView, 0));
 
 document.querySelector('#empty-clear').addEventListener('click', () => document.querySelector('#filters').reset());
 list.addEventListener('click', (event) => {

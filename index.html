@@ -7,10 +7,11 @@
     <meta name="description" content="Oportunidades para carreras de Sistemas con condiciones, evidencia y riesgos claros." />
     <title>Ruta Sistemas — oportunidades con evidencia</title>
     <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.0"></script>
     <script type="module" src="app.js"></script>
   </head>
-  <body>
-    <header class="topbar">
+  <body class="min-h-screen bg-[#f5f7f4] text-[#18211e] antialiased">
+    <header class="topbar flex items-center justify-between border-b border-[#e5e9e4] bg-[#fbfcfa]">
       <a class="brand" href="#inicio" aria-label="Ruta Sistemas, inicio">
         <span class="brand-mark" aria-hidden="true">r<span>/</span></span>
         <span>ruta<span class="brand-light">sistemas</span></span>
@@ -22,8 +23,8 @@
       <a class="top-link" href="#fuentes">Fuentes y método <span aria-hidden="true">↗</span></a>
     </header>
 
-    <main id="inicio">
-      <section class="hero" aria-labelledby="hero-title">
+    <main id="inicio" class="mx-auto w-full">
+      <section class="hero grid gap-8 px-4 sm:px-8" aria-labelledby="hero-title">
         <div class="hero-copy">
           <p class="eyebrow"><span class="live-dot"></span> PERÚ · CARRERAS DE SISTEMAS</p>
           <h1 id="hero-title">Tu siguiente paso<br /><em>merece tener sentido.</em></h1>
@@ -39,7 +40,7 @@
         </div>
       </section>
 
-      <section class="snapshot" aria-label="Resumen del piloto">
+      <section class="snapshot grid items-center gap-4 border border-[#e5e9e4] bg-white px-5 py-4" aria-label="Resumen del piloto">
         <div class="snapshot-label"><span class="snapshot-dot"></span> MUESTRA PILOTO <span class="snapshot-date">03 OCT 2026</span></div>
         <div class="snapshot-metrics">
           <div><strong id="metric-total">—</strong><span>publicaciones halladas</span></div>
@@ -49,7 +50,7 @@
         <p class="snapshot-note">La muestra es pequeña y curada. Estos números no representan todo el mercado.</p>
       </section>
 
-      <section class="opportunities section-wrap" id="oportunidades" aria-labelledby="op-title">
+      <section class="opportunities section-wrap mx-auto w-[calc(100%-2rem)] max-w-[1180px]" id="oportunidades" aria-labelledby="op-title">
         <div class="section-heading">
           <div>
             <p class="eyebrow">BUSCA CON CRITERIO</p>
@@ -59,7 +60,7 @@
           <label class="history-toggle"><input type="checkbox" id="include-history" /> Incluir convocatorias cerradas</label>
         </div>
 
-        <form class="filters" id="filters" role="search">
+        <form class="filters flex flex-wrap items-center gap-2 rounded-lg border border-[#e5e9e4] bg-white p-3" id="filters" role="search">
           <label class="search-box">
             <span class="sr-only">Buscar puesto, empresa o tecnología</span>
             <span class="search-icon" aria-hidden="true">⌕</span>
@@ -77,16 +78,16 @@
           <div class="toolbar-right"><span class="sort-label">Ordenar: <b>Mejor documentadas</b></span></div>
         </div>
 
-        <div class="job-list" id="job-list" aria-live="polite"></div>
+        <div class="job-list flex flex-col gap-2" id="job-list" aria-live="polite"></div>
         <div class="empty-state" id="empty-state" hidden>
           <span class="empty-icon" aria-hidden="true">⌕</span><h3>No encontramos coincidencias</h3><p>Prueba quitar algún filtro o buscar con otras palabras.</p><button type="button" id="empty-clear" class="text-button">Limpiar búsqueda</button>
         </div>
         <p class="list-footnote"><span class="footnote-mark">i</span> Las oportunidades de fuente secundaria pueden haber cambiado. Comprueba el enlace original antes de postular.</p>
       </section>
 
-      <section class="method section-wrap" id="como-evaluamos" aria-labelledby="method-title">
+      <section class="method section-wrap mx-auto w-[calc(100%-2rem)] max-w-[1180px] border-t border-[#e5e9e4]" id="como-evaluamos" aria-labelledby="method-title">
         <div class="method-header"><p class="eyebrow">NO PROMETEMOS EL FUTURO</p><h2 id="method-title">Te mostramos las señales<br /><em>para que decidas mejor.</em></h2></div>
-        <div class="method-grid">
+        <div class="method-grid grid grid-cols-1 gap-3 md:grid-cols-3">
           <article><span class="method-index">01</span><span class="method-icon">↗</span><h3>Encaje profesional</h3><p>Funciones y tecnologías que puedes llevar a tu próximo paso.</p></article>
           <article><span class="method-index">02</span><span class="method-icon">◷</span><h3>Continuidad clara</h3><p>Plazos, suplencias y renovaciones tal como aparecen en la fuente.</p></article>
           <article><span class="method-index">03</span><span class="method-icon">◎</span><h3>Origen comprobable</h3><p>Quién publicó la vacante, dónde postular y cuándo la revisamos.</p></article>
@@ -94,13 +95,13 @@
         <p class="method-disclaimer">Una empresa conocida no convierte automáticamente cada puesto en una buena oportunidad. Una señal de crecimiento tampoco es una garantía de ascenso.</p>
       </section>
 
-      <section class="sources section-wrap" id="fuentes">
+      <section class="sources section-wrap mx-auto flex w-[calc(100%-2rem)] max-w-[1180px] items-center justify-between gap-8 rounded-lg bg-[#e9efe8] p-6">
         <div><p class="eyebrow">TRANSPARENCIA</p><h2>El origen importa<span class="heading-period">.</span></h2><p>Siempre enlazamos la publicación encontrada. “Verificada” significa que revisamos la fuente indicada, no que podamos garantizar que el puesto siga disponible después de la consulta.</p></div>
         <a class="sources-link" href="./collector/README.md">Fuentes permitidas, reglas y plan técnico <span aria-hidden="true">↗</span></a>
       </section>
     </main>
 
-    <footer class="footer"><a class="brand footer-brand" href="#inicio"><span class="brand-mark" aria-hidden="true">r<span>/</span></span><span>ruta<span class="brand-light">sistemas</span></span></a><span>Hecho para decisiones laborales más informadas.</span><span class="footer-date">PERÚ · PILOTO 2026</span></footer>
+    <footer class="footer flex items-center justify-between border-t border-[#e5e9e4] px-4 sm:px-8"><a class="brand footer-brand" href="#inicio"><span class="brand-mark" aria-hidden="true">r<span>/</span></span><span>ruta<span class="brand-light">sistemas</span></span></a><span>Hecho para decisiones laborales más informadas.</span><span class="footer-date">PERÚ · PILOTO 2026</span></footer>
 
     <dialog class="job-dialog" id="job-dialog" aria-labelledby="dialog-title">
       <form method="dialog"><button class="dialog-close" aria-label="Cerrar detalle">×</button></form>
