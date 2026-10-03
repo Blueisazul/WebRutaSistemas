@@ -1,0 +1,47 @@
+name: Refresh jobs catalog
+
+on:
+  schedule:
+    # Weekly; scheduled workflows can be delayed by GitHub.
+    - cron: "17 15 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Collect approved sources and build catalog
+        id: catalog
+        run: python -m collector.refresh_catalog
+      - name: Stage public site files
+        if: steps.catalog.outputs.publish == 'true'
+        run: |
+          mkdir -p dist/data
+          cp index.html app.js styles.css dist/
+          cp data/opportunities.json dist/data/
+      - name: Configure Pages
+        if: steps.catalog.outputs.publish == 'true'
+        uses: actions/configure-pages@v5
+      - name: Upload site artifact
+        if: steps.catalog.outputs.publish == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Publish to GitHub Pages
+        if: steps.catalog.outputs.publish == 'true'
+        uses: actions/deploy-pages@v4

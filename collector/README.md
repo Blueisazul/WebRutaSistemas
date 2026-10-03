@@ -8,6 +8,22 @@ La decisión para un proyecto sin presupuesto es **no instalar un crawler en el 
 
 Antes de usar un conector, hay que identificar el empleador y su tablero, verificar términos/derechos de reutilización y alojar el anuncio original en una URL permitida. La documentación de una API pública facilita acceso técnico; no resuelve por sí sola la licencia de republicar sus anuncios.
 
+## Actualización programada
+
+`.github/workflows/refresh-catalog.yml` añade una ejecución semanal (lunes, 10:17 a. m. hora de Perú/Colombia) y ejecución manual. `python -m collector.refresh_catalog` consulta solo fuentes `enabled` que pasen la política fail-closed, mezcla los resultados con la muestra curada, y conserva los registros anteriores que ya no aparezcan como “no verificados” para evitar borrarlos en silencio. Si cualquier fuente aprobada falla, la ejecución termina sin tocar/publicar el catálogo. El flujo no publica nada si todavía no hay fuentes activadas o si no hay cambios.
+
+Las fuentes del registro permanecen apagadas. Antes de activar una, completa sus campos de empleador/tablero y registra una revisión real de términos y derechos; el sistema rechaza los estados `pending`. Un registro encontrado en el ATS confirma presencia en el tablero oficial al momento de consulta, pero no evalúa funciones, requisitos, sueldo, beneficios ni proyección. Esos campos quedan como no especificados o pendientes de revisión; una persona debe completar la evaluación antes de presentar la oportunidad como recomendada.
+
+### Primera cohorte investigada
+
+- **Interbank:** portal oficial de carreras alojado en HiringRoom; sus filtros muestran ubicación y modalidad. La API pública de HiringRoom documentada requiere credenciales de cuenta para integraciones, así que no se debe asumir que ese portal ofrece una API pública de lectura para terceros. Empezar con seguimiento del portal oficial y pedir autorización/API antes de automatizar. [Portal de Interbank](https://interbank.hiringroom.com/jobs), [documentación API de HiringRoom](https://github.com/hiringroom/api-hr-doc).
+- **BCP:** la página oficial describe prácticas/Talento Joven, beneficios y enlace al portal de empleos. Es una fuente prioritaria para revisión manual; aún no hay un endpoint público aprobado/configurado en este repositorio. [Trabaja en el BCP](https://www.viabcp.com/unete-al-equipo-bcp), [Talento Joven BCP](https://www.viabcp.com/unete-al-equipo-bcp/talento-joven).
+- **Scotiabank:** mantiene página global de carreras y oportunidades de Ingeniería/programas para estudiantes; el sitio por sí solo no acredita un feed reutilizable. Incluirlo en la revisión manual y automatizar solo cuando haya una interfaz oficial autorizada. [Carreras Scotiabank](https://www.scotiabank.com/careers/es/carreras.html), [Ingeniería](https://www.scotiabank.com/careers/es/carreras/ingenieria.html).
+
+Por eso el primer flujo técnico queda preparado para Greenhouse/Lever, pero estos tres bancos no se fuerzan dentro de conectores incompatibles. La cohorte inicial combina seguimiento manual de fuentes bancarias oficiales con cualquier portal ATS que publique un feed accesible y cuyos términos permitan el uso previsto.
+
+Para que Actions publique en GitHub Pages, configura una vez el repositorio en **Settings → Pages → Build and deployment → Source: GitHub Actions**. La publicación incluye solo `index.html`, `app.js`, `styles.css` y el JSON del catálogo. Se puede iniciar manualmente desde **Actions → Refresh jobs catalog → Run workflow**. Mientras no se apruebe y configure al menos una fuente, el flujo será intencionalmente un no-op: no fabricará actualizaciones ni consultará portales.
+
 ## Cuándo reutilizar un crawler
 
 Si aparecen fuentes HTML autorizadas que no exponen una API, **Scrapy** (BSD-3-Clause) es el candidato coherente con el backend Python y se ejecuta bajo nuestra infraestructura. Primero medir si hace falta: no se instala ahora, no se rastrean agregadores masivamente y no se omiten CAPTCHA, inicio de sesión, bloqueos ni límites.
