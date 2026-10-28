@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f5f7f4" />
+    <meta name="theme-color" content="#f7f8f6" />
     <meta name="description" content="Oportunidades para carreras de Sistemas con condiciones, evidencia y riesgos claros." />
     <title>Ruta Sistemas — oportunidades con evidencia</title>
     <link rel="stylesheet" href="styles.css" />
     <script type="module" src="app.js"></script>
   </head>
-  <body >
-    <header class="topbar">
+  <body class="min-h-screen bg-stone-50 font-sans text-slate-900 antialiased">
+    <header class="topbar sticky top-0 z-20 border-b border-slate-200/80 bg-white/95">
       <a class="brand" href="#inicio" aria-label="Ruta Sistemas, inicio">
         <span class="brand-mark" aria-hidden="true">r<span>/</span></span>
         <span>ruta<span class="brand-light">sistemas</span></span>
@@ -22,24 +22,26 @@
       <a class="top-link" href="#fuentes">Fuentes y método <span aria-hidden="true">↗</span></a>
     </header>
 
-    <main id="inicio" >
+    <main id="inicio" class="mx-auto w-full max-w-[1280px]">
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <p class="eyebrow"><span class="live-dot"></span> PERÚ · CARRERAS DE SISTEMAS</p>
-          <h1 id="hero-title">Tu siguiente paso<br /><em>merece tener sentido.</em></h1>
-          <p class="hero-intro">Vacantes de tecnología evaluadas por lo que harás, lo que puedes aprender y las condiciones reales del puesto.</p>
-          <a class="hero-cta" href="#oportunidades">Explorar oportunidades <span aria-hidden="true">↓</span></a>
+          <p class="eyebrow"><span class="live-dot"></span> OPORTUNIDADES PARA CARRERAS DE SISTEMAS · PERÚ</p>
+          <h1 id="hero-title">Tu próximo paso<br /><em>empieza con claridad.</em></h1>
+          <p class="hero-intro">Explora puestos, prácticas y opciones remotas. Compara lo publicado, revisa su vigencia y decide con información a la vista.</p>
+          <a class="hero-cta" href="#oportunidades">Explorar el catálogo <span aria-hidden="true">↓</span></a>
         </div>
-        <div class="hero-visual" aria-hidden="true">
-          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
-          <div class="hero-stamp"><span>OPORTUNIDADES</span><strong>con<br />evidencia</strong><small>NO PROMESAS</small></div>
-          <div class="hero-note note-top"><span class="note-icon">↗</span><span><b>Experiencia útil</b><small>funciones y tecnologías</small></span></div>
-          <div class="hero-note note-bottom"><span class="note-icon note-warn">!</span><span><b>Riesgos visibles</b><small>plazo, modalidad y fuente</small></span></div>
-          <span class="hero-spark spark-a">✳</span><span class="hero-spark spark-b">✳</span>
+        <div class="hero-visual" aria-label="Principios del catálogo">
+          <div class="hero-visual-top"><span class="hero-kicker">UNA BÚSQUEDA MÁS INFORMADA</span><span class="hero-mark" aria-hidden="true">↗</span></div>
+          <div class="hero-principles">
+            <div><span class="principle-number">01</span><span><strong>Qué harás</strong><small>Funciones, tecnologías y requisitos</small></span></div>
+            <div><span class="principle-number">02</span><span><strong>En qué condiciones</strong><small>Modalidad, plazo y remuneración publicada</small></span></div>
+            <div><span class="principle-number">03</span><span><strong>Qué se comprobó</strong><small>Origen, postulación y fecha de revisión</small></span></div>
+          </div>
+          <p class="hero-visual-note">Los datos no publicados se muestran como desconocidos.</p>
         </div>
       </section>
 
-      <section class="snapshot" aria-label="Resumen del piloto">
+      <section class="snapshot rounded-2xl border border-slate-200 bg-white shadow-sm" aria-label="Resumen del catálogo">
         <div class="snapshot-label"><span class="snapshot-dot"></span> CATÁLOGO <span class="snapshot-date" id="catalog-generated-at">Fecha de generación pendiente</span><span class="snapshot-date" id="catalog-last-checked">Sin consultas registradas</span></div>
         <div class="snapshot-metrics">
           <div><strong id="metric-total">—</strong><span>activas verificadas</span></div>
@@ -59,7 +61,7 @@
           <div class="catalog-toggles"><label class="history-toggle"><input type="checkbox" id="include-unconfirmed" /> Incluir oportunidades no confirmadas</label><label class="history-toggle"><input type="checkbox" id="include-demonstrations" /> Incluir ejemplos demostrativos</label><label class="history-toggle"><input type="checkbox" id="include-history" /> Incluir oportunidades históricas</label></div>
         </div>
 
-        <form class="filters" id="filters" role="search">
+        <form class="filters rounded-2xl border border-slate-200 bg-white shadow-sm" id="filters" role="search">
           <label class="search-box">
             <span class="sr-only">Buscar puesto, empresa o tecnología</span>
             <span class="search-icon" aria-hidden="true">⌕</span>

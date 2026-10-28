@@ -13,6 +13,18 @@ class StaticContractTests(unittest.TestCase):
         self.assertNotIn("tailwindcss/browser", html)
         self.assertNotIn("<script src=\"http", html)
 
+    def test_pages_workflow_compiles_pinned_tailwind_before_packaging(self):
+        workflow = (ROOT / ".github" / "workflows" / "refresh-catalog.yml").read_text(encoding="utf-8")
+        package = (ROOT / "package.json").read_text(encoding="utf-8")
+        lock = (ROOT / "package-lock.json").read_text(encoding="utf-8")
+        self.assertIn('"tailwindcss": "4.3.3"', package)
+        self.assertIn('"@tailwindcss/cli": "4.3.3"', package)
+        self.assertIn('"tailwindcss": "4.3.3"', lock)
+        self.assertIn('"build:css": "tailwindcss -i src/input.css -o styles.css --minify"', package)
+        self.assertGreaterEqual(workflow.count("npm run build:css"), 2)
+        self.assertIn('"package-lock.json"', workflow)
+        self.assertLess(workflow.index("npm run build:css"), workflow.index("python scripts/pages_artifact.py --output dist"))
+
     def test_workflow_has_no_schedule_or_repository_write_permission(self):
         workflow = (ROOT / ".github" / "workflows" / "refresh-catalog.yml").read_text(encoding="utf-8")
         self.assertNotIn("schedule:", workflow)
@@ -65,10 +77,15 @@ class StaticContractTests(unittest.TestCase):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
         app = (ROOT / "app.js").read_text(encoding="utf-8")
         css = (ROOT / "styles.css").read_text(encoding="utf-8")
+        css_source = (ROOT / "src" / "site.css").read_text(encoding="utf-8")
         self.assertIn('<label class="history-toggle"><input type="checkbox" id="include-demonstrations"', html)
         self.assertIn('role="button" tabindex="0" data-open=', app)
         self.assertIn("list.addEventListener('keydown'", app)
-        self.assertIn("@media(max-width:520px)", css)
+        self.assertRegex(css, r"@media\s*\(max-width:\s*(?:680|520)px\)")
+        self.assertIn("@media (max-width: 680px)", css_source)
+        self.assertIn("/*! tailwindcss v4.3.3", css)
+        self.assertIn(".bg-stone-50", css)
+        self.assertNotIn("@import", css)
 
 
 if __name__ == "__main__":

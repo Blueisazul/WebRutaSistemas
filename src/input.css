@@ -1,0 +1,12 @@
+@import "tailwindcss" source("../");
+@import "./site.css";
+@source "../index.html";
+@source "../app.js";
+@theme {
+  --color-route-950: #14211c;
+  --color-route-800: #244b3b;
+  --color-route-700: #315f4b;
+  --color-route-100: #e8f0eb;
+  --color-route-lime: #d7e8a1;
+  --font-sans: "Inter", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+}

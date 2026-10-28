@@ -22,7 +22,16 @@ Las fichas demostrativas no aparecen en la búsqueda normal: se muestran solo al
 
 ## Ejecutar y validar
 
-Requisitos locales: Python 3.12+ recomendado y Node.js solo para comprobar sintaxis JS. El sitio publicado no necesita Node, npm, Tailwind ni peticiones de terceros para cargar estilos.
+Requisitos locales: Python 3.12+ y Node.js 22 para compilar CSS y comprobar JavaScript. El build usa Tailwind CSS CLI 4.3.3 fijado en `package-lock.json`; el sitio publicado sirve CSS estático compilado y no carga Tailwind ni dependencias de terceros en runtime. La dirección visual prioriza jerarquía editorial, contraste, densidad útil del catálogo y estados verificables; la referencia de Sequence se utilizó solo para principios generales, no para copiar marca o composición.
+
+```powershell
+npm ci
+npm run build:css
+# Durante desarrollo, recompila al cambiar index.html, app.js o src/site.css
+npm run watch:css
+```
+
+`src/input.css` y `src/site.css` son las fuentes del estilo; `styles.css` es la salida compilada versionada que consume Pages. GitHub Actions compila CSS antes de validar el candidato y antes de preparar el artefacto público.
 
 ```powershell
 # Comprobar pruebas y fuente/snapshot sin escribir
@@ -63,7 +72,7 @@ El workflow `.github/workflows/refresh-catalog.yml` primero ejecuta pruebas, val
 
 - [ADR-001 — catálogo curado y publicación segura](docs/adr/ADR-001-catalogo-curado-publicacion-segura.md): decisiones vigentes de este bloque.
 - [Seguimiento de autorización](docs/sources/seguimiento-autorizacion-fuentes.md): borradores oficiales no enviados y criterios de decisión.
-- [Diseño y roadmap](Diseno-modelo-datos-arquitectura-piloto-2026-10-03.md), sección 21: estado vigente y siguiente fase; las secciones anteriores se conservan como historia.
+- [Diseño y roadmap](Diseno-modelo-datos-arquitectura-piloto-2026-10-03.md): sección 21 para decisiones base y secciones 37–38 para continuidad y rediseño; las secciones anteriores se conservan como historia.
 - [Auditoría fechada 2026-10-25](docs/audits/project-state-audit-2026-10-25.md): snapshot previo a este bloque, no descripción del código actual.
 - [Investigación de mercado/fuentes](Informe-investigacion-mercado-fuentes-2026-10-03.md): investigación histórica; ninguna fuente queda autorizada por aparecer allí.
 

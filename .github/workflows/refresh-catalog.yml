@@ -7,6 +7,9 @@ on:
       - "index.html"
       - "app.js"
       - "styles.css"
+      - "src/**"
+      - "package.json"
+      - "package-lock.json"
       - "data/**"
       - "scripts/**"
       - "tests/**"
@@ -31,6 +34,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Compile production CSS
+        run: |
+          npm ci
+          npm run build:css
       - name: Run catalog and state tests
         run: python -m unittest discover -s tests -v
       - name: Validate canonical source and generated snapshot
@@ -56,6 +67,14 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Compile production CSS
+        run: |
+          npm ci
+          npm run build:css
       - name: Prepare and validate exact Pages artifact
         run: python scripts/pages_artifact.py --output dist
       - name: Configure Pages
