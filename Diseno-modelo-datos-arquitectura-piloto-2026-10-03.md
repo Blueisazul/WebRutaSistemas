@@ -651,3 +651,13 @@ La publicación del sitio y la autorización para reutilizar datos de una fuente
 - **Publicación:** estos cambios aún requieren commit/push y una ejecución de CI para afirmar que Pages los sirve. El sitio público previo no representa este rediseño hasta confirmar el nuevo CSS/HTML. GitHub Actions compilará los mismos fuentes con lockfile y debe completar validación antes de publicación.
 
 **Siguiente hito:** integrar este rediseño solo tras revisión final del diff y fast-forward seguro; confirmar Actions, recursos públicos y la UI en escritorio/móvil. La primera oportunidad real permanece separada y condicionada a autorización de fuente y revisión editorial individual.
+
+## 39. P15: verificación de producción del rediseño (2026-10-28)
+
+- **Release:** `dd40e73f8482eb3f25051c97ec05ee6cc2e1900c` (`Redesign catalog experience with compiled Tailwind CSS`) está en `main`; push fast-forward confirmado y checkout limpio al comprobarlo. Actions run `40703125923` del SHA exacto terminó `success`; `validate` y `publish` completaron correctamente.
+- **Pages:** HTTP 200 en `/WebRutaSistemas/`, `app.js`, `styles.css` y `data/opportunities.json`. HTML contiene el nuevo mensaje introductorio; CSS publicado incluye el build Tailwind 4.3.3. El JSON conserva schema 2 y cinco demostraciones, con cero reales activas. No hay API runtime; el estado vacío, filtros y ejemplos optativos aparecieron en el DOM.
+- **Inspección visual:** se revisó el sitio publicado en escritorio: jerarquía de portada, panel de principios, resumen, filtros, estado vacío y tarjetas tras activar demostraciones. El detalle y la prueba de postulación deshabilitada permanecen cubiertos por pruebas previas/DOM; los ejemplos se muestran como demostrativos. La vista móvil con viewport reducido no fue ejecutada. El servidor local continuó bloqueado por permisos de socket, por lo que la revisión visual fue en Pages tras el despliegue, no local.
+- **Integridad:** seed y snapshot no se modificaron; workflow produjo la versión bajo prefijo Pages. Fuentes SERVIR/FISI siguen deshabilitadas y pendientes de autorización.
+- **Continuidad:** el rediseño y su publicación técnica están verificados. La comprobación móvil queda como brecha visual pequeña; no bloquea la arquitectura ni la cadena de release. La primera oportunidad real continúa pendiente de permiso de reutilización pública y revisión editorial individual.
+
+**Siguiente hito:** validar visualmente los flujos de búsqueda/filtros a viewport móvil y, en paralelo solo cuando se obtenga autorización humana de fuente, curar una oportunidad real. No añadir más fuentes o automatización antes de medir ese primer caso.

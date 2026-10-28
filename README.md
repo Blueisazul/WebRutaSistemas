@@ -72,7 +72,7 @@ El workflow `.github/workflows/refresh-catalog.yml` primero ejecuta pruebas, val
 
 - [ADR-001 — catálogo curado y publicación segura](docs/adr/ADR-001-catalogo-curado-publicacion-segura.md): decisiones vigentes de este bloque.
 - [Seguimiento de autorización](docs/sources/seguimiento-autorizacion-fuentes.md): borradores oficiales no enviados y criterios de decisión.
-- [Diseño y roadmap](Diseno-modelo-datos-arquitectura-piloto-2026-10-03.md): sección 21 para decisiones base y secciones 37–38 para continuidad y rediseño; las secciones anteriores se conservan como historia.
+- [Diseño y roadmap](Diseno-modelo-datos-arquitectura-piloto-2026-10-03.md): sección 21 para decisiones base y secciones 37–39 para continuidad y rediseño; las secciones anteriores se conservan como historia.
 - [Auditoría fechada 2026-10-25](docs/audits/project-state-audit-2026-10-25.md): snapshot previo a este bloque, no descripción del código actual.
 - [Investigación de mercado/fuentes](Informe-investigacion-mercado-fuentes-2026-10-03.md): investigación histórica; ninguna fuente queda autorizada por aparecer allí.
 
