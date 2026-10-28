@@ -5,6 +5,8 @@
 **Fecha de revisión:** 3 de octubre de 2026  
 **Estado:** investigación de escritorio; antes de automatizar o republicar datos hay que confirmar las condiciones de cada fuente y, cuando corresponda, solicitar permiso.
 
+> **Vigencia:** documento histórico de investigación, no una autorización de fuentes ni instrucciones operativas actuales. Las decisiones de implementación vigentes están en [ADR-001](docs/adr/ADR-001-catalogo-curado-publicacion-segura.md) y el roadmap actual en la sección 21 de `Diseno-modelo-datos-arquitectura-piloto-2026-10-03.md`.
+
 ## 1. Resumen ejecutivo
 
 La oportunidad de producto no es reemplazar a LinkedIn, Computrabajo o las páginas de empleo de las empresas. Es resolver una parte que esos servicios no presentan de manera uniforme: **si una vacante sigue realmente abierta, qué tipo de trabajo ofrece para una persona de Sistemas, qué condiciones constan en la fuente y cuáles son sus riesgos o vacíos**.

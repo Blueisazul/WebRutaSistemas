@@ -35,6 +35,10 @@ def authorize_fetch(source: dict | None, candidate_url: str, request_count: int)
         return deny("unknown_source")
     if not source.get("enabled"):
         return deny("source_disabled")
+    if source.get("decision") != "approved":
+        return deny("source_decision_not_approved")
+    if source.get("automatedAccessStatus") != "approved":
+        return deny("automated_access_not_approved")
     if source.get("connector") not in FETCH_CONNECTORS:
         return deny("connector_not_implemented")
     if source.get("termsReview") not in APPROVED_TERMS:

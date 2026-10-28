@@ -14,3 +14,6 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
 .snapshot-note button{margin-left:6px;border:0;background:transparent;color:var(--green);font:600 9px 'Segoe UI';cursor:pointer;white-space:nowrap}.snapshot-note button:hover{text-decoration:underline}.snapshot-note button:disabled{opacity:.6;cursor:wait}.location-search{max-width:210px}
 @media(max-width:800px){.location-search{flex:1;max-width:none}}
+/* Trust-state controls and explicit non-applicable CTA (local CSS, no utility CDN). */
+.catalog-toggles{display:flex;align-items:center;gap:18px;flex-wrap:wrap}.snapshot-date{letter-spacing:0;text-transform:none}.apply-disabled{display:inline-block;margin-top:20px;padding:11px 15px;background:#f4f0eb;color:#786a5f;border-radius:5px;font-size:10px;font-weight:600}.job-card .tag.closed{white-space:normal}
+.field-evidence-list{margin:7px 0 0;padding-left:17px;color:#657168;font-size:9px;line-height:1.8}.field-evidence-list a{color:var(--green);text-decoration:underline;text-underline-offset:2px}.field-evidence-list span{color:#8b948d;font-size:8px}

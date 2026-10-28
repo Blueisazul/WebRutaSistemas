@@ -1,7 +1,9 @@
 {
-  "schemaVersion": 1,
-  "generatedAt": "2026-10-03T18:53:34.759617+00:00",
-  "sourceNote": "Muestra curada de demostración; no representa un inventario actualizado en tiempo real.",
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-26T13:09:27+00:00",
+  "verificationTtlDays": 7,
+  "timezone": "America/Lima",
+  "sourceNote": "Muestra demostrativa histórica; no se ha vuelto a corroborar y no constituye un catálogo de vacantes activas.",
   "opportunities": [
     {
       "id": "OP-001",
@@ -17,10 +19,7 @@
       "salary": "S/ 1,530",
       "salaryNote": "Subvención mensual publicada",
       "duration": "Convenio hasta el 31/12/2026",
-      "deadline": "13/10/2026",
-      "published": "25/09/2026",
-      "checked": "03/10/2026",
-      "status": "verified",
+      "deadline": "2026-10-13",
       "sourceKind": "Portal público oficial",
       "sourceUrl": "https://oportunidadlaboral.ositran.gob.pe/listadopract",
       "applyUrl": "https://oportunidadlaboral.ositran.gob.pe/listadopract",
@@ -33,7 +32,16 @@
       "risk": "Temporal: el convenio termina el 31/12/2026. La renovación depende de necesidades institucionales y presupuesto. La modalidad concreta varía según el área.",
       "continuity": "Renovación condicionada a necesidades institucionales y presupuesto; no implica continuidad asegurada.",
       "benefits": "Subvención S/ 1,530 al mes. Las bases indican presencial y/o teletrabajo parcial o total según necesidades del área.",
-      "history": false
+      "recordKind": "demonstration",
+      "opportunityStatus": "expired",
+      "verificationStatus": "stale",
+      "publicationStatus": "historical",
+      "lastCheckedDate": "2026-10-03",
+      "publishedAt": "2026-09-25",
+      "employmentEndDate": "2026-12-31",
+      "allowedHosts": [
+        "oportunidadlaboral.ositran.gob.pe"
+      ]
     },
     {
       "id": "OP-002",
@@ -48,9 +56,6 @@
       "eligibility": "Chile, Perú o Colombia",
       "salary": "No publicado",
       "duration": "Full-time; duración no especificada",
-      "published": "01/10/2026",
-      "checked": "03/10/2026",
-      "status": "secondary",
       "sourceKind": "Get on Board",
       "sourceUrl": "https://www.getonbrd.com/jobs/mobile-developer/mobile-developer-ios-swift-42labs-remote",
       "applyUrl": "https://www.getonbrd.com/jobs/mobile-developer/mobile-developer-ios-swift-42labs-remote",
@@ -62,7 +67,17 @@
       "risk": "La publicación aparece en Get on Board; no se encontró una confirmación equivalente en un portal corporativo durante la revisión. Salario no publicado.",
       "continuity": "No informada.",
       "benefits": "El anuncio menciona aguinaldos, Flexi Days, equipo y otros beneficios; verificar detalles en la publicación original.",
-      "history": false
+      "recordKind": "demonstration",
+      "opportunityStatus": "unknown",
+      "verificationStatus": "stale",
+      "publicationStatus": "unconfirmed",
+      "lastCheckedDate": "2026-10-03",
+      "publishedAt": "2026-10-01",
+      "deadline": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "www.getonbrd.com"
+      ]
     },
     {
       "id": "OP-003",
@@ -77,9 +92,6 @@
       "eligibility": "Chile, Perú o Colombia",
       "salary": "No publicado",
       "duration": "Full-time; duración no especificada",
-      "published": "01/10/2026",
-      "checked": "03/10/2026",
-      "status": "secondary",
       "sourceKind": "Get on Board",
       "sourceUrl": "https://www.getonbrd.com/jobs/mobile-developer/android-developer-42labs-remote-c664",
       "applyUrl": "https://www.getonbrd.com/jobs/mobile-developer/android-developer-42labs-remote-c664",
@@ -91,7 +103,17 @@
       "risk": "La publicación aparece en Get on Board; no se encontró una confirmación equivalente en un portal corporativo durante la revisión. Salario no publicado.",
       "continuity": "No informada.",
       "benefits": "El anuncio menciona seguro médico, apoyo de internet, equipo, horarios flexibles y formación; verificar detalles en la publicación original.",
-      "history": false
+      "recordKind": "demonstration",
+      "opportunityStatus": "unknown",
+      "verificationStatus": "stale",
+      "publicationStatus": "unconfirmed",
+      "lastCheckedDate": "2026-10-03",
+      "publishedAt": "2026-10-01",
+      "deadline": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "www.getonbrd.com"
+      ]
     },
     {
       "id": "OP-004",
@@ -106,9 +128,6 @@
       "eligibility": "Global según el anuncio; confirmar contratación desde Perú",
       "salary": "USD 3,800–4,200 / mes",
       "duration": "Full-time; duración no especificada",
-      "published": "30/09/2026",
-      "checked": "03/10/2026",
-      "status": "secondary",
       "sourceKind": "Get on Board",
       "sourceUrl": "https://www.getonbrd.com/jobs/operations-management/functional-consultant-finance-systems-launchpad-technologies-remote",
       "applyUrl": "https://www.getonbrd.com/jobs/operations-management/functional-consultant-finance-systems-launchpad-technologies-remote",
@@ -120,7 +139,17 @@
       "risk": "La publicación aparece en Get on Board; no se encontró una confirmación equivalente en un portal corporativo durante la revisión. Confirmar relación contractual y elegibilidad geográfica.",
       "continuity": "No informada.",
       "benefits": "El anuncio indica salario bruto de USD 3,800–4,200 mensuales, formación, equipo, vacaciones y flexibilidad.",
-      "history": false
+      "recordKind": "demonstration",
+      "opportunityStatus": "unknown",
+      "verificationStatus": "stale",
+      "publicationStatus": "unconfirmed",
+      "lastCheckedDate": "2026-10-03",
+      "publishedAt": "2026-09-30",
+      "deadline": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "www.getonbrd.com"
+      ]
     },
     {
       "id": "QA-001",
@@ -135,10 +164,7 @@
       "eligibility": "Perú",
       "salary": "No publicado en esta ficha",
       "duration": "Convocatoria cerrada; recepción de CV 24/08/2026",
-      "deadline": "24/08/2026",
-      "published": "07/08/2026",
-      "checked": "03/10/2026",
-      "status": "closed",
+      "deadline": "2026-08-24",
       "sourceKind": "Portal público oficial",
       "sourceUrl": "https://oportunidadlaboral.ositran.gob.pe/listadopract",
       "applyUrl": "https://oportunidadlaboral.ositran.gob.pe/listadopract",
@@ -150,7 +176,16 @@
       "risk": "Cerrada; hay resultados finales publicados. No ofrecer para postulación.",
       "continuity": "No aplica: convocatoria cerrada.",
       "benefits": "No disponible.",
-      "history": true
+      "recordKind": "demonstration",
+      "opportunityStatus": "closed",
+      "verificationStatus": "stale",
+      "publicationStatus": "historical",
+      "lastCheckedDate": "2026-10-03",
+      "publishedAt": "2026-08-07",
+      "employmentEndDate": "2026-08-24",
+      "allowedHosts": [
+        "oportunidadlaboral.ositran.gob.pe"
+      ]
     }
   ]
 }

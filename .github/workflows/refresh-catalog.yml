@@ -1,4 +1,4 @@
-name: Refresh jobs catalog
+name: Validate and publish Ruta Sistemas
 
 on:
   push:
@@ -8,24 +8,21 @@ on:
       - "app.js"
       - "styles.css"
       - "data/**"
+      - "scripts/**"
+      - "tests/**"
       - "collector/**"
       - ".github/workflows/refresh-catalog.yml"
-  schedule:
-    # Weekly; scheduled workflows can be delayed by GitHub.
-    - cron: "17 15 * * 1"
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  refresh:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -34,38 +31,39 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Collect approved sources and build catalog
-        id: catalog
-        if: github.event_name != 'push'
-        run: python -m collector.refresh_catalog
-      - name: Set publication flag for code updates
-        id: push
-        if: github.event_name == 'push'
-        run: echo "publish=true" >> "$GITHUB_OUTPUT"
-      - name: Save refreshed catalog history
-        if: steps.catalog.outputs.publish == 'true'
+      - name: Run catalog and state tests
+        run: python -m unittest discover -s tests -v
+      - name: Validate canonical source and generated snapshot
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/opportunities.json
-          if ! git diff --cached --quiet; then
-            git commit -m "data: refresh opportunities catalog"
-            git push origin HEAD:main
-          fi
-      - name: Stage public site files
-        if: steps.catalog.outputs.publish == 'true' || steps.push.outputs.publish == 'true'
-        run: |
-          mkdir -p dist/data
-          cp index.html app.js styles.css dist/
-          cp data/opportunities.json dist/data/
+          python scripts/build_catalog.py --check
+          python scripts/validate_catalog.py
+          python scripts/validate_candidates.py data/candidates/inbox.example.json
+      - name: Check JavaScript syntax
+        run: node --check app.js
+      - name: Exercise public catalog filtering
+        run: node tests/catalog_ui.test.cjs
+
+  publish:
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Prepare and validate exact Pages artifact
+        run: python scripts/pages_artifact.py --output dist
       - name: Configure Pages
-        if: steps.catalog.outputs.publish == 'true' || steps.push.outputs.publish == 'true'
         uses: actions/configure-pages@v5
-      - name: Upload site artifact
-        if: steps.catalog.outputs.publish == 'true' || steps.push.outputs.publish == 'true'
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
-      - name: Publish to GitHub Pages
-        if: steps.catalog.outputs.publish == 'true' || steps.push.outputs.publish == 'true'
+      - name: Deploy Pages
+        id: deployment
         uses: actions/deploy-pages@v4

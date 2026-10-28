@@ -1,39 +1,29 @@
-# Ingesta de fuentes — diseño actual
+# Ingesta de fuentes — estado y límites
 
-La decisión para un proyecto sin presupuesto es **no instalar un crawler en el MVP**. Las primeras fichas se curan a partir de fuentes oficiales; el catálogo/API local y la interfaz ya funcionan con herramientas incluidas en Python y SQLite.
+## Estado vigente
 
-## Adaptadores existentes
+No se ejecuta ingesta automática. Talento Perú/SERVIR y la alternativa institucional FISI-UNMSM se evaluaron el 2026-10-26; ambas están en `pending_review`, deshabilitadas y con presupuesto de consultas cero. No hay evidencia consultada suficiente de un mecanismo/licencia para automatización y reutilización; la página FISI tampoco pudo abrirse directamente en la revisión. Consulta el [registro de evaluación](../docs/sources/talento-peru-servir-2026-10-26.md). `python -m collector.refresh_catalog` solo confirma el no-op. Si una entrada se habilita, el comando termina antes de realizar solicitudes o modificar datos: el adaptador histórico aún no está migrado al schema 2 ni al flujo curatorial vigente.
 
-`ats_connectors.py` contiene lectores mínimos para los endpoints públicos de Greenhouse y Lever. `policy.py` impide consultar fuentes desconocidas, apagadas, no aprobadas, fuera de los hosts autorizados o sobre el presupuesto. El registro en `sources.json` mantiene todo apagado por defecto. Los conectores retienen metadatos, no descripciones completas; sus resultados nacen sin confirmación de vigencia.
+SERVIR sí incluye en su directorio institucional una [aplicación pública de consulta](https://app.servir.gob.pe/DifusionOfertasExterno/faces/consultas/ofertas_laborales.xhtml). Es un mecanismo de consulta oficial; no se encontró API/feed documentado ni permiso para automatizar o reutilizar. La solicitud de aclaración está preparada, no enviada. Para gestionar información manualmente sin tocar el catálogo, usa la [bandeja editorial local](../data/candidates/README.md) y sus borradores de autorización en [seguimiento de fuentes](../docs/sources/seguimiento-autorizacion-fuentes.md).
 
-Antes de usar un conector, hay que identificar el empleador y su tablero, verificar términos/derechos de reutilización y alojar el anuncio original en una URL permitida. La documentación de una API pública facilita acceso técnico; no resuelve por sí sola la licencia de republicar sus anuncios.
+La política de `authorize_fetch()` ahora requiere explícitamente `decision: approved`, `automatedAccessStatus: approved`, términos y derechos aprobados, fuente habilitada, conector implementado y host permitido. La falta de cualquier campo de decisión también deniega el acceso.
 
-## Actualización programada
+No activar Talento Perú, FISI-UNMSM, Greenhouse, Lever, OSITRAN ni agregadores sin una revisión específica de acceso técnico, términos, uso permitido, atribución, frecuencia, retención y evidencia. Una API pública facilita la lectura técnica, pero no constituye licencia de republicación ni confirma que una vacante siga abierta.
 
-`.github/workflows/refresh-catalog.yml` despliega cambios de la web al subirlos a `main`; además corre semanalmente (lunes, 10:17 a. m. hora de Perú/Colombia) y permite ejecución manual. `python -m collector.refresh_catalog` consulta solo fuentes `enabled` que pasen la política fail-closed, mezcla los resultados con la muestra curada, y conserva los registros anteriores que ya no aparezcan como “no verificados” para evitar borrarlos en silencio. Si cualquier fuente aprobada falla, la ejecución termina sin tocar/publicar el catálogo. Cuando hay cambios, Actions guarda el JSON en `main` para que la próxima corrida tenga el historial anterior y luego publica el sitio. El flujo no publica nada si todavía no hay fuentes activadas o si no hay cambios.
+## Próxima evolución
 
-Las fuentes del registro permanecen apagadas. Antes de activar una, completa sus campos de empleador/tablero y registra una revisión real de términos y derechos; el sistema rechaza los estados `pending`. Un registro encontrado en el ATS confirma presencia en el tablero oficial al momento de consulta, pero no evalúa funciones, requisitos, sueldo, beneficios ni proyección. Esos campos quedan como no especificados o pendientes de revisión; una persona debe completar la evaluación antes de presentar la oportunidad como recomendada.
+La fuente canónica editable es `data/opportunities.seed.json`; los datos que se deseen proponer desde un futuro conector deberán revisarse y copiarse/aceptarse explícitamente ahí antes de generar `data/opportunities.json`. El resultado automático nunca debe declarar vigencia por la sola presencia de un anuncio. La fase de piloto debe capturar una muestra acotada para medir completitud y exactitud, sin publicar directamente.
 
-### Primera cohorte investigada
+Los conectores HTTP existentes en `ats_connectors.py` y políticas en `policy.py` son material de referencia, no un pipeline actualmente operativo. Mantienen límites de respuesta y rechazan redirecciones. No se sigue un redirect automáticamente: debe revisarse el nuevo host y permitirse de forma explícita. No se usa Scrapy hasta que la complejidad de fuentes HTML autorizadas lo justifique; no se incorpora Firecrawl ni API alojada de Freehire. Talento Perú no tiene condiciones suficientes documentadas; FISI-UNMSM fue evaluada como única alternativa, pero sus condiciones de uso tampoco se aclararon y la ficha no pudo consultarse directamente. Ambas fuentes siguen apagadas; no hubo piloto ni scraping.
 
-- **Interbank:** portal oficial de carreras alojado en HiringRoom; sus filtros muestran ubicación y modalidad. La API pública de HiringRoom documentada requiere credenciales de cuenta para integraciones, así que no se debe asumir que ese portal ofrece una API pública de lectura para terceros. Empezar con seguimiento del portal oficial y pedir autorización/API antes de automatizar. [Portal de Interbank](https://interbank.hiringroom.com/jobs), [documentación API de HiringRoom](https://github.com/hiringroom/api-hr-doc).
-- **BCP:** la página oficial describe prácticas/Talento Joven, beneficios y enlace al portal de empleos. Es una fuente prioritaria para revisión manual; aún no hay un endpoint público aprobado/configurado en este repositorio. [Trabaja en el BCP](https://www.viabcp.com/unete-al-equipo-bcp), [Talento Joven BCP](https://www.viabcp.com/unete-al-equipo-bcp/talento-joven).
-- **Scotiabank:** mantiene página global de carreras y oportunidades de Ingeniería/programas para estudiantes; el sitio por sí solo no acredita un feed reutilizable. Incluirlo en la revisión manual y automatizar solo cuando haya una interfaz oficial autorizada. [Carreras Scotiabank](https://www.scotiabank.com/careers/es/carreras.html), [Ingeniería](https://www.scotiabank.com/careers/es/carreras/ingenieria.html).
+`data/candidates/inbox.local.json` es una bandeja de notas que no se versiona ni se sirve en Pages; copiar desde `data/candidates/inbox.example.json` y validar con `python scripts/validate_candidates.py`. El validador es offline y de solo lectura. No equivale a autorización de conservar/publicar contenido y no promociona candidatos: una decisión editorial aprobada requiere que la fuente tenga autorización manual y de reutilización pública; luego el revisor debe transferir los datos manualmente a la semilla y superar el validador del catálogo.
 
-Por eso el primer flujo técnico queda preparado para Greenhouse/Lever, pero estos tres bancos no se fuerzan dentro de conectores incompatibles. La cohorte inicial combina seguimiento manual de fuentes bancarias oficiales con cualquier portal ATS que publique un feed accesible y cuyos términos permitan el uso previsto.
+## Comandos
 
-Para que Actions publique en GitHub Pages, configura una vez el repositorio en **Settings → Pages → Build and deployment → Source: GitHub Actions**. La publicación incluye solo `index.html`, `app.js`, `styles.css` y el JSON del catálogo. Se puede iniciar manualmente desde **Actions → Refresh jobs catalog → Run workflow**. Mientras no se apruebe y configure al menos una fuente, las corridas programadas serán intencionalmente un no-op: no fabricarán actualizaciones ni consultarán portales. El permiso `contents: write` se usa solo para versionar el JSON cuando sí cambia; el flujo de despliegue no guarda cuentas, perfiles ni datos de postulantes.
+```powershell
+python -m collector.refresh_catalog
+python -m unittest discover -s tests -v
+python scripts/validate_catalog.py
+```
 
-## Cuándo reutilizar un crawler
-
-Si aparecen fuentes HTML autorizadas que no exponen una API, **Scrapy** (BSD-3-Clause) es el candidato coherente con el backend Python y se ejecuta bajo nuestra infraestructura. Primero medir si hace falta: no se instala ahora, no se rastrean agregadores masivamente y no se omiten CAPTCHA, inicio de sesión, bloqueos ni límites.
-
-No se propone desplegar Firecrawl: para el catálogo pequeño añade servicios y mantenimiento que no necesitamos, aunque sea open source y autohospedable. Tampoco se justifica mantener simultáneamente Scrapy, Crawlee y Crawl4AI. La interfaz de adaptador, el esquema canónico, la deduplicación, la revisión y la evidencia siguen siendo propios y reemplazables.
-
-## Seguridad operativa
-
-- Mantener `enabled: false` hasta completar revisión individual.
-- Un rechazo HTTP, redirección o exceso de límite detiene la captura; no seguir enlaces externos.
-- Aplicar pausas respetuosas, límites de respuesta/tiempo y revisión humana.
-- Tratar fecha de captura y publicación como distintas; no marcar una oferta “activa” solo porque la API la devuelve.
-- No guardar CV, postulaciones, HTML bruto ni el texto completo de la convocatoria en este piloto.
+El workflow de publicación no tiene cron, no llama a colectores y no escribe commits en `main`. GitHub Actions/Pages siguen siendo servicios alojados; ver la decisión vigente en `docs/adr/ADR-001-catalogo-curado-publicacion-segura.md` y el roadmap en la sección 21 de `Diseno-modelo-datos-arquitectura-piloto-2026-10-03.md`.

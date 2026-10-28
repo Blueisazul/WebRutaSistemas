@@ -6,9 +6,11 @@ import hashlib
 import json
 import re
 import sqlite3
+from datetime import date, datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
+from scripts.catalog_quality import DEFAULT_TTL_DAYS, effective_states
 
 
 ROOT = Path(__file__).resolve().parent
@@ -104,7 +106,8 @@ def seed_database(connection: sqlite3.Connection) -> None:
     if not SEED_PATH.exists():
         raise RuntimeError(f"No se encuentra la muestra inicial: {SEED_PATH.name}")
 
-    records = json.loads(SEED_PATH.read_text(encoding="utf-8"))
+    seed_payload = json.loads(SEED_PATH.read_text(encoding="utf-8"))
+    records = seed_payload.get("opportunities", []) if isinstance(seed_payload, dict) else seed_payload
     if not isinstance(records, list):
         raise RuntimeError("El archivo de muestra debe contener una lista JSON.")
 
@@ -129,24 +132,29 @@ def seed_database(connection: sqlite3.Connection) -> None:
             )
 
             old_status = record.get("status", "unverified")
-            publication_status = "closed" if old_status == "closed" else "open" if old_status == "verified" else "unknown"
-            verification_status = "employer_verified" if old_status in {"verified", "closed"} else "secondary_only"
+            publication_status = record.get("publicationStatus") or ("historical" if record.get("history") or old_status == "closed" else "unconfirmed")
+            verification_status = record.get("verificationStatus") or "unverified"
             payload = dict(record)
-            payload["publicationStatus"] = publication_status
-            payload["verificationStatus"] = verification_status
-            payload["status"] = "closed" if publication_status == "closed" else "verified" if verification_status == "employer_verified" else "secondary"
+            payload.update({
+                "publicationStatus": publication_status,
+                "verificationStatus": verification_status,
+                "recordKind": payload.get("recordKind", "demonstration"),
+                "opportunityStatus": payload.get("opportunityStatus", "closed" if old_status == "closed" else "unknown"),
+            })
+            payload.pop("status", None)
+            payload.pop("history", None)
 
             values = (
                 record["id"], source_id, record.get("requisition", ""), record.get("employer", ""),
                 record.get("title", ""), record.get("sector", ""), record.get("family", ""),
                 record.get("level", ""), record.get("kind", ""), record.get("mode", ""),
                 record.get("location", ""), record.get("eligibility", ""), record.get("salary", ""),
-                record.get("salaryNote", ""), record.get("duration", ""), record.get("deadline", ""),
+                record.get("salaryNote", ""), record.get("duration", ""), record.get("deadline") or "",
                 record.get("published", ""), record.get("checked", ""), publication_status,
                 verification_status, record.get("requisition", ""), record.get("tasks", ""),
                 record.get("requirements", ""), record.get("skills", ""), record.get("growth", ""),
                 record.get("risk", ""), record.get("continuity", ""), record.get("benefits", ""),
-                int(bool(record.get("history"))), record.get("applyUrl", source_url),
+                int(publication_status == "historical"), record.get("applyUrl", source_url),
                 json.dumps(payload, ensure_ascii=False),
             )
             connection.execute(insert_opportunity, values)
@@ -226,20 +234,42 @@ def query_catalog(params: dict[str, list[str]]) -> dict:
             + " ORDER BY CASE o.publication_status WHEN 'closed' THEN 2 ELSE CASE o.verification_status WHEN 'employer_verified' THEN 0 ELSE 1 END END, o.employer, o.title LIMIT ?",
             (*arguments, MAX_RESULTS),
         ).fetchall()
-        all_rows = connection.execute(
-            "SELECT publication_status, verification_status FROM opportunities WHERE history = 0"
-        ).fetchall()
+        today = datetime.now(timezone(timedelta(hours=-5), "America/Lima")).date()
         opportunities = []
         for row in rows:
             record = json.loads(row["payload_json"])
-            record["publicationStatus"] = row["publication_status"]
-            record["verificationStatus"] = row["verification_status"]
-            record["status"] = "closed" if row["publication_status"] == "closed" else "verified" if row["verification_status"] == "employer_verified" else "secondary"
+            if "recordKind" not in record:
+                legacy_status = record.get("status", "")
+                record["publicationStatus"] = "historical" if row["publication_status"] == "closed" or record.get("history") or legacy_status == "closed" else "unconfirmed"
+                record["verificationStatus"] = "stale" if record.get("checked") else "unverified"
+                record["opportunityStatus"] = "closed" if row["publication_status"] == "closed" or legacy_status == "closed" else "unknown"
+                record["recordKind"] = "demonstration"
+                if record.get("checked") and re.fullmatch(r"\d{2}/\d{2}/\d{4}", record["checked"]):
+                    record["lastCheckedDate"] = datetime.strptime(record["checked"], "%d/%m/%Y").date().isoformat()
+            if record.get("deadline") and re.fullmatch(r"\d{2}/\d{2}/\d{4}", record["deadline"]):
+                record["deadline"] = datetime.strptime(record["deadline"], "%d/%m/%Y").date().isoformat()
+            record.update(effective_states(record, today=today, ttl_days=DEFAULT_TTL_DAYS))
+            record.pop("status", None)
+            record.pop("history", None)
+            record.pop("checked", None)
             opportunities.append(record)
+        all_records = connection.execute("SELECT payload_json, publication_status FROM opportunities").fetchall()
+        active_total = 0
+        for item in all_records:
+            payload = json.loads(item["payload_json"])
+            if "publicationStatus" not in payload:
+                payload["publicationStatus"] = "unconfirmed"
+                payload["verificationStatus"] = "unverified"
+                payload["opportunityStatus"] = "unknown"
+            try:
+                if effective_states(payload, today=today)["publicationStatus"] == "active":
+                    active_total += 1
+            except ValueError:
+                continue
         metrics = {
-            "total": len(all_rows),
-            "primary": sum(row["verification_status"] == "employer_verified" for row in all_rows),
-            "secondary": sum(row["verification_status"] == "secondary_only" for row in all_rows),
+            "total": active_total,
+            "primary": active_total,
+            "secondary": len(all_records) - active_total,
         }
         return {"opportunities": opportunities, "metrics": metrics}
     finally:
@@ -266,7 +296,7 @@ class LocalHandler(BaseHTTPRequestHandler):
     def end_headers(self) -> None:
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")
-        self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'")
+        self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'")
         super().end_headers()
 
     def _send(self, status: int, body: bytes, content_type: str, cache_control: str = "no-store") -> None:
