@@ -661,3 +661,14 @@ La publicación del sitio y la autorización para reutilizar datos de una fuente
 - **Continuidad:** el rediseño y su publicación técnica están verificados. La comprobación móvil queda como brecha visual pequeña; no bloquea la arquitectura ni la cadena de release. La primera oportunidad real continúa pendiente de permiso de reutilización pública y revisión editorial individual.
 
 **Siguiente hito:** validar visualmente los flujos de búsqueda/filtros a viewport móvil y, en paralelo solo cuando se obtenga autorización humana de fuente, curar una oportunidad real. No añadir más fuentes o automatización antes de medir ese primer caso.
+
+## 40. P16: revalidación del release y continuidad (2026-10-28)
+
+- **Estado inicial/final:** `main` limpio en `d3d42175391fbb32986af2645d2be41853f3fcf0`, igual a `origin/main`. No había cambios funcionales pendientes desde P15; no se recreó el commit ni se modificaron datos.
+- **Tailwind/reproducibilidad:** el lockfile fija Tailwind/CLI 4.3.3; `npm run build:css` terminó correctamente y SHA-256 de `styles.css` antes/después fue idéntico (`DD950A86271E12E55452F3EB33EA8AF6FA332C6D02AE54157DDC92FD1E8D07A9`). El workflow compila antes de validar y vuelve a compilar antes de empaquetar; el CSS publicado es estático y no usa CDN/runtime.
+- **Validación local:** 55 pruebas Python; `build_catalog.py --check`; `catalog_quality.py`; `validate_catalog.py` (válido con advertencias esperadas para demostraciones/no activas); `validate_candidates.py data/candidates/inbox.example.json`; sintaxis JS; prueba UI Node; 7 pruebas de artefacto; y `git diff --check`, todo aprobado. Las pruebas de artefacto cubren los cuatro archivos exactos y casos de fallo.
+- **Remoto/producción:** HEAD local y remoto coinciden. Actions run `40703125923` para el commit de release `dd40e73f8482eb3f25051c97ec05ee6cc2e1900c` terminó `success` en `validate` y `publish`. Pages y sus cuatro recursos respondieron HTTP 200; la página contiene el nuevo hero, CSS incluye Tailwind 4.3.3 y JSON público mantiene schema 2, cinco demostraciones y cero oportunidades reales activas.
+- **Datos/fuentes:** semilla y snapshot permanecen sin cambios; SERVIR, FISI, Greenhouse, Lever y las demás fuentes siguen deshabilitadas. No hubo ingesta ni publicación de datos reales.
+- **Pendientes:** el rediseño ya se integró y publicó, así que no se reabre como trabajo futuro. La comprobación visual con viewport móvil sigue pendiente; el primer piloto real requiere autorización documentada de reutilización y revisión editorial individual.
+
+**Siguiente hito verificable:** hacer una revisión visual del sitio publicado en un viewport móvil representativo; por separado, cuando exista autorización de fuente, curar una sola oportunidad real y medir completitud, frescura y tiempo editorial. No iniciar scraping ni ampliar fuentes antes de ese resultado.
