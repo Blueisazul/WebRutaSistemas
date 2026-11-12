@@ -58,12 +58,12 @@
     <style>
       .status-spinner {
         animation: spinLoader 0.75s linear infinite;
-        border-top-color: var(--accent-color, #299EDC);
+        border-top-color: var(--accent-color, #299edc);
       }
 
       .anchor-dot {
-        border-color: var(--accent-color, #299EDC);
-        box-shadow: 0 0 10px var(--accent-color, #299EDC);
+        border-color: var(--accent-color, #299edc);
+        box-shadow: 0 0 10px var(--accent-color, #299edc);
       }
 
       .anchor-dot::after {
@@ -71,7 +71,7 @@
         position: absolute;
         inset: -5px;
         border-radius: 9999px;
-        border: 1.5px solid var(--accent-color, #299EDC);
+        border: 1.5px solid var(--accent-color, #299edc);
         animation: radarPing 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
       }
 
@@ -120,12 +120,18 @@
     </style>
   </head>
 
-  <body class="min-h-screen bg-white font-sans text-brandBlack antialiased selection:bg-iceBlue/20 selection:text-brandBlack">
+  <body
+    class="min-h-screen bg-white font-sans text-brandBlack antialiased selection:bg-iceBlue/20 selection:text-brandBlack"
+  >
     <!-- =====================================================================
          HEADER STICKY MINIMALISTA
          ===================================================================== -->
-    <header class="sticky top-0 z-30 w-full border-b border-borderMuted bg-white/90 backdrop-blur-md">
-      <div class="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6 md:px-12">
+    <header
+      class="sticky top-0 z-30 w-full border-b border-borderMuted bg-white/90 backdrop-blur-md"
+    >
+      <div
+        class="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6 md:px-12"
+      >
         <a
           href="#inicio"
           aria-label="Ruta Sistemas, inicio"
@@ -137,10 +143,15 @@
           >
             r<span class="text-crystalBlue">/</span>
           </span>
-          <span>ruta<span class="font-normal text-brandMuted">sistemas</span></span>
+          <span
+            >ruta<span class="font-normal text-brandMuted">sistemas</span></span
+          >
         </a>
 
-        <nav aria-label="Navegación principal" class="flex h-full items-center gap-6 md:gap-8 text-[13px]">
+        <nav
+          aria-label="Navegación principal"
+          class="flex h-full items-center gap-6 md:gap-8 text-[13px]"
+        >
           <a
             href="#oportunidades"
             class="relative flex h-full items-center font-medium text-brandBlack transition-colors hover:text-arcticBlue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-crystalBlue after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:bg-arcticBlue"
@@ -189,71 +200,129 @@
         <script type="module" src="canvas.js"></script>
 
         <!-- Nodos flotantes sincronizados con canvas.js -->
-        <div id="nodes-layer" class="pointer-events-none absolute inset-0 z-[1]">
+        <div
+          id="nodes-layer"
+          class="pointer-events-none absolute inset-0 z-[1]"
+        >
           <!-- Nodo 0: arcticBlue -->
           <div
             id="anchor-0"
             class="stream-anchor pointer-events-none absolute top-0 left-0 hidden md:block will-change-[transform,opacity]"
-            style="--accent-color: #1765B5"
+            style="--accent-color: #1765b5"
           >
-            <div class="absolute bottom-4 left-0 -translate-x-1/2 flex items-center gap-2 whitespace-nowrap rounded-full border border-arcticBlue/25 bg-white/95 py-1.5 pl-2 pr-3.5 text-[11px] font-medium text-brandBlack shadow-sm backdrop-blur-md">
-              <span class="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center">
-                <span class="status-spinner absolute inset-[1px] rounded-full border-2 border-arcticBlue/25 transition-all duration-300"></span>
-                <span class="status-check absolute inset-0 flex scale-[0.45] items-center justify-center rounded-full bg-brandBlack text-white opacity-0 transition-all duration-300">
-                  <svg class="h-2 w-2 stroke-[3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <div
+              class="absolute bottom-4 left-0 -translate-x-1/2 flex items-center gap-2 whitespace-nowrap rounded-full border border-arcticBlue/25 bg-white/95 py-1.5 pl-2 pr-3.5 text-[11px] font-medium text-brandBlack shadow-sm backdrop-blur-md"
+            >
+              <span
+                class="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center"
+              >
+                <span
+                  class="status-spinner absolute inset-[1px] rounded-full border-2 border-arcticBlue/25 transition-all duration-300"
+                ></span>
+                <span
+                  class="status-check absolute inset-0 flex scale-[0.45] items-center justify-center rounded-full bg-brandBlack text-white opacity-0 transition-all duration-300"
+                >
+                  <svg
+                    class="h-2 w-2 stroke-[3]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
                 </span>
               </span>
               <span>Engineering</span>
             </div>
-            <div class="anchor-dot absolute top-0 left-0 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-[2px] bg-white"></div>
+            <div
+              class="anchor-dot absolute top-0 left-0 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-[2px] bg-white"
+            ></div>
           </div>
 
           <!-- Nodo 1: iceBlue -->
           <div
             id="anchor-1"
             class="stream-anchor pointer-events-none absolute top-0 left-0 hidden md:block will-change-[transform,opacity]"
-            style="--accent-color: #65C7F2"
+            style="--accent-color: #65c7f2"
           >
-            <div class="absolute bottom-4 left-0 -translate-x-1/2 flex items-center gap-2 whitespace-nowrap rounded-full border border-iceBlue/40 bg-white/95 py-1.5 pl-2 pr-3.5 text-[11px] font-medium text-brandBlack shadow-sm backdrop-blur-md">
-              <span class="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center">
-                <span class="status-spinner absolute inset-[1px] rounded-full border-2 border-iceBlue/30 transition-all duration-300"></span>
-                <span class="status-check absolute inset-0 flex scale-[0.45] items-center justify-center rounded-full bg-brandBlack text-white opacity-0 transition-all duration-300">
-                  <svg class="h-2 w-2 stroke-[3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <div
+              class="absolute bottom-4 left-0 -translate-x-1/2 flex items-center gap-2 whitespace-nowrap rounded-full border border-iceBlue/40 bg-white/95 py-1.5 pl-2 pr-3.5 text-[11px] font-medium text-brandBlack shadow-sm backdrop-blur-md"
+            >
+              <span
+                class="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center"
+              >
+                <span
+                  class="status-spinner absolute inset-[1px] rounded-full border-2 border-iceBlue/30 transition-all duration-300"
+                ></span>
+                <span
+                  class="status-check absolute inset-0 flex scale-[0.45] items-center justify-center rounded-full bg-brandBlack text-white opacity-0 transition-all duration-300"
+                >
+                  <svg
+                    class="h-2 w-2 stroke-[3]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
                 </span>
               </span>
               <span>Fullstack Dev</span>
             </div>
-            <div class="anchor-dot absolute top-0 left-0 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-[2px] bg-white"></div>
+            <div
+              class="anchor-dot absolute top-0 left-0 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-[2px] bg-white"
+            ></div>
           </div>
 
           <!-- Nodo 2: crystalBlue -->
           <div
             id="anchor-2"
             class="stream-anchor pointer-events-none absolute top-0 left-0 hidden md:block will-change-[transform,opacity]"
-            style="--accent-color: #299EDC"
+            style="--accent-color: #299edc"
           >
-            <div class="absolute bottom-4 left-0 -translate-x-1/2 flex items-center gap-2 whitespace-nowrap rounded-full border border-crystalBlue/30 bg-white/95 py-1.5 pl-2 pr-3.5 text-[11px] font-medium text-brandBlack shadow-sm backdrop-blur-md">
-              <span class="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center">
-                <span class="status-spinner absolute inset-[1px] rounded-full border-2 border-crystalBlue/25 transition-all duration-300"></span>
-                <span class="status-check absolute inset-0 flex scale-[0.45] items-center justify-center rounded-full bg-brandBlack text-white opacity-0 transition-all duration-300">
-                  <svg class="h-2 w-2 stroke-[3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <div
+              class="absolute bottom-4 left-0 -translate-x-1/2 flex items-center gap-2 whitespace-nowrap rounded-full border border-crystalBlue/30 bg-white/95 py-1.5 pl-2 pr-3.5 text-[11px] font-medium text-brandBlack shadow-sm backdrop-blur-md"
+            >
+              <span
+                class="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center"
+              >
+                <span
+                  class="status-spinner absolute inset-[1px] rounded-full border-2 border-crystalBlue/25 transition-all duration-300"
+                ></span>
+                <span
+                  class="status-check absolute inset-0 flex scale-[0.45] items-center justify-center rounded-full bg-brandBlack text-white opacity-0 transition-all duration-300"
+                >
+                  <svg
+                    class="h-2 w-2 stroke-[3]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
                 </span>
               </span>
               <span>Data &amp; DevOps</span>
             </div>
-            <div class="anchor-dot absolute top-0 left-0 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-[2px] bg-white"></div>
+            <div
+              class="anchor-dot absolute top-0 left-0 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-[2px] bg-white"
+            ></div>
           </div>
         </div>
 
         <!-- Contenido Hero por delante del Canvas -->
-        <div class="relative z-[2] mx-auto flex min-h-[88vh] w-full max-w-[1080px] flex-col items-start justify-center px-6 py-16 md:items-center md:text-center">
-          <div class="mb-6 inline-flex items-center gap-2 px-3.5 py-1 text-[12px] font-medium uppercase tracking-[0.1em] text-brandMuted backdrop-blur-sm">
+        <div
+          class="relative z-[2] mx-auto flex min-h-[88vh] w-full max-w-[1080px] flex-col items-start justify-center px-6 py-16 md:items-center md:text-center"
+        >
+          <div
+            class="mb-6 inline-flex items-center gap-2 px-3.5 py-1 text-[12px] font-medium uppercase tracking-[0.1em] text-brandMuted backdrop-blur-sm"
+          >
             <span>Descubre el ecosistema en ingeniería de sistemas</span>
           </div>
 
@@ -261,11 +330,17 @@
             id="hero-title"
             class="max-w-[20ch] font-serif text-[46px] font-light leading-[1.05] tracking-tight text-brandBlack [text-wrap:balance] sm:text-[60px] lg:text-[78px]"
           >
-            Tu próximo paso empieza con claridad<span class="text-crystalBlue">.</span>
+            Tu próximo paso empieza con claridad<span class="text-crystalBlue"
+              >.</span
+            >
           </h1>
 
-          <p class="mt-6 max-w-[58ch] text-[16px] font-normal leading-[1.6] text-brandDark md:text-[19px]">
-            Un espacio ordenado para entender el mercado, comparar requerimientos y proyectar tu rumbo en tecnología sin ruido innecesario.
+          <p
+            class="mt-6 max-w-[58ch] text-[16px] font-normal leading-[1.6] text-brandDark md:text-[19px]"
+          >
+            Un espacio ordenado para entender el mercado, comparar
+            requerimientos y proyectar tu rumbo en tecnología sin ruido
+            innecesario.
           </p>
 
           <div class="mt-9 flex flex-wrap items-center gap-3">
@@ -293,25 +368,42 @@
         aria-label="Resumen del catálogo"
         class="w-full border-b border-borderMuted bg-white"
       >
-        <div class="grid w-full grid-cols-1 divide-y divide-borderMuted lg:grid-cols-12 lg:divide-x lg:divide-y-0">
+        <div
+          class="grid w-full grid-cols-1 divide-y divide-borderMuted lg:grid-cols-12 lg:divide-x lg:divide-y-0"
+        >
           <!-- Estado y fechas -->
-          <div class="flex flex-col justify-center px-6 py-6 md:px-12 lg:col-span-3">
-            <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-brandBlack">
+          <div
+            class="flex flex-col justify-center px-6 py-6 md:px-12 lg:col-span-3"
+          >
+            <div
+              class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-brandBlack"
+            >
               <span class="h-2 w-2 rounded-full bg-crystalBlue"></span>
               <span>CATÁLOGO</span>
             </div>
-            <span id="catalog-generated-at" class="mt-2 block text-[12px] text-brandMuted">
+            <span
+              id="catalog-generated-at"
+              class="mt-2 block text-[12px] text-brandMuted"
+            >
               Fecha de generación pendiente
             </span>
-            <span id="catalog-last-checked" class="mt-0.5 block text-[11px] text-brandMuted">
+            <span
+              id="catalog-last-checked"
+              class="mt-0.5 block text-[11px] text-brandMuted"
+            >
               Sin consultas registradas
             </span>
           </div>
 
           <!-- Métricas clave -->
-          <div class="grid grid-cols-3 divide-x divide-borderMuted lg:col-span-5">
+          <div
+            class="grid grid-cols-3 divide-x divide-borderMuted lg:col-span-5"
+          >
             <div class="flex flex-col justify-center px-4 py-6 sm:px-8">
-              <strong id="metric-total" class="text-[28px] font-semibold tracking-tight text-brandBlack sm:text-[32px]">
+              <strong
+                id="metric-total"
+                class="text-[28px] font-semibold tracking-tight text-brandBlack sm:text-[32px]"
+              >
                 —
               </strong>
               <span class="mt-1 text-[12px] leading-snug text-brandMuted">
@@ -319,7 +411,10 @@
               </span>
             </div>
             <div class="flex flex-col justify-center px-4 py-6 sm:px-8">
-              <strong id="metric-primary" class="text-[28px] font-semibold tracking-tight text-brandBlack sm:text-[32px]">
+              <strong
+                id="metric-primary"
+                class="text-[28px] font-semibold tracking-tight text-brandBlack sm:text-[32px]"
+              >
                 —
               </strong>
               <span class="mt-1 text-[12px] leading-snug text-brandMuted">
@@ -327,7 +422,10 @@
               </span>
             </div>
             <div class="flex flex-col justify-center px-4 py-6 sm:px-8">
-              <strong id="metric-secondary" class="text-[28px] font-semibold tracking-tight text-brandBlack sm:text-[32px]">
+              <strong
+                id="metric-secondary"
+                class="text-[28px] font-semibold tracking-tight text-brandBlack sm:text-[32px]"
+              >
                 —
               </strong>
               <span class="mt-1 text-[12px] leading-snug text-brandMuted">
@@ -337,9 +435,13 @@
           </div>
 
           <!-- Nota de origen y actualización -->
-          <div class="flex flex-col justify-center bg-surfaceRaised/60 px-6 py-6 md:px-12 lg:col-span-4">
+          <div
+            class="flex flex-col justify-center bg-surfaceRaised/60 px-6 py-6 md:px-12 lg:col-span-4"
+          >
             <p class="text-[12px] leading-relaxed text-brandDark">
-              <span id="catalog-source-note">Cargando información del catálogo…</span>
+              <span id="catalog-source-note"
+                >Cargando información del catálogo…</span
+              >
             </p>
             <div class="mt-3">
               <button
@@ -358,9 +460,13 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                  <path
+                    d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+                  />
                   <path d="M3 3v5h5" />
-                  <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+                  <path
+                    d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"
+                  />
                   <path d="M16 16h5v5" />
                 </svg>
                 <span>Actualizar</span>
@@ -380,7 +486,9 @@
           aria-labelledby="op-title"
           class="py-16 md:py-20"
         >
-          <div class="flex flex-col justify-between gap-6 pb-8 lg:flex-row lg:items-end">
+          <div
+            class="flex flex-col justify-between gap-6 pb-8 lg:flex-row lg:items-end"
+          >
             <div>
               <h2
                 id="op-title"
@@ -389,13 +497,16 @@
                 Oportunidades para ti<span class="text-crystalBlue">.</span>
               </h2>
               <p class="mt-2 max-w-[60ch] text-[14px] text-brandDark">
-                Mira más allá del nombre de la empresa. Revisa la función, las condiciones y quién publica.
+                Mira más allá del nombre de la empresa. Revisa la función, las
+                condiciones y quién publica.
               </p>
             </div>
 
             <!-- Toggles de visibilidad -->
             <div class="flex flex-wrap gap-2">
-              <label class="inline-flex min-h-[38px] cursor-pointer items-center gap-2 rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 text-[12px] text-brandDark transition-colors hover:border-neutral-300 has-[:checked]:border-arcticBlue/40 has-[:checked]:bg-iceBlue/10 has-[:checked]:text-brandBlack">
+              <label
+                class="inline-flex min-h-[38px] cursor-pointer items-center gap-2 rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 text-[12px] text-brandDark transition-colors hover:border-neutral-300 has-[:checked]:border-arcticBlue/40 has-[:checked]:bg-iceBlue/10 has-[:checked]:text-brandBlack"
+              >
                 <input
                   type="checkbox"
                   id="include-unconfirmed"
@@ -404,7 +515,9 @@
                 <span>Incluir no confirmadas</span>
               </label>
 
-              <label class="inline-flex min-h-[38px] cursor-pointer items-center gap-2 rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 text-[12px] text-brandDark transition-colors hover:border-neutral-300 has-[:checked]:border-arcticBlue/40 has-[:checked]:bg-iceBlue/10 has-[:checked]:text-brandBlack">
+              <label
+                class="inline-flex min-h-[38px] cursor-pointer items-center gap-2 rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 text-[12px] text-brandDark transition-colors hover:border-neutral-300 has-[:checked]:border-arcticBlue/40 has-[:checked]:bg-iceBlue/10 has-[:checked]:text-brandBlack"
+              >
                 <input
                   type="checkbox"
                   id="include-demonstrations"
@@ -413,7 +526,9 @@
                 <span>Incluir ejemplos demostrativos</span>
               </label>
 
-              <label class="inline-flex min-h-[38px] cursor-pointer items-center gap-2 rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 text-[12px] text-brandDark transition-colors hover:border-neutral-300 has-[:checked]:border-arcticBlue/40 has-[:checked]:bg-iceBlue/10 has-[:checked]:text-brandBlack">
+              <label
+                class="inline-flex min-h-[38px] cursor-pointer items-center gap-2 rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 text-[12px] text-brandDark transition-colors hover:border-neutral-300 has-[:checked]:border-arcticBlue/40 has-[:checked]:bg-iceBlue/10 has-[:checked]:text-brandBlack"
+              >
                 <input
                   type="checkbox"
                   id="include-history"
@@ -431,7 +546,9 @@
             class="flex flex-wrap items-center gap-2.5 rounded-2xl border border-borderMuted bg-surfaceRaised p-3"
           >
             <!-- Búsqueda principal -->
-            <label class="flex h-10 min-w-[200px] flex-[1_1_220px] items-center gap-2.5 rounded-xl border border-neutral-200 bg-white px-3 transition-colors focus-within:border-crystalBlue focus-within:ring-2 focus-within:ring-iceBlue/25">
+            <label
+              class="flex h-10 min-w-[200px] flex-[1_1_220px] items-center gap-2.5 rounded-xl border border-neutral-200 bg-white px-3 transition-colors focus-within:border-crystalBlue focus-within:ring-2 focus-within:ring-iceBlue/25"
+            >
               <span class="sr-only">Buscar puesto, empresa o tecnología</span>
               <svg
                 aria-hidden="true"
@@ -453,13 +570,17 @@
                 autocomplete="off"
                 class="w-full min-w-0 bg-transparent text-[13px] text-brandBlack placeholder:text-brandMuted focus:outline-none"
               />
-              <kbd class="rounded border border-neutral-200 bg-surfaceRaised px-1.5 py-0.5 text-[10px] font-medium text-brandMuted">
+              <kbd
+                class="rounded border border-neutral-200 bg-surfaceRaised px-1.5 py-0.5 text-[10px] font-medium text-brandMuted"
+              >
                 /
               </kbd>
             </label>
 
             <!-- Ubicación -->
-            <label class="flex h-10 min-w-[160px] flex-[1_1_170px] items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 transition-colors focus-within:border-crystalBlue focus-within:ring-2 focus-within:ring-iceBlue/25">
+            <label
+              class="flex h-10 min-w-[160px] flex-[1_1_170px] items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 transition-colors focus-within:border-crystalBlue focus-within:ring-2 focus-within:ring-iceBlue/25"
+            >
               <span class="sr-only">Ciudad o país</span>
               <svg
                 aria-hidden="true"
@@ -577,16 +698,31 @@
 
           <!-- Barra de resultados -->
           <div class="flex min-h-[56px] items-center justify-between py-3">
-            <p id="result-count" aria-live="polite" class="text-[13px] text-brandMuted">
+            <p
+              id="result-count"
+              aria-live="polite"
+              class="text-[13px] text-brandMuted"
+            >
               Cargando oportunidades…
             </p>
-            <div class="hidden sm:flex items-center gap-2 text-[12px] text-brandMuted">
-              <span>Ordenar: <strong class="font-semibold text-brandBlack">Estado y empresa</strong></span>
+            <div
+              class="hidden sm:flex items-center gap-2 text-[12px] text-brandMuted"
+            >
+              <span
+                >Ordenar:
+                <strong class="font-semibold text-brandBlack"
+                  >Estado y empresa</strong
+                ></span
+              >
             </div>
           </div>
 
           <!-- Lista de oportunidades renderizada por app.js -->
-          <div id="job-list" aria-live="polite" class="flex flex-col gap-3"></div>
+          <div
+            id="job-list"
+            aria-live="polite"
+            class="flex flex-col gap-3"
+          ></div>
 
           <!-- Estado vacío -->
           <div
@@ -613,11 +749,18 @@
                 <path d="m21 21-4.3-4.3" />
               </svg>
             </span>
-            <h3 class="text-[18px] font-semibold tracking-tight text-brandBlack">
+            <h3
+              class="text-[18px] font-semibold tracking-tight text-brandBlack"
+            >
               No hay oportunidades verificadas disponibles
             </h3>
-            <p class="mx-auto mt-2 max-w-[54ch] text-[13px] leading-relaxed text-brandDark">
-              Las oportunidades se incorporan después de revisar la publicación original y el canal de postulación. Puedes activar “Incluir ejemplos demostrativos” para explorar ejemplos que no son vacantes reales.
+            <p
+              class="mx-auto mt-2 max-w-[54ch] text-[13px] leading-relaxed text-brandDark"
+            >
+              Las oportunidades se incorporan después de revisar la publicación
+              original y el canal de postulación. Puedes activar “Incluir
+              ejemplos demostrativos” para explorar ejemplos que no son vacantes
+              reales.
             </p>
             <button
               type="button"
@@ -637,7 +780,8 @@
               i
             </span>
             <span>
-              Las oportunidades de fuente secundaria pueden haber cambiado. Comprueba el enlace original antes de postular.
+              Las oportunidades de fuente secundaria pueden haber cambiado.
+              Comprueba el enlace original antes de postular.
             </span>
           </p>
         </section>
@@ -654,14 +798,25 @@
               class="mt-2 font-serif text-[34px] font-light leading-[1.1] tracking-tight text-brandBlack sm:text-[44px]"
             >
               Te mostramos las señales<br />
-              <em class="not-italic text-brandDark">para que decidas mejor<span class="text-crystalBlue">.</span></em>
+              <em class="not-italic text-brandDark"
+                >para que decidas mejor<span class="text-crystalBlue"
+                  >.</span
+                ></em
+              >
             </h2>
           </div>
 
           <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <article class="relative flex flex-col justify-between rounded-2xl border border-borderMuted bg-white p-6 transition-colors hover:border-neutral-300">
-              <span class="absolute top-5 right-5 font-mono text-[11px] text-brandMuted">01</span>
-              <div class="grid h-9 w-9 place-items-center rounded-xl border border-iceBlue/40 bg-iceBlue/10 text-arcticBlue">
+            <article
+              class="relative flex flex-col justify-between rounded-2xl border border-borderMuted bg-white p-6 transition-colors hover:border-neutral-300"
+            >
+              <span
+                class="absolute top-5 right-5 font-mono text-[11px] text-brandMuted"
+                >01</span
+              >
+              <div
+                class="grid h-9 w-9 place-items-center rounded-xl border border-iceBlue/40 bg-iceBlue/10 text-arcticBlue"
+              >
                 <svg
                   aria-hidden="true"
                   class="h-4 w-4"
@@ -677,16 +832,25 @@
                 </svg>
               </div>
               <div class="mt-6">
-                <h3 class="text-[15px] font-semibold text-brandBlack">Encaje profesional</h3>
+                <h3 class="text-[15px] font-semibold text-brandBlack">
+                  Encaje profesional
+                </h3>
                 <p class="mt-1.5 text-[13px] leading-relaxed text-brandDark">
                   Funciones y tecnologías que puedes llevar a tu próximo paso.
                 </p>
               </div>
             </article>
 
-            <article class="relative flex flex-col justify-between rounded-2xl border border-borderMuted bg-white p-6 transition-colors hover:border-neutral-300">
-              <span class="absolute top-5 right-5 font-mono text-[11px] text-brandMuted">02</span>
-              <div class="grid h-9 w-9 place-items-center rounded-xl border border-crystalBlue/30 bg-crystalBlue/10 text-arcticBlue">
+            <article
+              class="relative flex flex-col justify-between rounded-2xl border border-borderMuted bg-white p-6 transition-colors hover:border-neutral-300"
+            >
+              <span
+                class="absolute top-5 right-5 font-mono text-[11px] text-brandMuted"
+                >02</span
+              >
+              <div
+                class="grid h-9 w-9 place-items-center rounded-xl border border-crystalBlue/30 bg-crystalBlue/10 text-arcticBlue"
+              >
                 <svg
                   aria-hidden="true"
                   class="h-4 w-4"
@@ -702,16 +866,26 @@
                 </svg>
               </div>
               <div class="mt-6">
-                <h3 class="text-[15px] font-semibold text-brandBlack">Continuidad clara</h3>
+                <h3 class="text-[15px] font-semibold text-brandBlack">
+                  Continuidad clara
+                </h3>
                 <p class="mt-1.5 text-[13px] leading-relaxed text-brandDark">
-                  Plazos, suplencias y renovaciones tal como aparecen en la fuente.
+                  Plazos, suplencias y renovaciones tal como aparecen en la
+                  fuente.
                 </p>
               </div>
             </article>
 
-            <article class="relative flex flex-col justify-between rounded-2xl border border-borderMuted bg-white p-6 transition-colors hover:border-neutral-300">
-              <span class="absolute top-5 right-5 font-mono text-[11px] text-brandMuted">03</span>
-              <div class="grid h-9 w-9 place-items-center rounded-xl border border-arcticBlue/25 bg-arcticBlue/10 text-arcticBlue">
+            <article
+              class="relative flex flex-col justify-between rounded-2xl border border-borderMuted bg-white p-6 transition-colors hover:border-neutral-300"
+            >
+              <span
+                class="absolute top-5 right-5 font-mono text-[11px] text-brandMuted"
+                >03</span
+              >
+              <div
+                class="grid h-9 w-9 place-items-center rounded-xl border border-arcticBlue/25 bg-arcticBlue/10 text-arcticBlue"
+              >
                 <svg
                   aria-hidden="true"
                   class="h-4 w-4"
@@ -727,16 +901,21 @@
                 </svg>
               </div>
               <div class="mt-6">
-                <h3 class="text-[15px] font-semibold text-brandBlack">Origen comprobable</h3>
+                <h3 class="text-[15px] font-semibold text-brandBlack">
+                  Origen comprobable
+                </h3>
                 <p class="mt-1.5 text-[13px] leading-relaxed text-brandDark">
-                  Quién publicó la vacante, dónde postular y cuándo la revisamos.
+                  Quién publicó la vacante, dónde postular y cuándo la
+                  revisamos.
                 </p>
               </div>
             </article>
           </div>
 
           <p class="mt-5 text-[12px] text-brandMuted">
-            Una empresa conocida no convierte automáticamente cada puesto en una buena oportunidad. Una señal de crecimiento tampoco es una garantía de ascenso.
+            Una empresa conocida no convierte automáticamente cada puesto en una
+            buena oportunidad. Una señal de crecimiento tampoco es una garantía
+            de ascenso.
           </p>
         </section>
 
@@ -746,11 +925,17 @@
           class="mb-16 flex flex-col justify-between gap-6 rounded-2xl border border-borderMuted bg-surfaceRaised p-7 md:flex-row md:items-center md:p-8"
         >
           <div>
-            <h2 class="mt-1.5 text-[24px] font-semibold tracking-tight text-brandBlack">
+            <h2
+              class="mt-1.5 text-[24px] font-semibold tracking-tight text-brandBlack"
+            >
               El origen importa<span class="text-crystalBlue">.</span>
             </h2>
-            <p class="mt-2 max-w-[62ch] text-[13px] leading-relaxed text-brandDark">
-              Siempre enlazamos la publicación encontrada. “Verificada” significa que revisamos la fuente indicada, no que podamos garantizar que el puesto siga disponible después de la consulta.
+            <p
+              class="mt-2 max-w-[62ch] text-[13px] leading-relaxed text-brandDark"
+            >
+              Siempre enlazamos la publicación encontrada. “Verificada”
+              significa que revisamos la fuente indicada, no que podamos
+              garantizar que el puesto siga disponible después de la consulta.
             </p>
           </div>
 
@@ -783,7 +968,9 @@
          FOOTER MINIMALISTA
          ===================================================================== -->
     <footer class="w-full border-t border-borderMuted bg-white">
-      <div class="mx-auto flex min-h-[80px] max-w-[1200px] flex-wrap items-center justify-between gap-4 px-6 py-5 text-[12px] text-brandMuted md:px-12">
+      <div
+        class="mx-auto flex min-h-[80px] max-w-[1200px] flex-wrap items-center justify-between gap-4 px-6 py-5 text-[12px] text-brandMuted md:px-12"
+      >
         <a
           href="#inicio"
           class="inline-flex items-center gap-2 text-[14px] font-semibold tracking-tight text-brandBlack"
@@ -794,7 +981,9 @@
           >
             r<span class="text-crystalBlue">/</span>
           </span>
-          <span>ruta<span class="font-normal text-brandMuted">sistemas</span></span>
+          <span
+            >ruta<span class="font-normal text-brandMuted">sistemas</span></span
+          >
         </a>
 
         <span>Hecho para decisiones laborales más informadas.</span>
