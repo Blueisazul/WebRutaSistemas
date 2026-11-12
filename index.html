@@ -50,8 +50,9 @@
       };
     </script>
 
-    <!-- Módulos de aplicación y WebGL2 -->
+    <!-- Módulos de aplicación -->
     <script type="module" src="app.js"></script>
+
     <link rel="stylesheet" href="styles.css" />
 
     <!-- CSS mínimo indispensable para estados dinámicos del Canvas/WebGL y <dialog> -->
@@ -194,10 +195,14 @@
            ===================================================================== -->
       <section
         aria-labelledby="hero-title"
-        class="relative w-full min-h-[88vh] overflow-hidden border-b border-borderMuted bg-gradient-to-b from-white via-white to-surfaceRaised"
+        class="relative h-[88vh] min-h-[560px] w-full overflow-hidden border-b border-borderMuted bg-gradient-to-b from-white via-white to-surfaceRaised"
       >
         <!-- Canvas WebGL2 integrado dentro del Hero -->
-        <script type="module" src="canvas.js"></script>
+        <canvas
+          id="canvas"
+          class="pointer-events-none absolute inset-0 z-0 block h-full w-full"
+          aria-hidden="true"
+        ></canvas>
 
         <!-- Nodos flotantes sincronizados con canvas.js -->
         <div
@@ -1031,5 +1036,7 @@
       aria-live="polite"
       class="pointer-events-none fixed bottom-6 left-1/2 z-50 max-w-[calc(100%-32px)] -translate-x-1/2 translate-y-4 rounded-xl bg-brandBlack px-4 py-2.5 text-[13px] font-medium text-white opacity-0 shadow-lg transition-all duration-200 [&.show]:translate-y-0 [&.show]:opacity-100"
     ></div>
+    <!-- canvas.js no usa módulos: se carga después del DOM y del Hero -->
+    <script src="canvas.js"></script>
   </body>
 </html>

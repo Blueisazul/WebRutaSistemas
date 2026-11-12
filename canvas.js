@@ -1,9 +1,14 @@
 
 const canvas = document.getElementById("canvas");
+
+if (!canvas) {
+    throw new Error("No se encontró el elemento canvas#canvas.");
+}
+
 const gl = canvas.getContext("webgl2", { alpha: true, antialias: true });
 
 if (!gl) {
-    console.error("WebGL2 no compatible.");
+    throw new Error("WebGL2 no es compatible con este navegador.");
 }
 
 // ============================================================================
@@ -115,14 +120,22 @@ const fragmentShaderSource = `#version 300 es
         `;
 function compileShader(type, source) {
     const shader = gl.createShader(type);
+    if (!shader) {
+        throw new Error("No se pudo crear el shader WebGL2.");
+    }
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error(gl.getShaderInfoLog(shader));
+        const info = gl.getShaderInfoLog(shader) || "sin información adicional";
+        gl.deleteShader(shader);
+        throw new Error(`Error al compilar shader WebGL2: ${info}`);
     }
     return shader;
 }
 const program = gl.createProgram();
+if (!program) {
+    throw new Error("No se pudo crear el programa WebGL2.");
+}
 gl.attachShader(
     program,
     compileShader(gl.VERTEX_SHADER, vertexShaderSource),
@@ -132,6 +145,11 @@ gl.attachShader(
     compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource),
 );
 gl.linkProgram(program);
+if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    const info = gl.getProgramInfoLog(program) || "sin información adicional";
+    gl.deleteProgram(program);
+    throw new Error(`Error al enlazar shaders WebGL2: ${info}`);
+}
 gl.useProgram(program);
 const uTwistLoc = gl.getUniformLocation(program, "uTwist");
 const uSpinLoc = gl.getUniformLocation(program, "uSpin");
@@ -190,37 +208,48 @@ bindAttribute(speedData, "aSpeed", 1);
 bindAttribute(seedData, "aSeed", 3);
 
 // ============================================================================
-// 4. PROYECCIÓN Y RESIZE
+// 4. PROYECCIÓN Y RESIZE (Blindado contra dimensiones 0x0)
 // ============================================================================
 let projScaleX = 1;
 let projScaleY = 1;
+
 function updateProjection() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const width = canvas.clientWidth || window.innerWidth;
-    const height = canvas.clientHeight || window.innerHeight;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    const aspect = canvas.width / canvas.height;
-    const fov = (45 * Math.PI) / 180;
-    const near = 0.1;
-    const far = 100.0;
-    const f = 1.0 / Math.tan(fov / 2);
-    const nf = 1 / (near - far);
-    projScaleX = f / aspect;
-    projScaleY = f;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const container = canvas.parentElement;
+  if (!container) return;
 
-    const projMatrix = new Float32Array([
-        projScaleX, 0, 0, 0,
-        0, projScaleY, 0, 0,
-        0, 0, (far + near) * nf, -1,
-        0, 0, 2 * far * near * nf, 0,
-    ]);
+  const { width, height } = container.getBoundingClientRect();
 
-    gl.uniformMatrix4fv(uProjLoc, false, projMatrix);
+  if (width <= 0 || height <= 0) return;
+
+  canvas.width = Math.floor(width * dpr);
+  canvas.height = Math.floor(height * dpr);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+
+  const aspect = canvas.width / canvas.height;
+  const fov = (45 * Math.PI) / 180;
+  const near = 0.1;
+  const far = 100.0;
+  const f = 1.0 / Math.tan(fov / 2);
+  const nf = 1 / (near - far);
+  projScaleX = f / aspect;
+  projScaleY = f;
+
+  const projMatrix = new Float32Array([
+    projScaleX, 0, 0, 0,
+    0, projScaleY, 0, 0,
+    0, 0, (far + near) * nf, -1,
+    0, 0, 2 * far * near * nf, 0,
+  ]);
+
+  gl.uniformMatrix4fv(uProjLoc, false, projMatrix);
 }
 
+// Observa cambios reales de tamaño del Hero (incluyendo cuando Tailwind termina de aplicar clases)
+const resizeObserver = new ResizeObserver(() => updateProjection());
+if (canvas.parentElement) {
+    resizeObserver.observe(canvas.parentElement);
+}
 window.addEventListener("resize", updateProjection);
 updateProjection();
 
@@ -267,8 +296,11 @@ const flowAnchors = [
 ];
 
 function updateFlowNodes(t) {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const container = canvas.parentElement;
+    if (!container) return;
+
+    const { width, height } = container.getBoundingClientRect();
+    if (width <= 0 || height <= 0) return;
 
     for (const node of flowAnchors) {
         if (!node.el) continue;
