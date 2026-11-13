@@ -948,7 +948,8 @@ sin push y sin publicación.
   las versiones locales aprobadas. `canvas.js` también se restauró desde el
   respaldo local aprobado.
 - No quedan rutas sin resolver (`git diff --name-only --diff-filter=U` vacío).
-- La fusión permanece abierta y preparada para revisión; no se creó commit.
+- La fusión quedó preparada para la revisión final de R1-02D; en ese momento aún
+no se había creado el commit.
 
 Antes de fusionar se creó un respaldo fuera del repositorio en
 `c:\Users\sant1\.copilot\session-state\8a5d0ed2-4a5b-4736-91b9-5d677099fdeb\files\r1-02c-backup`,
@@ -987,11 +988,29 @@ integración. La URL pública no se volvió a publicar ni se considera actualiza
 
 ### Estado y siguiente acción
 
-La rama contiene cambios staged de la integración y archivos locales nuevos sin
-seguimiento; no debe limpiarse ni comprometerse automáticamente. El siguiente
-paso es revisión humana del índice de fusión y del diff final. Tras su
-aprobación explícita se podrá crear el commit; después deberá aprobarse por
-separado cualquier push o publicación. R1-03, R1-04 y R1-05 siguen pendientes.
+La rama contenía cambios staged de la integración y archivos locales nuevos sin
+seguimiento; no debía limpiarse ni comprometerse automáticamente. El siguiente
+paso era la revisión humana del índice de fusión y del diff final.
+
+## 54. R1-02D: commit local de integración validado (2026-11-13)
+
+La revisión final confirmó que los archivos nuevos justificados, el índice de
+fusión y las validaciones correspondían al mismo lote. Se creó el commit local
+de fusión `e213327` (`Merge origin/main with approved local catalog changes`)
+en la rama `integration/r1-02c`.
+
+- `main` no fue modificada y el commit no se publicó.
+- No se ejecutó `git push`, no se publicó GitHub Pages y no se cambió la
+  configuración remota.
+- `MERGE_HEAD` quedó eliminado tras completar la fusión y el árbol de trabajo
+  quedó limpio.
+- Los hashes de `index.html`, `styles.css`, `canvas.js`, seed y snapshot
+  permanecen iguales a los aprobados en R1-02C.
+- El stash y el respaldo externo de R1-02C se conservan hasta completar la
+  verificación posterior del commit.
+
+R1-03, R1-04 y R1-05 siguen pendientes. Cualquier push o publicación requiere
+autorización separada y una comprobación actualizada de `origin/main`.
 
 ## 47. R2: ejecución del flujo editorial real bloqueada (2026-11-12)
 
