@@ -672,3 +672,443 @@ La publicación del sitio y la autorización para reutilizar datos de una fuente
 - **Pendientes:** el rediseño ya se integró y publicó, así que no se reabre como trabajo futuro. La comprobación visual con viewport móvil sigue pendiente; el primer piloto real requiere autorización documentada de reutilización y revisión editorial individual.
 
 **Siguiente hito verificable:** hacer una revisión visual del sitio publicado en un viewport móvil representativo; por separado, cuando exista autorización de fuente, curar una sola oportunidad real y medir completitud, frescura y tiempo editorial. No iniciar scraping ni ampliar fuentes antes de ese resultado.
+
+## 41. P17: comprobación responsive y consistencia del release (2026-10-28)
+
+- **Checkout:** `main`, `eb68ef67cbed45d03c88793750d6d6c59662cfec`, limpio y alineado con `origin/main` al inicio y al cierre. No había cambios de interfaz pendientes; no se creó commit.
+- **Build y datos:** `npm run build:css` aprobó con Tailwind CLI 4.3.3. El CSS generado conservó el hash `DD950A86271E12E55452F3EB33EA8AF6FA332C6D02AE54157DDC92FD1E8D07A9`; los hashes de seed y snapshot tampoco cambiaron. El CSS contiene breakpoints hasta 380 px, reglas hasta 680/980/1280 px y `prefers-reduced-motion`.
+- **Pruebas:** 55 pruebas Python, `build_catalog.py --check`, `catalog_quality.py`, `validate_catalog.py` (válido con advertencias esperadas de las demostraciones/no activas), validación de `inbox.example.json`, `node --check app.js`, prueba UI Node, 7 pruebas del artefacto y `git diff --check` aprobaron. La prueba UI confirma raíz/subpath y degradación de errores; no es una prueba visual responsive.
+- **Producción observada:** la página de Pages abrió en el navegador integrado y mostró el estado vacío, cero oportunidades activas verificadas y la opción para incluir demostraciones. El navegador y la hoja de estilos cargaron contenido, pero no se obtuvo respuesta HTTP ni una medida de viewport en esta sesión. El README local describe correctamente Tailwind compilado y sin CDN runtime; la lectura directa del README remoto falló por DNS (`raw.githubusercontent.com`), por lo que la comparación local/remota de ese archivo queda sin confirmar. La consulta de Pages desde PowerShell también falló por DNS; la vista del navegador es evidencia de acceso a la página, no de sincronización exacta de commit/Actions.
+- **Inspección móvil:** no completada. Se intentó utilizar el control de Chrome, que se detuvo por su protección de URL, y Chrome headless no arrancó en el entorno. No se midieron 320–360, 375–390, 768 ni 1280 px y no se afirma revisión visual móvil. No se encontró un defecto responsive demostrado, por lo que no se alteraron estilos por conjetura.
+- **Datos y fuentes:** catálogo observado aún sin oportunidades reales activas; no hubo cambios en seed/snapshot ni activación de fuentes. Las advertencias corresponden a registros demostrativos/históricos y a datos no informados.
+
+**Siguiente hito:** repetir la inspección visual con viewport controlable (p. ej. DevTools o emulación disponible), registrar medidas en 360/390/768/1280 px y corregir solo defectos reproducibles. En paralelo, la primera oportunidad real sigue condicionada a autorización de reutilización y revisión editorial individual.
+
+## 42. P1: consolidación del contrato canónico (2026-11-11)
+
+Esta sección es la referencia vigente de la consolidación P1; las afirmaciones de
+releases anteriores sobre cuatro archivos públicos o suites verdes describen
+ejecuciones históricas y no sustituyen la validación del checkout actual.
+
+- `data/opportunities.seed.json` sigue siendo la fuente editable y
+  `data/opportunities.json` el snapshot generado. No se modifican datos ni esquema.
+- El artefacto Pages contiene exactamente `index.html`, `app.js`, `canvas.js`,
+  `styles.css` y `data/opportunities.json`. `canvas.js` es un recurso local visual;
+  no se cargan Google Fonts, Tailwind Browser CDN ni otros recursos runtime externos.
+- `scripts/validate_candidates.py` acepta `--as-of YYYY-MM-DD` para que las
+  comprobaciones del TTL editorial no dependan del reloj del equipo. Sin ese
+  argumento conserva la fecha civil actual de `America/Lima`.
+- El validador del navegador rechaza timestamps sin zona horaria, fechas civiles
+  inválidas y evidencia por campo duplicada, desconocida, sin timestamp o fuera de
+  hosts HTTPS permitidos. Estas comprobaciones son una barrera de carga; la
+  validación canónica continúa siendo la de Python.
+- `server.py` y `data/opportunities.sqlite3` permanecen como prototipo local
+  legacy, aislado de Pages y sin sincronización automática con el JSON.
+- El siguiente bloque debe ejecutar la suite completa en el checkout actualizado,
+  revisar el diff y decidir explícitamente la reconciliación de la rama local con
+  `origin/main`; esta consolidación no hace commit, push ni despliegue.
+
+## 43. P2: primera fuente real, sin activación (2026-11-11)
+
+P2 comprobó la puerta técnica y documentó una primera candidata privada sin activar
+ingesta, scraping, fuentes ni publicación. El checkout local (`main`, HEAD
+`eb68ef6`) está cinco commits detrás de `origin/main` (`20d2002`) y contiene
+cambios locales más `canvas.js` sin seguimiento; por tanto, la reconciliación queda
+pendiente y no se fuerza durante esta fase.
+
+- La puerta técnica ejecutada en el checkout actual quedó verde: `npm ci` no
+  reportó vulnerabilidades, el CSS compiló, pasaron 55 pruebas Python, los
+  validadores de catálogo/candidatos, `node --check app.js` y la prueba UI Node.
+  `npm ci` solo informó el aviso operativo existente sobre `@parcel/watcher`;
+  no se aprobaron scripts adicionales ni se cambió el manifiesto.
+- SERVIR y FISI permanecen `pending_review`, deshabilitadas y con presupuesto cero.
+  La revisión mantiene separadas consulta manual, automatización, conservación,
+  reutilización pública, atribución y canal de postulación.
+- Canonical es la candidata privada principal por su portal oficial de carreras,
+  roles técnicos y política de trabajo remoto. Sus términos visibles solo
+  demuestran uso personal/educativo/no comercial y no autorizan la automatización,
+  el almacenamiento de metadatos ni la republicación pública por Aurel. La
+  elegibilidad desde Perú debe comprobarse por vacante. El expediente está en
+  `docs/sources/canonical-careers-2026-11-11.md`.
+- El registro de fuentes añade Canonical solo como ficha documental: `enabled:
+  false`, `maxRequestsPerRun: 0`, `minDelayMs: 0`, sin conector de consulta. No se
+  añadieron hosts ATS ni se consultaron endpoints privados.
+
+### Piloto manual condicionado de hasta 10 candidatos
+
+El piloto no empieza hasta obtener autorización suficiente y una decisión humana
+por candidato. La bandeja debe conservar como máximo diez candidatos de muestra,
+sin modificar semilla ni snapshot:
+
+1. registrar empleador y publisher por separado, título, URL de origen, URL de
+   postulación, ubicación, modalidad, elegibilidad para Perú, fecha observada y
+   estado del canal;
+2. enlazar evidencia reciente por cada campo afirmado, con timestamp y host
+   permitido; no copiar descripción completa ni datos personales;
+3. comprobar duplicados por URL/identificador/título normalizado y registrar
+   sustituciones, contratos temporales y fechas de cierre sin inferir vigencia;
+4. revisar manualmente el canal oficial y la autorización aplicable antes de
+   aprobar, rechazar o dejar pendiente cada candidato;
+5. medir únicamente completitud, campos faltantes, duplicados, cierres detectados,
+   tiempo de revisión y solicitudes de retirada; no inventar resultados, scoring o
+   cobertura.
+
+### Bloque humano siguiente
+
+Enviar, solo con autorización del responsable, la consulta preparada a
+`legal@canonical.com` y mantener las consultas SERVIR/FISI sin enviar. La respuesta
+debe confirmar derechos de consulta, automatización, retención, atribución,
+retirada, límites y elegibilidad territorial. Hasta entonces, el bloque seguro es
+resolver autorización documental y revisar la divergencia Git; no ejecutar
+colectores ni convertir la candidata en oportunidad pública.
+
+## 44. P3: primer caso real bloqueado por autorización (2026-11-12)
+
+P3 no se completó porque ninguna fuente tiene condiciones documentadas suficientes
+para conservar y publicar metadatos de una oportunidad individual. Canonical sigue
+siendo una candidata, no una fuente utilizable: no se seleccionó vacante, no se
+creó `inbox.local.json`, no se consultaron endpoints ATS y no se modificaron seed
+ni snapshot. El expediente de ejecución está en
+`docs/sources/p3-first-opportunity-2026-11-12.md`.
+
+- La fuente permanece `pending_review`, `enabled: false` y con presupuesto cero.
+  Se añadió una prueba de regresión que impide su consulta mediante la política
+  fail-closed.
+- No hubo captura, evidencia por campo, revisión editorial ni promoción. No se
+  atribuyó a una persona una decisión sobre una ficha inexistente.
+- Se ejecutó la validación técnica completa, incluyendo la prueba del artefacto
+  Pages y `git diff --check`. Los negativos existentes cubren expiración, TTL,
+  evidencia, publisher, fuentes pendientes, duplicados, hosts no permitidos y
+  no promoción automática.
+- Las métricas editoriales del caso no son medibles porque no hubo oportunidad.
+  Se registró explícitamente `0` duplicados, `0` contradicciones y `0`
+  solicitudes de retirada, sin convertir esa ausencia en una métrica de calidad.
+
+El bloqueo humano exacto es obtener autorización escrita para metadatos mínimos,
+atribución, retención, corrección, retirada, elegibilidad para Perú y canal de
+postulación individual. No hay un siguiente paso técnico desbloqueado mientras
+esa evidencia no exista.
+
+## 45. P4: evaluación OSS y automatización condicionada (2026-11-13)
+
+P4 completó la preparación técnica, pero no la operación: P3 continúa bloqueado
+por falta de autorización escrita para consulta, automatización, conservación,
+atribución, retirada, elegibilidad territorial y republicación. No se instalaron
+Scrapy, changedetection.io, Playwright, pypdf ni Freehire; tampoco se activaron
+fuentes ni se modificaron seed, snapshot o Pages.
+
+- La matriz comparativa y el diseño condicionado están en
+  `docs/architecture/p4-oss-automation-evaluation-2026-11-13.md`.
+- La decisión mínima es preferir un adaptador Python estándar cuando exista una
+  fuente autorizada. Scrapy solo se reevaluará ante complejidad HTML autorizada;
+  changedetection.io no sustituye la bandeja editorial; Playwright queda para
+  pruebas UI; pypdf solo aplica a PDFs autorizados; Freehire queda como
+  referencia por su contrato, coste y límites de redistribución.
+- `npm ci` y `npm run build:css` conservaron el mismo SHA-256 de `styles.css`.
+  El workflow mantiene permisos mínimos, sin cron, colectores ni escritura en
+  `main`.
+
+El siguiente bloque debe resolver autorización documental y la divergencia Git.
+Solo después se puede evaluar un piloto de hasta 10 candidatos en staging
+separado, con presupuesto explícito, revisión humana y promoción manual.
+
+## 51. R1-02: reconciliación controlada del repositorio (2026-11-13)
+
+R1-02 queda **parcial y lista para aprobación**, no integrada. Se verificó el
+checkout real después de actualizar las referencias con `git fetch origin`; no
+se ejecutaron merge, rebase, cherry-pick, commit, push ni operaciones
+destructivas.
+
+- **Estado Git:** `main` en `eb68ef67cbed45d03c88793750d6d6c59662cfec`;
+  `origin/main` en `20d20020d901aba670d8a08ba244994971bf2dfb`; `HEAD` está
+  cinco commits detrás, sin commits locales exclusivos. No hay cambios staged.
+  Hay 19 archivos rastreados modificados y 9 archivos no rastreados relevantes,
+  además de la salida temporal `test-results/` generada por Playwright.
+- **Cambios locales:** abarcan validación, contrato de publicación, servidor
+  local, CSS compilado, UI, documentación y pruebas. Se preservan sin
+  reemplazos. `data/opportunities.seed.json`, `data/opportunities.json` y
+  `data/candidates/` no fueron modificados.
+- **Cambios remotos:** los cinco commits pendientes, del 2026-11-11, solo
+  afectan `index.html`, `styles.css` y `canvas.js`. Esos tres recursos tienen
+  modificaciones concurrentes: el `canvas.js` local no está rastreado y los
+  otros dos tienen cambios locales. La comparación confirma diferencias
+  sustantivas, por lo que la decisión queda **CONFLICTO/PENDIENTE**; no se
+  acepta automáticamente ninguna versión.
+- **Decisiones por grupo:** workflow, scripts de validación, servidor,
+  dependencias de desarrollo y pruebas locales quedan **CONSERVAR**; la nueva
+  suite E2E queda **CONSERVAR** como evidencia reproducible; documentos nuevos
+  quedan **CONSERVAR/PENDIENTE** de selección para commit; UI/CSS/canvas quedan
+  **PENDIENTE** de revisión manual conjunta con la rama remota.
+- **Arquitectura:** ADR-001, Schema 2, seed/snapshot, estados separados,
+  evidencia por campo, publicación estática fail-closed, fuentes deshabilitadas
+  y SQLite local separado permanecen protegidos. No se agregaron dependencias
+  de producción ni conectores, scraping o scoring.
+
+### Validación R1-02
+
+Se ejecutaron y aprobaron `python -m unittest discover -s tests -v` (57),
+`python scripts/build_catalog.py --check`, `python scripts/validate_catalog.py`,
+`python scripts/validate_candidates.py data/candidates/inbox.example.json
+--as-of 2026-10-26`, `node --check app.js`, `node --check canvas.js`,
+`node tests/catalog_ui.test.cjs`, `python scripts/pages_artifact.py --output
+<temporal>`, `npm run test:e2e` (8/8) y `git diff --check`. La validación de
+catálogo conserva las advertencias esperadas de las cinco fichas demostrativas.
+`npm run build:css` termina correctamente, pero cambió `styles.css`; esto se
+registra como diferencia de reproducibilidad pendiente, no como resolución
+automática de un conflicto generado.
+
+La URL pública respondió `200` para la página, pero `canvas.js` respondió
+`404` y la marca temporal del HTML es anterior al checkout actual. Por tanto,
+Pages sigue desactualizado y no se declara publicación correcta.
+
+### Riesgos y siguiente acción
+
+El principal riesgo es integrar una versión remota de UI/CSS/canvas que
+reemplace decisiones locales o rompa el artefacto Pages. También queda por
+decidir si los documentos y el runner E2E pasan a formar parte del próximo
+commit, y por corregir/verificar la reproducibilidad byte a byte de `styles.css`.
+La integración segura requiere una rama o copia de trabajo preservada, revisión
+por archivo de los tres recursos concurrentes, pruebas completas posteriores y
+aprobación explícita antes de integrar o publicar. R1-03, R1-04 y R1-05 no se
+inician en este bloque.
+
+## 52. R1-02B: propuesta de resolución UI, CSS y WebGL (2026-11-13)
+
+R1-02B queda **completada como análisis técnico y pendiente de aprobación para
+aplicar cambios**. La comparación se realizó entre el checkout local y
+`origin/main` sin reemplazar ninguno de los tres archivos ni integrar commits.
+
+### Comparación y propuesta
+
+| Archivo | Diferencia relevante | Propuesta | Riesgo |
+|---|---|---|---|
+| `index.html` | La versión local conserva el catálogo completo, comparador y siete IDs de comparación (`compare-*`) consumidos por `app.js`; la remota no los contiene. La remota agrega Google Fonts y Tailwind CDN; la local usa exclusivamente recursos locales y mantiene `/canvas.js`. | **Conservar la versión local** como base. No incorporar la estructura remota; solo revisar visualmente cualquier detalle de marca que se quiera recuperar. | Decisión visual pendiente; incorporar la versión remota eliminaría contratos del comparador y reintroduciría dependencias externas. |
+| `styles.css` | La versión local es la salida compilada de `src/input.css` + `src/site.css` con Tailwind CLI 4.3.3. La remota es sustantivamente distinta y no corresponde al pipeline local actual. | **Conservar la salida local recompilada** y no copiar CSS remoto. | La salida debe regenerarse desde las fuentes; no editarla manualmente. |
+| `canvas.js` | Ambas versiones comparten shaders y 14.000 partículas. La local añade fallback sin WebGL2, `prefers-reduced-motion`, cancelación de `requestAnimationFrame`, `pagehide` y desconexión del observer. La remota lanza excepciones si falta canvas/WebGL2 y mantiene un bucle permanente. | **Conservar la versión local**. Es más tolerante y no bloquea la experiencia principal cuando WebGL2 no existe. | No se ha probado compilación real de shaders en un navegador con WebGL2; queda como validación posterior. |
+
+La compatibilidad cruzada local queda alineada: `index.html` declara
+`canvas#canvas`, `anchor-0` a `anchor-2`, `app.js`, `canvas.js`, `styles.css` y
+el catálogo relativo; `app.js` conserva sus IDs de filtros, detalle y
+comparador. La versión remota no contiene los IDs del comparador y no es
+compatible con el contrato completo actual.
+
+### Reproducibilidad CSS
+
+Se preservó el árbol original en una copia completa temporal del proyecto y se
+ejecutó `npm run build:css` dos veces, usando el mismo `node_modules` y las
+mismas fuentes. Resultado:
+
+- SHA-256 antes: `AB0088064235C30BDF1D6DC1E79DC230CFFA89703DFB75FE61F2E4DCB0C121FA`.
+- SHA-256 después del primer build:
+  `AB0088064235C30BDF1D6DC1E79DC230CFFA89703DFB75FE61F2E4DCB0C121FA`.
+- SHA-256 después del segundo build:
+  `AB0088064235C30BDF1D6DC1E79DC230CFFA89703DFB75FE61F2E4DCB0C121FA`.
+- Resultado: **idéntico y reproducible**.
+
+La discrepancia registrada anteriormente provino de una comprobación con una
+copia incompleta que modificaba el conjunto de archivos descubierto por
+Tailwind. No representa el build del repositorio completo y no requiere cambiar
+`styles.css`.
+
+### Validación específica
+
+- `python -m unittest tests.test_static_contract tests.test_pages_artifact -v`:
+  16 pruebas aprobadas.
+- `node --check app.js`, `node --check canvas.js` y `git diff --check`:
+  aprobados.
+- `npm run test:e2e`: 8 flujos aprobados en Chromium de escritorio y móvil.
+- No se modificaron `index.html`, `styles.css`, `canvas.js`, la semilla, el
+  snapshot ni el workflow durante este bloque.
+
+### Decisiones pendientes y siguiente procedimiento
+
+La decisión técnica propuesta es conservar las tres versiones locales. Requiere
+aprobación humana para aplicarla en una futura integración, especialmente para
+confirmar la dirección visual de la marca y aceptar que no se incorporen las
+tipografías/CDN remotas. Después de aprobar, se debe preservar una copia o rama
+de trabajo, aplicar la selección local, ejecutar la suite completa, generar y
+validar el artefacto Pages, y revisar el diff antes de cualquier commit o push.
+R1-02 no se marca como completada hasta que esa integración sea aprobada y
+verificada.
+
+## 53. R1-02C: integración controlada sin commit (2026-11-13)
+
+R1-02C queda **PARCIAL, validada y lista para revisión humana**. La integración
+se realizó en la rama `integration/r1-02c`, sin modificar `main`, sin commit,
+sin push y sin publicación.
+
+### Integración Git
+
+- Rama de integración: `integration/r1-02c`.
+- HEAD inicial y actual: `eb68ef67cbed45d03c88793750d6d6c59662cfec`.
+- `MERGE_HEAD`: `20d20020d901aba670d8a08ba244994971bf2dfb`.
+- Commits remotos integrados en el índice de la fusión: `3539339`,
+  `8eb015b`, `554a7ec`, `137206c` y `20d2002`.
+- Los conflictos de `index.html` y `styles.css` se resolvieron conservando
+  las versiones locales aprobadas. `canvas.js` también se restauró desde el
+  respaldo local aprobado.
+- No quedan rutas sin resolver (`git diff --name-only --diff-filter=U` vacío).
+- La fusión permanece abierta y preparada para revisión; no se creó commit.
+
+Antes de fusionar se creó un respaldo fuera del repositorio en
+`c:\Users\sant1\.copilot\session-state\8a5d0ed2-4a5b-4736-91b9-5d677099fdeb\files\r1-02c-backup`,
+con parches staged/unstaged, archivos sin seguimiento, el SQLite ignorado,
+estado inicial y manifiesto SHA-256. El stash
+`R1-02C local approved work backup` se conserva como segunda protección.
+
+### Integridad arquitectónica
+
+- `index.html`, `styles.css` y `canvas.js` conservan los hashes aprobados:
+  `AC304875...03CBB`, `AB008806...121FA` y `E353C7F8...31610`,
+  respectivamente.
+- `data/opportunities.seed.json` mantiene
+  `772F576E...EAF9C5D6`; `data/opportunities.json` mantiene
+  `13F91B90...BBF80B05`.
+- ADR-001, Schema 2, validadores, workflow fail-closed, fuentes deshabilitadas
+  y la separación SQLite/JSON permanecen intactos.
+- No se añadieron dependencias. Se conservan Tailwind CLI 4.3.3 y Playwright.
+
+### Validación R1-02C
+
+| Comprobación | Resultado |
+|---|---|
+| `npm run build:css` | Aprobado; hash antes/después idéntico: `AB008806...121FA` |
+| `python -m unittest discover -s tests -v` | 57 pruebas aprobadas |
+| Validación de catálogo y candidatos | Aprobada; cinco demostraciones esperadas, 0 candidatos |
+| `node --check app.js` y `node --check canvas.js` | Aprobadas |
+| `node tests/catalog_ui.test.cjs` | Aprobada |
+| `npm run test:e2e` | 8/8 aprobadas en escritorio y móvil |
+| `python scripts/pages_artifact.py` | Artefacto válido con cinco archivos |
+| `git diff --check` | Aprobado |
+
+El artefacto local contiene `index.html`, `app.js`, `canvas.js`, `styles.css` y
+`data/opportunities.json`. No se modificaron seed ni snapshot para facilitar la
+integración. La URL pública no se volvió a publicar ni se considera actualizada.
+
+### Estado y siguiente acción
+
+La rama contiene cambios staged de la integración y archivos locales nuevos sin
+seguimiento; no debe limpiarse ni comprometerse automáticamente. El siguiente
+paso es revisión humana del índice de fusión y del diff final. Tras su
+aprobación explícita se podrá crear el commit; después deberá aprobarse por
+separado cualquier push o publicación. R1-03, R1-04 y R1-05 siguen pendientes.
+
+## 47. R2: ejecución del flujo editorial real bloqueada (2026-11-12)
+
+La ejecución de R2 confirmó el bloqueo externo sin modificar `data/opportunities.seed.json`,
+`data/opportunities.json` ni activar fuentes. La evidencia y la matriz de tareas están
+en [P3 — primer caso real](docs/sources/p3-first-opportunity-2026-11-12.md).
+
+- **RS-R2-01:** selección corta completada; ninguna fuente está aprobada. Canonical
+  queda como propuesta para consulta humana por su portal corporativo y roles técnicos,
+  no como fuente habilitada.
+- **RS-R2-02:** contrato schema 2 y validadores existentes son suficientes; no se creó
+  un modelo paralelo ni una ficha ficticia.
+- **RS-R2-03 a RS-R2-06:** bloqueadas o parciales porque no existe autorización para
+  conservar/republicar metadatos, candidato individual verificable ni aprobación humana.
+- **RS-R2-07:** las validaciones del catálogo demostrativo siguen pasando; no se generó
+  una oportunidad real.
+- **RS-R2-08:** bloqueada; no existe publicación nueva que verificar.
+
+El desbloqueo es humano: enviar una consulta a la fuente propuesta y obtener respuesta
+escrita sobre consulta, metadatos, atribución, retención, retirada, límites y
+elegibilidad territorial. No enviar correos, crear candidatos reales, consultar
+endpoints ni modificar el catálogo hasta que esa autorización exista.
+
+## 46. P5: evaluación profesional explicable (2026-11-12)
+
+P5 añade una lectura derivada y local sobre el schema 2 existente, sin modificar
+la semilla, el snapshot, las fuentes ni los colectores. El detalle separa
+hechos publicados, interpretación editorial, límites y evidencia; las señales
+no producen score, ranking, estrellas, predicción de contratación ni ganador
+universal. La evaluación del empleador permanece separada de la oportunidad y
+declara sus límites cuando no existe evidencia institucional específica.
+
+- El comparador permite seleccionar dos fichas visibles, conserva “No
+  informado” para ausencias y vive únicamente en memoria del navegador.
+- Las fichas demostrativas se mantienen identificadas y no habilitan
+  postulación. No se presenta ninguna como oportunidad real activa.
+- El modelo, la política de preferencias locales, los requisitos de rutas
+  futuras y el protocolo de validación con usuarios están en
+  `docs/product/p5-evaluacion-profesional-y-validacion.md`.
+- La validación con usuarios sigue pendiente. No se contactaron usuarios ni se
+  puede afirmar que el diferencial profesional esté validado.
+
+El siguiente bloque recomendado es resolver autorización documental y la
+divergencia Git; después, ejecutar una prueba moderada con usuarios sobre
+fichas verificables antes de considerar cualquier recomendación de producción.
+
+## 48. R3: MVP funcional y validación técnica (2026-11-12)
+
+R3 queda técnicamente implementada con fixtures demostrativos, pero no es una
+validación plena del MVP porque R2 no aporta oportunidades reales autorizadas.
+
+- **RS-R3-01 a RS-R3-04:** filtros, ficha, comparación y estados vacíos quedaron
+  cubiertos por la lógica existente, pruebas de contrato y E2E; las fichas
+  demostrativas solo aparecen mediante activación explícita.
+- **RS-R3-05:** el flujo principal se comprobó en Chromium de escritorio y
+  viewport móvil, incluyendo ausencia de desbordamiento horizontal, diálogo de
+  detalle y foco de búsqueda por teclado.
+- **RS-R3-06:** se añadió Playwright como dependencia de desarrollo, configuración
+  reproducible y suite `tests/e2e/catalog.spec.cjs` para carga, filtros,
+  limpieza, estado vacío, detalle, comparación, teclado y runtime sin errores.
+  La ejecución se serializa porque el servidor local de fixture no debe
+  competir por el puerto compartido.
+- **RS-R3-07:** se consolidó el guion de validación en
+  `docs/product/p5-evaluacion-profesional-y-validacion.md`; no se contactaron
+  usuarios ni se inventaron resultados. El valor profesional queda pendiente
+  hasta disponer de oportunidades reales.
+
+Validaciones ejecutadas: `npm ci`, instalación de Chromium, `npm run test:e2e`,
+suite Python, validadores de catálogo, `node --check`, pruebas UI Node,
+`git diff --check` y artefacto Pages. Los comandos E2E usan explícitamente
+fixtures demostrativos y no escriben la semilla ni el snapshot.
+
+## 49. R4: evaluación de fuente y adaptador condicionado (2026-11-12)
+
+R4 no implementa extracción operativa porque ninguna fuente cumple todavía las
+condiciones de consulta, conservación y republicación. La evaluación concreta de
+Canonical y el contrato mínimo condicionado están en
+[canonical-careers-2026-11-11.md](docs/sources/canonical-careers-2026-11-11.md).
+
+- `canonical-careers` permanece `pending_review`, `enabled: false`,
+  `automatedAccessStatus: pending_review`, `publicReuseStatus: pending_review`,
+  `rightsReview: pending` y con presupuesto de solicitudes cero.
+- SERVIR, FISI-UNMSM, Greenhouse y Lever siguen igualmente fuera de ejecución;
+  no se seleccionó una segunda fuente ni se consultaron vacantes, APIs o ATS.
+- El registro fail-closed y `collector/refresh_catalog.py` impiden fetch o
+  publicación cuando falta decisión, autorización técnica o derechos de uso.
+- No se modificaron `data/opportunities.seed.json`,
+  `data/opportunities.json` ni `data/candidates/`. No existe candidato real,
+  evidencia individual ni aprobación humana que transferir.
+
+RS-R4-E01 queda **bloqueada por autorización externa**. El primer incremento de
+RS-R4-E02 queda **pendiente**, no implementado: solo podrá comenzar después de
+recibir autorización escrita, definir límites y obtener aprobación humana de una
+ficha concreta. La siguiente acción no es técnica: una persona responsable debe
+resolver la consulta preparada con Canonical o seleccionar una fuente con
+condiciones equivalentes documentadas.
+
+## 50. RS-R4-00: baseline reconciliada (2026-11-12)
+
+La ejecución de RS-R4-00 se realizó sobre el checkout actual, sin fast-forward ni
+otra reconciliación destructiva:
+
+- Rama `main`, `HEAD` `eb68ef67cbed45d03c88793750d6d6c59662cfec`.
+- `origin` está accesible y apunta a `Blueisazul/WebRutaSistemas`.
+- La rama local no tiene commits exclusivos y está **5 commits detrás** de
+  `origin/main` (`0 5` en `HEAD...origin/main`).
+- El árbol tiene cambios locales sin commit y archivos no rastreados; por ello
+  no se integró `origin/main`. No hay cambios staged.
+- `npm ci` y `npm run build:css` pasaron; la salida CSS fue idéntica antes y
+  después del build.
+- Pasaron la suite Python, validadores de catálogo/candidatos, comprobaciones
+  JavaScript, pruebas UI, E2E, artefacto Pages y `git diff --check`.
+- La semilla, el snapshot, la bandeja de candidatos y el registro de fuentes no
+  se alteraron para simular una oportunidad real.
+
+Los únicos cambios de RS-R4-00 son la corrección de referencias de marca
+obsoletas en documentos, la actualización de continuidad en `README.md` y este
+registro. La divergencia remota requiere una decisión humana posterior sobre
+integración/revisión de los cambios locales; no es una acción segura dentro de
+este bloque.

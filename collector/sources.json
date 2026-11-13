@@ -148,6 +148,38 @@
       "minDelayMs": 0,
       "retainRawHtml": false,
       "retainFullDescription": false
+    },
+    {
+      "id": "canonical-careers",
+      "kind": "employer_site",
+      "connector": "manual-review",
+      "enabled": false,
+      "decision": "pending_review",
+      "manualAccessStatus": "public_page_documented",
+      "manualReviewStatus": "pending_review",
+      "automatedAccessStatus": "pending_review",
+      "publicReuseStatus": "pending_review",
+      "reviewedAt": "2026-11-11",
+      "officialUrl": "https://canonical.com/careers",
+      "entity": "Canonical",
+      "accessMechanism": "Portal corporativo público; no se documentó API/feed ni permiso de automatización o republicación",
+      "contactEmail": "legal@canonical.com",
+      "allowedHosts": ["canonical.com"],
+      "termsReview": "pending",
+      "robotsReview": "pending",
+      "rightsReview": "pending",
+      "purpose": "Evaluar consulta manual de oportunidades técnicas y remotas; sin extracción habilitada",
+      "maxRequestsPerRun": 0,
+      "minDelayMs": 0,
+      "retainRawHtml": false,
+      "retainFullDescription": false,
+      "evidence": [
+        "https://canonical.com/careers",
+        "https://canonical.com/careers/all",
+        "https://canonical.com/careers/company-culture/remote-work",
+        "https://canonical.com/legal/terms",
+        "https://canonical.com/legal/data-privacy"
+      ]
     }
   ]
 }

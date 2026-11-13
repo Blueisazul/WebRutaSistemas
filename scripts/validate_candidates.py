@@ -187,6 +187,7 @@ def validate_payload(payload: object, *, sources: dict, today: date) -> tuple[li
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("path", nargs="?", type=Path, default=DEFAULT_INBOX)
+    parser.add_argument("--as-of", help="fecha civil Lima YYYY-MM-DD para validación reproducible")
     args = parser.parse_args(argv)
     if not args.path.exists():
         print(f"No existe {args.path}. Copia data/candidates/inbox.example.json a inbox.local.json para iniciar.", file=sys.stderr)
@@ -197,8 +198,12 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, json.JSONDecodeError, ValueError) as error:
         print(f"No se pudo validar la bandeja editorial: {error}", file=sys.stderr)
         return 1
-    lima_tz = timezone(timedelta(hours=-5))
-    errors, warnings = validate_payload(payload, sources=sources, today=datetime.now(lima_tz).date())
+    try:
+        today = date.fromisoformat(args.as_of) if args.as_of else datetime.now(timezone(timedelta(hours=-5))).date()
+    except ValueError:
+        print("Error de validación: --as-of debe usar YYYY-MM-DD", file=sys.stderr)
+        return 1
+    errors, warnings = validate_payload(payload, sources=sources, today=today)
     for warning in warnings:
         print(f"ADVERTENCIA: {warning}")
     for error in errors:

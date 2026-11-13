@@ -20,6 +20,7 @@ from catalog_quality import LIMA_TZ, load_json, validate_payload
 PUBLIC_FILES = (
     Path("index.html"),
     Path("app.js"),
+    Path("canvas.js"),
     Path("styles.css"),
     Path("data/opportunities.json"),
 )
@@ -67,8 +68,8 @@ def validate_artifact(repo_root: Path, artifact_dir: Path) -> None:
     parser.feed(html)
     if parser.stylesheets != ["styles.css"]:
         raise ValueError("index.html debe referenciar exactamente styles.css como recurso local")
-    if parser.scripts != ["app.js"]:
-        raise ValueError("index.html debe referenciar exactamente app.js como recurso local")
+    if parser.scripts != ["app.js", "canvas.js"]:
+        raise ValueError("index.html debe referenciar exactamente app.js y canvas.js como recursos locales")
     for resource in (*parser.stylesheets, *parser.scripts):
         resolved = urlsplit(urljoin(PAGES_BASE, resource))
         if resolved.path != f"/WebRutaSistemas/{resource}":

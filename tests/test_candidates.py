@@ -155,7 +155,7 @@ class EditorialCandidateTests(unittest.TestCase):
             inbox_path = Path(directory) / "inbox.json"
             inbox_path.write_text(json.dumps({"schemaVersion": 1, "candidates": [candidate()]}), encoding="utf-8")
             with patch("sys.stdout"):
-                code = main([str(inbox_path)])
+                code = main([str(inbox_path), "--as-of", "2026-10-26"])
         self.assertEqual(code, 0)
         self.assertEqual(seed.read_bytes(), before)
         self.assertEqual(snapshot.read_bytes(), snapshot_before)
@@ -190,7 +190,7 @@ class EditorialCandidateTests(unittest.TestCase):
             inbox_path = Path(directory) / "approved-inbox.json"
             inbox_path.write_text(json.dumps({"schemaVersion": 1, "candidates": [item]}), encoding="utf-8")
             with patch("validate_candidates.load_source_registry", return_value=sources), patch("sys.stdout"):
-                code = main([str(inbox_path)])
+                code = main([str(inbox_path), "--as-of", "2026-10-26"])
         self.assertEqual(code, 0)
         self.assertEqual(seed.read_bytes(), seed_before)
         self.assertEqual(snapshot.read_bytes(), snapshot_before)

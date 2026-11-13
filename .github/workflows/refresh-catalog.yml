@@ -42,6 +42,7 @@ jobs:
         run: |
           npm ci
           npm run build:css
+          npx playwright install --with-deps chromium
       - name: Run catalog and state tests
         run: python -m unittest discover -s tests -v
       - name: Validate canonical source and generated snapshot
@@ -53,6 +54,8 @@ jobs:
         run: node --check app.js
       - name: Exercise public catalog filtering
         run: node tests/catalog_ui.test.cjs
+      - name: Exercise browser flows
+        run: npm run test:e2e
 
   publish:
     needs: validate

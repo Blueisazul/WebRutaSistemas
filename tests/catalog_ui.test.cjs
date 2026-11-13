@@ -34,6 +34,9 @@ const dateStart = source.indexOf('function isCivilDate(value) {');
 assert.ok(dateStart >= 0 && validatorStart > dateStart, 'civil date validator must remain identifiable');
 const validators = source.slice(dateStart, statesStart) + source.slice(safeUrlStart, initialsStart);
 const stateFunction = source.slice(stateFunctionStart, escapeStart);
+const evaluationStart = source.indexOf('function knownValue(value) {');
+const evaluationEnd = source.indexOf('\nfunction renderSignals(job)', evaluationStart);
+assert.ok(evaluationStart >= 0 && evaluationEnd > evaluationStart, 'professional evaluation functions must remain identifiable');
 const normalizedStart = source.indexOf('function normalized(value) {');
 const viewStart = source.indexOf('function getVisibleJobs() {');
 const viewEnd = source.indexOf('\nfunction updateCatalogView()', viewStart);
@@ -92,6 +95,19 @@ vm.runInContext(`${source.slice(safeUrlStart, initialsStart)}\n${stateFunction}\
 }));
 assert.equal(stateContext.result.publicationStatus, 'unconfirmed', 'incomplete active snapshot is degraded before rendering');
 
+const evaluationContext = vm.createContext({
+  currentStates: () => ({ opportunityStatus: 'open', verificationStatus: 'verified', publicationStatus: 'active' }),
+  result: null,
+});
+vm.runInContext(`${evaluationStart >= 0 ? source.slice(evaluationStart, evaluationEnd) : ''}\nresult = evaluationSignals(job);`, Object.assign(evaluationContext, {
+  job: { salary: 'No publicado', mode: 'Remoto', eligibility: 'Global; confirmar contratación desde Perú' },
+}));
+const missingSalarySignals = JSON.parse(JSON.stringify(evaluationContext.result));
+assert.equal(missingSalarySignals.find((signal) => signal.label === 'Compensación').status, 'Información insuficiente', 'missing salary stays unknown rather than becoming zero');
+assert.match(missingSalarySignals.find((signal) => signal.label === 'Modalidad y elegibilidad').limit, /Remoto no demuestra/, 'remote work without explicit Peru eligibility keeps its limitation');
+vm.runInContext('result = evaluationSignals({ mode: "Remoto", eligibility: "Presencial únicamente" });', evaluationContext);
+assert.equal(JSON.parse(JSON.stringify(evaluationContext.result)).find((signal) => signal.label === 'Modalidad y elegibilidad').status, 'Contradicción documentada', 'contradictory conditions are not treated as favorable');
+
 const payloadContext = vm.createContext({
   payload: {
     schemaVersion: 2, verificationTtlDays: 7, timezone: 'America/Lima', sourceNote: 'Fixture', generatedAt: '2026-10-26T12:00:00Z',
@@ -108,6 +124,8 @@ payloadContext.payload = JSON.parse(fs.readFileSync(path.join(root, 'data/opport
 vm.runInContext('result = isValidCatalogPayload(payload);', payloadContext);
 assert.equal(payloadContext.result, true, 'checked-in snapshot satisfies the browser runtime contract');
 for (const corrupt of [
+  { ...payloadContext.payload, opportunities: [{ ...payloadContext.payload.opportunities[0], lastVerifiedAt: '2026-10-26T12:00:00' }] },
+  { ...payloadContext.payload, opportunities: [{ ...payloadContext.payload.opportunities[0], fieldEvidence: [{ field: 'title', url: 'https://jobs.example.test/1', observedAt: '2026-10-26T12:00:00' }] }] },
   { ...payloadContext.payload, schemaVersion: 1 },
   { ...payloadContext.payload, opportunities: [] },
   { ...payloadContext.payload, opportunities: [null] },

@@ -1,6 +1,6 @@
 # Seguimiento de autorización de fuentes
 
-**Estado al 2026-10-26:** borradores preparados, no enviados. Ninguna fuente está autorizada para extracción automática o republicación por este registro. No usar correos ni formularios en nombre del usuario sin una instrucción posterior.
+**Estado al 2026-11-11:** borradores preparados, no enviados. Ninguna fuente está autorizada para extracción automática o republicación por este registro. No usar correos ni formularios en nombre del usuario sin una instrucción posterior.
 
 ## Evidencia y contactos oficiales
 
@@ -16,6 +16,13 @@
 - Fuente: [portal oficial FISI](https://sistemas.unmsm.edu.pe/) y [sección Oportunidad Laboral](https://sistemas.unmsm.edu.pe/site/noticias/38-oportunidad-laboral).
 - El [directorio institucional de FISI](https://sistemas.unmsm.edu.pe/posgrado/directorio/) identifica `decanato.fisi@unmsm.edu.pe` como correo del Decanato y `mesadepartes.fisi@unmsm.edu.pe` como Mesa de Partes. Contacto sugerido para la consulta: Decanato; Mesa de Partes queda como canal institucional alterno si no existe otro canal aplicable.
 - El sitio muestra anuncios de empleadores externos y oportunidades institucionales. La autoridad del contenido y del canal de postulación debe evaluarse por cada ficha; no asumir que FISI es el empleador.
+
+### Canonical Careers
+
+- Fuente: [portal oficial de carreras](https://canonical.com/careers), [roles abiertos](https://canonical.com/careers/all) y [política de trabajo remoto](https://canonical.com/careers/company-culture/remote-work).
+- Los [términos del sitio](https://canonical.com/legal/terms) limitan el uso visible del contenido a fines personales, educativos y no comerciales, conservando avisos. No acreditan extracción automatizada ni republicación pública en Ruta Sistemas.
+- Contacto jurídico publicado: `legal@canonical.com`. El expediente detallado está en [canonical-careers-2026-11-11.md](canonical-careers-2026-11-11.md).
+- Estado: `pending_review`, deshabilitada, presupuesto cero. La candidata es relevante por roles de ingeniería y trabajo remoto, pero la elegibilidad para Perú y los derechos de uso deben confirmarse por escrito.
 
 ## Borrador para SERVIR
 
@@ -67,6 +74,7 @@
 |---|---|---|---|---|
 | Talento Perú / SERVIR | `talentoperu@servir.gob.pe`; página de campaña oficial | Preparado; no enviado | Pendiente | `pending_review` |
 | FISI / UNMSM | `decanato.fisi@unmsm.edu.pe`; directorio oficial | Preparado; no enviado | Pendiente | `pending_review` |
+| Canonical Careers | `legal@canonical.com`; términos oficiales | Preparado en expediente; no enviado | Pendiente | `pending_review` |
 
 ### Criterios para reabrir la decisión
 

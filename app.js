@@ -6,6 +6,12 @@ const count = document.querySelector('#result-count');
 const empty = document.querySelector('#empty-state');
 const dialog = document.querySelector('#job-dialog');
 const dialogContent = document.querySelector('#dialog-content');
+const compareDialog = document.querySelector('#compare-dialog');
+const compareContent = document.querySelector('#compare-content');
+const comparePanel = document.querySelector('#compare-panel');
+const compareSummary = document.querySelector('#compare-summary');
+const compareOpen = document.querySelector('#compare-open');
+const compareClear = document.querySelector('#compare-clear');
 const filters = {
   query: document.querySelector('#query'),
   location: document.querySelector('#location'),
@@ -20,6 +26,7 @@ const filters = {
 };
 let toastTimer;
 let catalogLoadError = false;
+let compareIds = [];
 
 function limaDateString(date = new Date()) {
   const parts = new Intl.DateTimeFormat('en-CA', {
@@ -37,6 +44,11 @@ function isCivilDate(value) {
   return !Number.isNaN(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === value;
 }
 
+function isTimestamp(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return false;
+  return !Number.isNaN(new Date(value).valueOf());
+}
+
 function isValidCatalogPayload(payload) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)
     || payload.schemaVersion !== 2
@@ -44,9 +56,7 @@ function isValidCatalogPayload(payload) {
     || typeof payload.sourceNote !== 'string'
     || !Number.isInteger(payload.verificationTtlDays)
     || payload.verificationTtlDays < 1 || payload.verificationTtlDays > 30
-    || typeof payload.generatedAt !== 'string'
-    || !/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(payload.generatedAt)
-    || Number.isNaN(new Date(payload.generatedAt).valueOf())
+    || !isTimestamp(payload.generatedAt)
     || !Array.isArray(payload.opportunities) || payload.opportunities.length === 0) return false;
   const kinds = new Set(['demonstration', 'curated', 'imported_unreviewed']);
   const opportunityStates = new Set(['open', 'closed', 'expired', 'unknown']);
@@ -71,8 +81,37 @@ function isValidCatalogPayload(payload) {
       if (!application || !job.allowedHosts.includes(new URL(application).hostname.toLowerCase())) return false;
     }
     if (job.deadline !== null && job.deadline !== undefined && !isCivilDate(job.deadline)) return false;
-    if (job.fieldEvidence !== undefined
-      && (!Array.isArray(job.fieldEvidence) || job.fieldEvidence.some((entry) => !entry || typeof entry !== 'object' || Array.isArray(entry)))) return false;
+    for (const field of ['lastVerifiedAt', 'editorialDecision?.decidedAt']) {
+      const value = field === 'lastVerifiedAt' ? job.lastVerifiedAt : job.editorialDecision?.decidedAt;
+      if (value !== undefined && value !== null && value !== '' && !isTimestamp(value)) return false;
+    }
+    if (job.lastCheckedDate !== undefined && job.lastCheckedDate !== null && job.lastCheckedDate !== '' && !isCivilDate(job.lastCheckedDate)) return false;
+    if (job.verificationEvidence !== undefined) {
+      if (!job.verificationEvidence || typeof job.verificationEvidence !== 'object' || Array.isArray(job.verificationEvidence)) return false;
+      if (job.verificationEvidence.observedAt !== undefined && !isTimestamp(job.verificationEvidence.observedAt)) return false;
+      if (job.verificationEvidence.url !== undefined
+        && (!safeHttpsUrl(job.verificationEvidence.url)
+          || !job.allowedHosts.includes(new URL(safeHttpsUrl(job.verificationEvidence.url)).hostname.toLowerCase()))) return false;
+    }
+    if (job.fieldEvidence !== undefined) {
+      const evidenceFields = new Set([
+        'employer', 'publisher', 'title', 'sourceUrl', 'applyUrl', 'publishedAt', 'deadline',
+        'location', 'mode', 'salary', 'benefits', 'contractType', 'duration', 'requirements',
+        'skills', 'training', 'tasks', 'eligibility', 'sector', 'family', 'level', 'kind',
+        'growth', 'continuity', 'risk',
+      ]);
+      if (!Array.isArray(job.fieldEvidence)) return false;
+      const seenFields = new Set();
+      if (job.fieldEvidence.some((entry) => {
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)
+          || !evidenceFields.has(entry.field) || seenFields.has(entry.field)
+          || !isTimestamp(entry.observedAt)) return true;
+        const evidenceUrl = safeHttpsUrl(entry.url);
+        if (!evidenceUrl || !job.allowedHosts.includes(new URL(evidenceUrl).hostname.toLowerCase())) return true;
+        seenFields.add(entry.field);
+        return false;
+      })) return false;
+    }
     return true;
   });
 }
@@ -172,6 +211,7 @@ function modeTag(job) {
 function renderCard(job) {
   const state = currentStates(job);
   const id = escapeHTML(job.id);
+  const isCompared = compareIds.includes(job.id);
   const targetClass = job.sector === 'Sector público' ? 'public' : (job.sector === 'Banca y finanzas' ? 'bank' : '');
   const salaryKnown = job.salary && !/no publicado|no especificado/i.test(job.salary);
   const salary = salaryKnown ? escapeHTML(job.salary) : 'No publicado';
@@ -189,8 +229,171 @@ function renderCard(job) {
       </div>
     </div>
     <div class="job-fit"><strong>${state.publicationStatus === 'historical' || state.opportunityStatus === 'expired' ? 'No disponible para postular' : 'Vigencia no confirmada'}</strong><span>${escapeHTML(job.growth || '')}</span></div>
-    <div class="job-meta"> <strong class="salary ${salary === 'No publicado' ? 'missing' : ''}">${salary}</strong><span class="check-date">${metaDate}</span><button class="card-button" type="button" data-open="${id}">Ver evidencia <span aria-hidden="true">↗</span></button></div>
+    <div class="job-meta"> <strong class="salary ${salary === 'No publicado' ? 'missing' : ''}">${salary}</strong><span class="check-date">${metaDate}</span><button class="card-button" type="button" data-open="${id}">Ver evaluación <span aria-hidden="true">↗</span></button><button class="compare-button ${isCompared ? 'selected' : ''}" type="button" data-compare="${id}" aria-pressed="${isCompared}">${isCompared ? 'Quitar de comparación' : 'Añadir a comparación'}</button></div>
   </article>`;
+}
+
+function knownValue(value) {
+  return value !== undefined && value !== null && value !== ''
+    && !/no publicado|no especificad|no informad|no aplica/i.test(String(value));
+}
+
+function hasContradiction(job) {
+  const text = [job.mode, job.location, job.eligibility, job.risk].filter(Boolean).join(' ');
+  return /contradicci[oó]n|inconsisten/i.test(text)
+    || (/remoto/i.test(job.mode || '') && /presencial(?: únicamente| solo)?/i.test(text))
+    || (/presencial/i.test(job.mode || '') && /remoto/i.test(job.eligibility || ''));
+}
+
+function evaluationSignals(job) {
+  const state = currentStates(job);
+  const temporary = /suplencia|reemplaz|temporal|plazo fijo|hasta el|por \d+ meses|renovaci[oó]n condicionada|convocatoria cerrada|vencid|por necesidad/i;
+  const contradiction = hasContradiction(job);
+  const signals = [
+    {
+      label: 'Compensación',
+      status: knownValue(job.salary) ? 'Dato publicado' : 'Información insuficiente',
+      tone: knownValue(job.salary) ? 'observed' : 'unknown',
+      fact: knownValue(job.salary) ? job.salary : 'La ficha no publica salario o subvención.',
+      meaning: knownValue(job.salary) ? 'Permite comparar una condición explícita.' : 'No se puede tratar la ausencia como cero.',
+      limit: 'No permite juzgar si la compensación es suficiente.',
+    },
+    {
+      label: 'Beneficios',
+      status: knownValue(job.benefits) ? 'Dato publicado' : 'Información insuficiente',
+      tone: knownValue(job.benefits) ? 'observed' : 'unknown',
+      fact: knownValue(job.benefits) ? job.benefits : 'No hay beneficios descritos en esta ficha.',
+      meaning: knownValue(job.benefits) ? 'Hace visibles condiciones declaradas.' : 'La ausencia requiere confirmación en la fuente.',
+      limit: 'No prueba que el beneficio aplique a todas las personas.',
+    },
+    {
+      label: 'Continuidad',
+      status: temporary.test([job.title, job.duration, job.deadline, job.continuity, job.risk].join(' '))
+        ? 'Condición que requiere atención'
+        : knownValue(job.duration) || knownValue(job.continuity) ? 'Dato publicado' : 'Información insuficiente',
+      tone: temporary.test([job.title, job.duration, job.deadline, job.continuity, job.risk].join(' '))
+        ? 'attention' : knownValue(job.duration) || knownValue(job.continuity) ? 'observed' : 'unknown',
+      fact: knownValue(job.duration) || knownValue(job.continuity) ? [job.duration, job.continuity].filter(knownValue).join(' · ') : 'La duración o renovación no está informada.',
+      meaning: 'La temporalidad visible no equivale a estabilidad ni renovación.',
+      limit: 'No predice contratación futura.',
+    },
+    {
+      label: 'Valor técnico',
+      status: knownValue(job.tasks) || knownValue(job.skills) ? 'Dato publicado' : 'Información insuficiente',
+      tone: knownValue(job.tasks) || knownValue(job.skills) ? 'observed' : 'unknown',
+      fact: [job.tasks, job.skills].filter(knownValue).join(' · ') || 'No se describen funciones o herramientas.',
+      meaning: knownValue(job.tasks) || knownValue(job.skills) ? 'Describe exposición técnica potencial según la ficha.' : 'No permite interpretar el aprendizaje.',
+      limit: 'Las tecnologías mencionadas no prueban práctica real ni mentoría.',
+    },
+    {
+      label: 'Desarrollo profesional',
+      status: knownValue(job.growth) || knownValue(job.training) ? 'Interpretación editorial' : 'Información insuficiente',
+      tone: knownValue(job.growth) || knownValue(job.training) ? 'interpretation' : 'unknown',
+      fact: [job.growth, job.training].filter(knownValue).join(' · ') || 'No hay información suficiente sobre formación o desarrollo.',
+      meaning: knownValue(job.growth) || knownValue(job.training) ? 'Puede orientar una siguiente pregunta del usuario.' : 'No se debe inferir una ruta profesional.',
+      limit: 'No garantiza ascenso, mentoría ni movilidad.',
+    },
+    {
+      label: 'Modalidad y elegibilidad',
+      status: contradiction ? 'Contradicción documentada' : knownValue(job.mode) && knownValue(job.eligibility) ? 'Dato publicado' : 'Información insuficiente',
+      tone: contradiction ? 'risk' : knownValue(job.mode) && knownValue(job.eligibility) ? 'observed' : 'unknown',
+      fact: [job.mode, job.location, job.eligibility].filter(knownValue).join(' · ') || 'No se informa modalidad o elegibilidad.',
+      meaning: 'La elegibilidad territorial debe estar explícita.',
+      limit: contradiction ? 'La contradicción impide una lectura favorable automática; debe resolverse en la fuente.' : /remoto/i.test(job.mode || '') && (!/per[uú]/i.test(job.eligibility || '') || /confirmar|verificar/i.test(job.eligibility || '')) ? 'Remoto no demuestra contratación desde Perú.' : 'La ficha puede requerir confirmación posterior.',
+    },
+    {
+      label: 'Calidad de la convocatoria',
+      status: state.verificationStatus === 'stale' ? 'Evidencia atrasada'
+        : state.opportunityStatus === 'expired' || state.publicationStatus === 'historical' ? 'Condición que requiere atención'
+          : state.recordKind === 'demonstration' ? 'Ficha demostrativa' : 'Información disponible',
+      tone: state.verificationStatus === 'stale' || state.opportunityStatus === 'expired' || state.publicationStatus === 'historical' ? 'attention' : 'observed',
+      fact: `Estado: ${state.opportunityStatus}; verificación: ${state.verificationStatus}; publicación: ${state.publicationStatus}.`,
+      meaning: 'La fecha de generación no renueva la evidencia.',
+      limit: state.recordKind === 'demonstration' ? 'No es una oportunidad real ni habilita postulación.' : 'La disponibilidad puede cambiar después de la observación.',
+    },
+  ];
+  if (knownValue(job.risk)) {
+    signals.push({
+      label: 'Riesgos y restricciones',
+      status: 'Limitación documentada',
+      tone: 'risk',
+      fact: job.risk,
+      meaning: 'La restricción debe considerarse antes de postular.',
+      limit: 'No se agregan riesgos que la fuente no documenta.',
+    });
+  }
+  return signals;
+}
+
+function renderSignals(job) {
+  return evaluationSignals(job).map((signal) => `<article class="signal-card ${escapeHTML(signal.tone)}">
+    <div class="signal-heading"><h4>${escapeHTML(signal.label)}</h4><span class="signal-status">${escapeHTML(signal.status)}</span></div>
+    <p><b>Qué se observó:</b> ${escapeHTML(signal.fact)}</p>
+    <p><b>Qué puede significar:</b> ${escapeHTML(signal.meaning)}</p>
+    <p class="signal-limit"><b>Límite:</b> ${escapeHTML(signal.limit)}</p>
+  </article>`).join('');
+}
+
+function renderEmployerAssessment(job) {
+  const publisher = job.publisher || 'No registrado';
+  const source = safeHttpsUrl(job.sourceUrl);
+  return `<section class="detail-section employer-assessment">
+    <h3>Evaluación del empleador</h3>
+    <p><b>Información institucional registrada:</b> ${escapeHTML(job.employer || 'No informada')} · sector ${escapeHTML(job.sector || 'no informado')} · difusor ${escapeHTML(publisher)}.</p>
+    <p class="signal-limit"><b>Lo que no se puede concluir:</b> esta ficha no contiene evidencia suficiente para evaluar cultura, reputación, condiciones laborales generales o movilidad interna.</p>
+    ${source ? `<p class="external-note">La identidad se atribuye a la <a href="${escapeHTML(source)}" target="_blank" rel="noopener noreferrer">fuente registrada ↗</a>.</p>` : ''}
+  </section>`;
+}
+
+function updateComparePanel() {
+  const selected = compareIds.map((id) => catalog.find((job) => job.id === id)).filter(Boolean);
+  compareIds = selected.map((job) => job.id);
+  comparePanel.hidden = selected.length === 0;
+  compareOpen.disabled = selected.length !== 2;
+  compareSummary.textContent = selected.length === 2
+    ? `Dos fichas seleccionadas: ${selected.map((job) => job.title).join(' · ')}`
+    : `${selected.length} de 2 fichas seleccionadas. La selección solo vive en esta página.`;
+}
+
+function toggleCompare(id) {
+  if (compareIds.includes(id)) {
+    compareIds = compareIds.filter((item) => item !== id);
+  } else if (compareIds.length < 2) {
+    compareIds = [...compareIds, id];
+  } else {
+    notify('Compara hasta dos fichas a la vez.');
+    return;
+  }
+  updateComparePanel();
+  render();
+}
+
+function comparisonValue(job, field) {
+  if (field === 'status') {
+    const state = currentStates(job);
+    return `${state.opportunityStatus} · ${state.verificationStatus} · ${state.publicationStatus}`;
+  }
+  if (field === 'salary') return knownValue(job.salary) ? job.salary : 'No publicado';
+  return knownValue(job[field]) ? job[field] : 'No informado';
+}
+
+function renderComparison() {
+  const jobs = compareIds.map((id) => catalog.find((job) => job.id === id)).filter(Boolean);
+  if (jobs.length !== 2) return;
+  const rows = [
+    ['Compensación', 'salary'], ['Beneficios', 'benefits'], ['Modalidad', 'mode'],
+    ['Elegibilidad / ubicación', 'eligibility'], ['Duración', 'duration'], ['Tipo', 'kind'],
+    ['Nivel', 'level'], ['Familia técnica', 'family'], ['Funciones', 'tasks'],
+    ['Tecnologías', 'skills'], ['Desarrollo declarado', 'growth'], ['Continuidad', 'continuity'],
+    ['Riesgos', 'risk'], ['Estado de verificación', 'status'],
+  ];
+  compareContent.innerHTML = `<p class="dialog-eyebrow">COMPARACIÓN LOCAL · SIN PUNTUACIÓN</p>
+    <h2 id="compare-dialog-title" class="dialog-title">Dos alternativas, sin ganador universal</h2>
+    <p class="dialog-intro">Observa qué está publicado y qué falta confirmar. La comparación no convierte datos ausentes en condiciones desfavorables.</p>
+    <div class="comparison-table-wrap"><table class="comparison-table"><thead><tr><th scope="col">Dimensión</th>${jobs.map((job) => `<th scope="col"><span>${escapeHTML(job.recordKind === 'demonstration' ? 'Ficha demostrativa · ' : '')}${escapeHTML(job.title)}</span><small>${escapeHTML(job.employer)}</small></th>`).join('')}</tr></thead>
+      <tbody>${rows.map(([label, field]) => `<tr><th scope="row">${escapeHTML(label)}</th>${jobs.map((job) => `<td>${escapeHTML(comparisonValue(job, field))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <p class="comparison-note">Los enlaces y fechas de evidencia se conservan en el detalle de cada ficha. No guardamos preferencias ni enviamos datos a terceros.</p>`;
+  compareDialog.showModal();
 }
 
 function render() {
@@ -199,6 +402,7 @@ function render() {
   list.hidden = jobs.length === 0;
   empty.hidden = jobs.length > 0;
   count.textContent = `${jobs.length} ${jobs.length === 1 ? 'resultado' : 'resultados'}`;
+  if (typeof comparePanel !== 'undefined' && comparePanel) updateComparePanel();
 }
 
 function normalized(value) {
@@ -323,13 +527,16 @@ function renderDialog(job) {
       <div class="detail-item"><label>Compensación</label><p>${escapeHTML(job.salary || 'No publicado')}${job.salaryNote ? ` · ${escapeHTML(job.salaryNote)}` : ''}</p></div>
       <div class="detail-item"><label>Contrato / plazo</label><p>${escapeHTML(job.duration || 'No especificado')}</p></div>
       <div class="detail-item"><label>Fecha límite</label><p>${escapeHTML(job.deadline || 'No indicada')}</p></div>
-      <div class="detail-item"><label>Última consulta registrada</label><p>${escapeHTML(job.lastCheckedDate || 'No disponible')}</p></div>
+      <div class="detail-item"><label>Fecha de publicación</label><p>${escapeHTML(job.publishedAt || 'No indicada')}</p></div>
+      <div class="detail-item"><label>Última verificación o consulta</label><p>${escapeHTML(job.lastVerifiedAt || job.lastCheckedDate || 'No disponible')}</p></div>
     </div>
     <section class="detail-section"><h3>Qué harías</h3><p>${escapeHTML(job.tasks || 'La descripción completa se consulta en la fuente original.')}</p></section>
     <section class="detail-section"><h3>Qué experiencia podrías llevar al siguiente paso</h3><p>${escapeHTML(job.growth || 'Encaje y experiencia todavía no analizados.')}</p></section>
     <section class="detail-section"><h3>Requisitos y herramientas</h3><p>${escapeHTML(job.requirements || 'Revisar requisitos en la publicación original.')}${job.skills ? `<br /><br /><b>Tecnologías/señales:</b> ${escapeHTML(job.skills)}` : ''}</p></section>
     <section class="detail-section"><h3>Continuidad y riesgos</h3><p>${escapeHTML(job.continuity || 'No informada.') } ${escapeHTML(risk)}</p></section>
     <section class="detail-section"><h3>Beneficios publicados</h3><p>${escapeHTML(job.benefits || 'No informados; revisar condiciones en la publicación original.')}</p></section>
+    <section class="detail-section"><h3>Señales de evaluación</h3><p class="evaluation-intro">Estas señales resumen datos y límites del registro. No son una puntuación ni una recomendación automática.</p><div class="signal-grid">${renderSignals(job)}</div></section>
+    ${renderEmployerAssessment(job)}
     ${job.editorialDecision?.reason ? `<section class="detail-section"><h3>Decisión editorial</h3><p>${escapeHTML(job.editorialDecision.status || 'Registrada')} · ${escapeHTML(job.editorialDecision.reason)}${job.editorialDecision.decidedAt ? ` (${escapeHTML(job.editorialDecision.decidedAt)})` : ''}</p></section>` : ''}
     ${sourceUrl ? `<p class="external-note">Ficha informativa: <a href="${escapeHTML(sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHTML(job.sourceKind || sourcePublisher)} ↗</a></p>` : ''}
     ${fieldEvidenceHtml ? `<section class="detail-section"><h3>Procedencia por dato</h3><ul class="field-evidence-list">${fieldEvidenceHtml}</ul></section>` : '<section class="detail-section"><h3>Procedencia por dato</h3><p>No hay evidencia desglosada por campo en esta ficha.</p></section>'}
@@ -377,7 +584,8 @@ async function loadCatalog() {
       : 'Sin consultas registradas sobre oportunidades reales';
     document.querySelector('#catalog-source-note').textContent = result.sourceNote || 'Revisa cada publicación en su fuente original.';
     updateCatalogView();
-  } catch {
+  } catch (error) {
+    console.error('[Ruta Sistemas] No se pudo cargar el catálogo:', error);
     catalogLoadError = true;
     catalog = [];
     opportunities = [];
@@ -420,7 +628,18 @@ document.querySelector('#filters').addEventListener('reset', () => setTimeout(()
 
 document.querySelector('#empty-clear').addEventListener('click', () => document.querySelector('#filters').reset());
 document.querySelector('#catalog-refresh').addEventListener('click', loadCatalog);
+compareOpen.addEventListener('click', renderComparison);
+compareClear.addEventListener('click', () => {
+  compareIds = [];
+  updateComparePanel();
+  render();
+});
 list.addEventListener('click', (event) => {
+  const compareButton = event.target.closest('[data-compare]');
+  if (compareButton) {
+    toggleCompare(compareButton.dataset.compare);
+    return;
+  }
   const button = event.target.closest('[data-open]');
   if (!button) return;
   const job = opportunities.find((item) => item.id === button.dataset.open);

@@ -41,6 +41,7 @@ python scripts/validate_catalog.py
 python scripts/validate_candidates.py data/candidates/inbox.example.json
 node --check app.js
 node tests/catalog_ui.test.cjs
+npm run test:e2e
 
 # Después de editar deliberadamente la semilla, regenerar el JSON
 python scripts/build_catalog.py --write
@@ -49,6 +50,8 @@ python scripts/build_catalog.py --check
 # Servidor local de demostración
 python server.py
 ```
+
+`npm run test:e2e` inicia el servidor local de forma temporal y ejecuta los flujos principales con Playwright en Chromium de escritorio y viewport móvil. En un entorno nuevo, el navegador se instala con `npx playwright install chromium`; GitHub Actions instala el navegador durante la validación. Los tests activan explícitamente las fichas demostrativas y no cambian el catálogo.
 
 La captura editorial manual permanece separada del catálogo: revisa [data/candidates/README.md](data/candidates/README.md). La bandeja real `inbox.local.json` es local e ignorada por Git; no hay importación automática a la semilla.
 
@@ -62,18 +65,34 @@ El TTL y el `--as-of YYYY-MM-DD` del validador permiten ejecutar la misma regla 
 
 ## Publicación, seguridad y autonomía
 
-El workflow `.github/workflows/refresh-catalog.yml` primero ejecuta pruebas, validación y `node --check`, y solo entonces prepara el artefacto con cuatro archivos. No programa scraping, no escribe commits ni tiene permiso `contents: write`. Un error bloquea la publicación. Cada cambio queda reversible con Git.
+El workflow `.github/workflows/refresh-catalog.yml` primero ejecuta pruebas, validación y `node --check`, y solo entonces prepara el artefacto con cinco archivos: `index.html`, `app.js`, `canvas.js`, `styles.css` y `data/opportunities.json`. Todos los recursos runtime son locales; no se usan fuentes web ni CDN. No programa scraping, no escribe commits ni tiene permiso `contents: write`. Un error bloquea la publicación. Cada cambio queda reversible con Git.
 
 **GitHub Pages y GitHub Actions son servicios alojados, no software OSS ni operación autoalojada.** Se conservan en este piloto por simplicidad y costo monetario directo cero bajo las condiciones aplicables a la cuenta/repositorio, no como garantía de disponibilidad ni autonomía plena. El pipeline y catálogo son reproducibles desde el repositorio, sin datos ocultos ni APIs pagadas. Camino de salida: servir el artefacto estático en infraestructura propia con Caddy o Nginx OSS y ejecutar validaciones localmente o con un runner propio. Antes de migrar se debe disponer de máquina/conectividad, dominio/TLS, monitorización, respaldos y procedimiento de restauración; eso implica costos eléctricos y de operación aunque el software sea gratuito.
 
 `server.py` conserva un prototipo local Python/SQLite de lectura, ligado a loopback y no utilizado por Pages. No es backend público ni fuente canónica. No se sincroniza con JSON/semilla. Se reconsiderará solo si aparece una necesidad validada de curación concurrente o historial transaccional.
 
+El servidor local expone los recursos declarados por la interfaz, incluido `canvas.js`, con MIME JavaScript. El hero WebGL se oculta sin bloquear la página cuando WebGL2 no está disponible, y reduce su trabajo a un único render cuando el navegador solicita movimiento reducido; el catálogo y sus controles siguen funcionando.
+
 ## Documentos vigentes e históricos
 
 - [ADR-001 — catálogo curado y publicación segura](docs/adr/ADR-001-catalogo-curado-publicacion-segura.md): decisiones vigentes de este bloque.
+- [R0 — decisiones estratégicas y alcance consolidado](docs/architecture/r0-decisiones-y-alcance-2026-11-12.md): fuente rectora para MVP, evolución, contrato editorial, criterios de aceptación y roadmap posterior.
 - [Seguimiento de autorización](docs/sources/seguimiento-autorizacion-fuentes.md): borradores oficiales no enviados y criterios de decisión.
 - [Diseño y roadmap](Diseno-modelo-datos-arquitectura-piloto-2026-10-03.md): sección 21 para decisiones base y secciones 37–40 para continuidad y rediseño; las secciones anteriores se conservan como historia.
 - [Auditoría fechada 2026-10-25](docs/audits/project-state-audit-2026-10-25.md): snapshot previo a este bloque, no descripción del código actual.
 - [Investigación de mercado/fuentes](Informe-investigacion-mercado-fuentes-2026-10-03.md): investigación histórica; ninguna fuente queda autorizada por aparecer allí.
 
-Siguiente fase: resolver la revisión pendiente con SERVIR o con la Facultad de Ingeniería de Sistemas e Informática de la UNMSM (mecanismo, uso/reutilización, frecuencia, atribución, retención y retirada). Solo si hay autorización suficiente, ejecutar un piloto acotado de hasta 10 registros en staging separado con revisión humana. Ver [evaluación de fuentes P2](docs/sources/talento-peru-servir-2026-10-26.md). No añadir scoring, IA, rutas profesionales, Firecrawl ni crawling general hasta que la calidad de datos lo justifique.
+Estado de continuidad: R0 está cerrada; R1 está implementada y R1-02C queda
+validada en una rama de integración sin commit, pendiente de revisión humana
+antes de crear el commit; R2 está bloqueada por autorización y ausencia de una oportunidad real aprobada; R3
+está validada técnicamente con fixtures demostrativos, pero no con usuarios ni
+oportunidades reales; R4 mantiene las fuentes deshabilitadas y la automatización
+condicionada a autorización; R5 permanece aplazada. La siguiente acción única es
+obtener una respuesta escrita de una fuente concreta sobre consulta,
+automatización, conservación de metadatos, atribución, retirada, republicación,
+límites de uso y elegibilidad desde Perú. Los borradores están en
+[seguimiento de autorización](docs/sources/seguimiento-autorizacion-fuentes.md)
+y la candidata prioritaria está en
+[Canonical Careers](docs/sources/canonical-careers-2026-11-11.md). No añadir
+scoring, IA, rutas profesionales, Firecrawl ni crawling general hasta que la
+calidad de datos lo justifique.

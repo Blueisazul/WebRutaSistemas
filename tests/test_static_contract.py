@@ -12,6 +12,8 @@ class StaticContractTests(unittest.TestCase):
         self.assertNotIn("cdn.jsdelivr.net", html)
         self.assertNotIn("tailwindcss/browser", html)
         self.assertNotIn("<script src=\"http", html)
+        self.assertNotIn("fonts.googleapis.com", html)
+        self.assertNotIn("fonts.gstatic.com", html)
 
     def test_pages_workflow_compiles_pinned_tailwind_before_packaging(self):
         workflow = (ROOT / ".github" / "workflows" / "refresh-catalog.yml").read_text(encoding="utf-8")
@@ -71,14 +73,26 @@ class StaticContractTests(unittest.TestCase):
         self.assertIn("if (!isValidCatalogPayload(result)) throw new Error", app)
         self.assertIn("No se pudo cargar el catálogo", app)
         self.assertIn("No se pudo cargar el catálogo. Reintenta", app)
+        self.assertIn("console.error('[Ruta Sistemas] No se pudo cargar el catálogo:', error)", app)
         self.assertIn("fetch('./data/opportunities.json'", app)
+
+    def test_active_identity_and_local_canvas_contract_are_aligned(self):
+        html = (ROOT / "index.html").read_text(encoding="utf-8")
+        server = (ROOT / "server.py").read_text(encoding="utf-8")
+        canvas = (ROOT / "canvas.js").read_text(encoding="utf-8")
+        self.assertIn("<title>Ruta Sistemas</title>", html)
+        self.assertNotIn(">Aurel", html)
+        self.assertIn('"/canvas.js": ("canvas.js", "text/javascript; charset=utf-8")', server)
+        self.assertIn("prefers-reduced-motion", canvas)
+        self.assertIn("cancelAnimationFrame", canvas)
+        self.assertIn("canvas-unavailable", canvas)
 
     def test_primary_controls_are_keyboard_labeled_and_mobile_layout_exists(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
         app = (ROOT / "app.js").read_text(encoding="utf-8")
         css = (ROOT / "styles.css").read_text(encoding="utf-8")
         css_source = (ROOT / "src" / "site.css").read_text(encoding="utf-8")
-        self.assertIn('<label class="history-toggle"><input type="checkbox" id="include-demonstrations"', html)
+        self.assertRegex(html, r'<label[^>]*>[\s\S]*<input[^>]*id="include-demonstrations"')
         self.assertIn('role="button" tabindex="0" data-open=', app)
         self.assertIn("list.addEventListener('keydown'", app)
         self.assertRegex(css, r"@media\s*\(max-width:\s*(?:680|520)px\)")

@@ -67,6 +67,16 @@ class SourceEvaluationTests(unittest.TestCase):
         self.assertFalse(result["allowed"])
         self.assertEqual(result["reason"], "source_disabled")
 
+    def test_canonical_remains_pending_and_cannot_be_fetched(self):
+        source = find_source(load_source_registry(), "canonical-careers")
+        self.assertIsNotNone(source)
+        self.assertEqual(source["decision"], "pending_review")
+        self.assertFalse(source["enabled"])
+        self.assertEqual(source["maxRequestsPerRun"], 0)
+        result = authorize_fetch(source, "https://canonical.com/careers", 0)
+        self.assertFalse(result["allowed"])
+        self.assertEqual(result["reason"], "source_disabled")
+
 
 if __name__ == "__main__":
     unittest.main()
