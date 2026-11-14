@@ -1012,6 +1012,38 @@ en la rama `integration/r1-02c`.
 R1-03, R1-04 y R1-05 siguen pendientes. Cualquier push o publicación requiere
 autorización separada y una comprobación actualizada de `origin/main`.
 
+## 55. R1-03: validación local del artefacto definitivo (2026-11-13)
+
+R1-03 queda **PARCIAL**: la validación local del commit documentado en R1-02D
+está completa y reproducible, pero CI remoto no se ejecutó porque el commit
+`2163e88f6c02622a2729534d831ebfdeaee19aeb` sigue sin publicarse. No se hizo
+push, dispatch remoto ni publicación Pages.
+
+- Instalación reproducible: `npm ci` aprobada con Node.js `24.22.2`, npm
+  `11.19.1` y Python `3.13.3`; sin cambios en `package-lock.json` ni nuevas
+  dependencias.
+- CSS: `npm run build:css` aprobado con Tailwind CLI `4.3.3`; el hash de
+  `styles.css` se conservó como
+  `AB0088064235C30BDF1D6DC1E79DC230CFFA89703DFB75FE61F2E4DCB0C121FA`.
+- Pruebas: 57 pruebas Python, validadores de catálogo/candidatos, sintaxis de
+  `app.js` y `canvas.js`, prueba UI Node y 8/8 E2E de escritorio/móvil,
+  todas con código de salida 0.
+- Artefacto Pages: el generador oficial produjo exactamente
+  `index.html`, `app.js`, `canvas.js`, `styles.css` y
+  `data/opportunities.json`. Una segunda generación coincidió en conjunto de
+  archivos y SHA-256.
+- El catálogo mantiene Schema 2, cinco fichas demostrativas y cero
+  oportunidades reales activas; seed y snapshot no fueron modificados.
+- El workflow tiene `workflow_dispatch`, `npm ci`, validación previa a
+  publicación y permisos separados. El último run remoto inspeccionado
+  (`43144107491`, SHA remoto `20d2002`) falló sobre la versión remota anterior;
+  no se usa como evidencia del commit local.
+
+La evidencia completa, incluidos hashes del artefacto y la matriz de comandos,
+está en [runtime-validation-report.md](runtime-validation-report.md). R1-04
+queda técnicamente preparada, pero requiere autorización explícita para
+sincronizar el remoto; R1-05 permanece pendiente.
+
 ## 47. R2: ejecución del flujo editorial real bloqueada (2026-11-12)
 
 La ejecución de R2 confirmó el bloqueo externo sin modificar `data/opportunities.seed.json`,

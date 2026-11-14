@@ -84,7 +84,9 @@ El servidor local expone los recursos declarados por la interfaz, incluido `canv
 
 Estado de continuidad: R0 está cerrada; R1 está implementada y R1-02D queda
 validada con el commit local de integración `e213327` en la rama
-`integration/r1-02c`; no se ha hecho push ni publicación. R2 está bloqueada por
+`integration/r1-02c`; R1-03 queda validada localmente y parcial por CI remoto no
+ejecutado; no se ha hecho push ni publicación. El detalle está en
+[runtime-validation-report.md](runtime-validation-report.md). R2 está bloqueada por
 autorización y ausencia de una oportunidad real aprobada; R3
 está validada técnicamente con fixtures demostrativos, pero no con usuarios ni
 oportunidades reales; R4 mantiene las fuentes deshabilitadas y la automatización
