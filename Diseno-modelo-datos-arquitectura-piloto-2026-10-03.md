@@ -1067,6 +1067,21 @@ exitoso para este SHA. R1-05 permanece pendiente y no se declara por este
 primer intento fallido. La evidencia actualizada está en
 [runtime-validation-report.md](runtime-validation-report.md).
 
+## 57. R1-04: bloqueo operativo tras carga del artefacto (2026-11-14)
+
+La ejecución `43603777615` dejó el artefacto `github-pages` cargado
+correctamente (ID `14117650757`, digest
+`sha256:c4f13e1dcee4401237dc20ff76d4552f2fb9565990b9720b2973f498f5379f26`),
+pero `actions/deploy-pages@v4` no pudo resolver sus metadatos y terminó con
+`No artifacts named "github-pages" were found for this workflow run`.
+
+Se realizó un segundo push documental hasta `68d4c52`, pero no generó otra
+ejecución porque `.github/workflows/refresh-catalog.yml` excluye documentos en
+su filtro `paths`. No se modificará ese filtro ni se cambiarán permisos para
+forzar una aprobación artificial. R1-04 permanece **PARCIAL/BLOQUEADA** hasta
+reintentar el workflow oficial desde GitHub Actions y obtener `publish`
+exitoso; R1-05 sigue pendiente.
+
 ## 47. R2: ejecución del flujo editorial real bloqueada (2026-11-12)
 
 La ejecución de R2 confirmó el bloqueo externo sin modificar `data/opportunities.seed.json`,

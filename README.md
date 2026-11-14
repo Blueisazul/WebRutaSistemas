@@ -86,8 +86,9 @@ Estado de continuidad: R0 está cerrada; R1 está implementada y la versión
 aprobada se sincronizó con `main` mediante fast-forward hasta `9bb6b39`.
 R1-03 queda validada localmente y R1-04 tiene CI de validación aprobado, pero
 el despliegue Pages falló en `Deploy Pages` por no encontrar temporalmente el
-artefacto `github-pages`; no se declara publicación completada. El detalle
-está en [runtime-validation-report.md](runtime-validation-report.md). R2 está bloqueada por
+artefacto `github-pages`; el artefacto sí fue cargado, pero no se declara
+publicación completada. El detalle está en
+[runtime-validation-report.md](runtime-validation-report.md). R2 está bloqueada por
 autorización y ausencia de una oportunidad real aprobada; R3
 está validada técnicamente con fixtures demostrativos, pero no con usuarios ni
 oportunidades reales; R4 mantiene las fuentes deshabilitadas y la automatización

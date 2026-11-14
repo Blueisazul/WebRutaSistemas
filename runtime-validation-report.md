@@ -118,10 +118,13 @@ Run `43603777615` (`#13`) validated the exact SHA
   workflow run`.
 
 The failure is confined to the GitHub Pages deployment service/action metadata
-lookup after artifact upload. No local source, catalog, workflow, permission,
-or dependency change was made to mask it. The prior remote run `43144107491`
-(`#12`) on `20d2002` remains historical and is not used as evidence for this
-release.
+lookup after artifact upload. The artifact exists remotely as
+`github-pages` (ID `14117650757`, digest
+`sha256:c4f13e1dcee4401237dc20ff76d4552f2fb9565990b9720b2973f498f5379f26`),
+but the deploy action could not resolve it. No local source, catalog, workflow,
+permission, or dependency change was made to mask it. The prior remote run
+`43144107491` (`#12`) on `20d2002` remains historical and is not used as
+evidence for this release.
 
 ## Issues Found
 
@@ -135,6 +138,8 @@ modified.
 
 ## Next Step
 
-Retry the official workflow against `9bb6b397` without changing the artifact or
-permissions. Only after a successful `publish` job should R1-04 be completed;
-R1-05 remains reserved for remote resource and content verification.
+Re-run the official workflow from GitHub Actions for the published SHA without
+changing the artifact or permissions. The follow-up documentation push did not
+start another run because the workflow `paths` filter excludes documentation
+files. Only after a successful `publish` job should R1-04 be completed; R1-05
+remains reserved for remote resource and content verification.
