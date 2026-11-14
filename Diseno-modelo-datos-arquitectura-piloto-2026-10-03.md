@@ -1044,6 +1044,29 @@ está en [runtime-validation-report.md](runtime-validation-report.md). R1-04
 queda técnicamente preparada, pero requiere autorización explícita para
 sincronizar el remoto; R1-05 permanece pendiente.
 
+## 56. R1-04: sincronización remota y primer intento de publicación (2026-11-14)
+
+R1-04 queda **PARCIAL**. La identidad de la versión quedó reconciliada y la
+rama de integración se incorporó a `main` mediante fast-forward seguro:
+
+- SHA remoto publicado: `9bb6b397c04fc1f096a8a4d2e0214f06b7922704`.
+- Ancestro remoto anterior: `20d20020d901aba670d8a08ba244994971bf2dfb`.
+- No se utilizó fuerza, no se reescribió historial y no se descartaron cambios.
+- El stash y el respaldo externo de R1-02C continúan conservados.
+
+El run oficial `43603777615` (`#13`) correspondió exactamente al SHA remoto.
+El job `validate` terminó correctamente, incluyendo la generación y validación
+del artefacto. El job `publish` preparó, configuró y subió el artefacto, pero
+falló en `Deploy Pages` con `No artifacts named "github-pages" were found for
+this workflow run` durante la consulta de metadatos. No se modificaron
+permisos, workflow, dependencias, seed, snapshot, Schema 2 ni ADR-001 para
+ocultar o eludir el fallo.
+
+R1-04 no se completa hasta repetir el workflow oficial y obtener `publish`
+exitoso para este SHA. R1-05 permanece pendiente y no se declara por este
+primer intento fallido. La evidencia actualizada está en
+[runtime-validation-report.md](runtime-validation-report.md).
+
 ## 47. R2: ejecución del flujo editorial real bloqueada (2026-11-12)
 
 La ejecución de R2 confirmó el bloqueo externo sin modificar `data/opportunities.seed.json`,

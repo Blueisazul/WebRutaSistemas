@@ -20,8 +20,8 @@
 | Artifact reproducibility | PASS | 0 | Second generation matched file set and SHA-256 hashes |
 | Remote GitHub Actions | UNVERIFIED | N/A | No push or remote dispatch was performed |
 
-**Overall**: PARTIAL — local validation is green; remote CI cannot validate the
-unpublished local commit without R1-04 authorization.
+**Overall**: PARTIAL — local validation and the remote `validate` job are green;
+the first Pages deployment attempt failed in `Deploy Pages`.
 
 ## Environment
 
@@ -102,25 +102,39 @@ The workflow at `.github/workflows/refresh-catalog.yml` has
 packaging, separates `validate` from `publish`, and grants Pages permissions
 only to the publish job. The inspected remote workflow is active.
 
-No run was triggered for `2163e88` or `e213327`: the commits are local, no push
-was authorized, and the available GitHub Actions interface was read-only for
-this validation. The latest remote run inspected was run `43144107491`
-(`#12`) on remote SHA `20d2002`; it failed in the old remote test step and is
-not evidence about this local commit. Remote CI and Pages publication remain
-unverified.
+The branch `integration/r1-02c` was pushed to `main` with a fast-forward from
+`20d2002` to `9bb6b397c04fc1f096a8a4d2e0214f06b7922704`. No force push was
+used and `main` history was not rewritten.
+
+Run `43603777615` (`#13`) validated the exact SHA
+`9bb6b397c04fc1f096a8a4d2e0214f06b7922704`:
+
+- `validate`: **success**; checkout, Node/Python setup, CSS compilation,
+  57-test suite, catalog validators, JavaScript checks, UI checks and E2E all
+  passed.
+- `publish`: **failure** only at `Deploy Pages`; artifact generation,
+  `configure-pages`, and `Upload Pages artifact` succeeded. The deployment
+  action reported: `No artifacts named "github-pages" were found for this
+  workflow run`.
+
+The failure is confined to the GitHub Pages deployment service/action metadata
+lookup after artifact upload. No local source, catalog, workflow, permission,
+or dependency change was made to mask it. The prior remote run `43144107491`
+(`#12`) on `20d2002` remains historical and is not used as evidence for this
+release.
 
 ## Issues Found
 
 | Severity | Description | Decision |
 |---|---|---|
 | Informational | Docker is unavailable | No impact; the project is a static site and has no infrastructure tier |
-| Informational | Remote CI has not run for the local commit | Defer to R1-04; do not push or dispatch from R1-03 |
+| Blocking | Pages deployment metadata lookup failed in run `43603777615` | Retry the official workflow before declaring publication complete |
 
 No source or catalog correction was required. Seed and snapshot were not
 modified.
 
 ## Next Step
 
-R1-04 is technically prepared but still requires explicit authorization for
-remote synchronization. After that authorization, run CI against the published
-commit and then perform R1-05 remote Pages verification.
+Retry the official workflow against `9bb6b397` without changing the artifact or
+permissions. Only after a successful `publish` job should R1-04 be completed;
+R1-05 remains reserved for remote resource and content verification.

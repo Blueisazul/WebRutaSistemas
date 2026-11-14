@@ -82,11 +82,12 @@ El servidor local expone los recursos declarados por la interfaz, incluido `canv
 - [Auditoría fechada 2026-10-25](docs/audits/project-state-audit-2026-10-25.md): snapshot previo a este bloque, no descripción del código actual.
 - [Investigación de mercado/fuentes](Informe-investigacion-mercado-fuentes-2026-10-03.md): investigación histórica; ninguna fuente queda autorizada por aparecer allí.
 
-Estado de continuidad: R0 está cerrada; R1 está implementada y R1-02D queda
-validada con el commit local de integración `e213327` en la rama
-`integration/r1-02c`; R1-03 queda validada localmente y parcial por CI remoto no
-ejecutado; no se ha hecho push ni publicación. El detalle está en
-[runtime-validation-report.md](runtime-validation-report.md). R2 está bloqueada por
+Estado de continuidad: R0 está cerrada; R1 está implementada y la versión
+aprobada se sincronizó con `main` mediante fast-forward hasta `9bb6b39`.
+R1-03 queda validada localmente y R1-04 tiene CI de validación aprobado, pero
+el despliegue Pages falló en `Deploy Pages` por no encontrar temporalmente el
+artefacto `github-pages`; no se declara publicación completada. El detalle
+está en [runtime-validation-report.md](runtime-validation-report.md). R2 está bloqueada por
 autorización y ausencia de una oportunidad real aprobada; R3
 está validada técnicamente con fixtures demostrativos, pero no con usuarios ni
 oportunidades reales; R4 mantiene las fuentes deshabilitadas y la automatización
