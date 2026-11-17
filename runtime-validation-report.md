@@ -18,10 +18,10 @@
 | Playwright browser validation | PASS | 0 | 8/8 tests passed across Chromium desktop and mobile |
 | Pages artifact generation | PASS | 0 | Exact five-file artifact generated and validated |
 | Artifact reproducibility | PASS | 0 | Second generation matched file set and SHA-256 hashes |
-| Remote GitHub Actions | UNVERIFIED | N/A | No push or remote dispatch was performed |
+| Remote GitHub Actions | PASS | 0 | Run 43603777615 (attempt 2) succeeded; Deploy Pages green |
+| Production Verification | PASS | 0 | 5/5 resources HTTP 200; live Playwright desktop/mobile smoke green |
 
-**Overall**: PARTIAL — local validation and the remote `validate` job are green;
-the first Pages deployment attempt failed in `Deploy Pages`.
+**Overall**: COMPLETE — R1-04 and R1-05 are fully validated; GitHub Pages serves the exact approved R1 release.
 
 ## Environment
 
@@ -109,37 +109,50 @@ used and `main` history was not rewritten.
 Run `43603777615` (`#13`) validated the exact SHA
 `9bb6b397c04fc1f096a8a4d2e0214f06b7922704`:
 
-- `validate`: **success**; checkout, Node/Python setup, CSS compilation,
-  57-test suite, catalog validators, JavaScript checks, UI checks and E2E all
-  passed.
-- `publish`: **failure** only at `Deploy Pages`; artifact generation,
-  `configure-pages`, and `Upload Pages artifact` succeeded. The deployment
-  action reported: `No artifacts named "github-pages" were found for this
-  workflow run`.
+- **Attempt 1 (2026-11-14T14:14Z):** `validate` succeeded; `publish` succeeded
+  through `Upload Pages artifact`, but failed in `Deploy Pages` with
+  `No artifacts named "github-pages" were found for this workflow run` due to
+  an artifact indexing timing delay when upload and deploy run in immediate succession.
+- **Attempt 2 (2026-11-17T14:20Z):** Re-run triggered via the official GitHub
+  Actions API (`rerun-failed-jobs`). Completed with **success** across all jobs.
+  The deployment completed at `2026-11-17T14:20:03Z` under Deployment ID `7855911966`
+  targeting `https://blueisazul.github.io/WebRutaSistemas/`.
 
-The failure is confined to the GitHub Pages deployment service/action metadata
-lookup after artifact upload. The artifact exists remotely as
-`github-pages` (ID `14117650757`, digest
-`sha256:c4f13e1dcee4401237dc20ff76d4552f2fb9565990b9720b2973f498f5379f26`),
-but the deploy action could not resolve it. No local source, catalog, workflow,
-permission, or dependency change was made to mask it. The prior remote run
-`43144107491` (`#12`) on `20d2002` remains historical and is not used as
-evidence for this release.
+## Production Verification (R1-05)
+
+Direct HTTP verification and Playwright headless browser smoke tests were executed
+against `https://blueisazul.github.io/WebRutaSistemas/`:
+
+| Resource | HTTP Status | Content-Type | Size (bytes) | SHA-256 Match |
+|---|---|---|---:|---|
+| `/` (`index.html`) | 200 | `text/html; charset=utf-8` | 44,638 | Identical (LF normalized) |
+| `app.js` | 200 | `application/javascript; charset=utf-8` | 42,270 | Identical (LF normalized) |
+| `canvas.js` | 200 | `application/javascript; charset=utf-8` | 15,216 | `E353C7F8...31610` (Exact) |
+| `styles.css` | 200 | `text/css; charset=utf-8` | 48,393 | `AB008806...121FA` (Exact) |
+| `data/opportunities.json` | 200 | `application/json; charset=utf-8` | 10,060 | Identical (LF normalized) |
+
+Smoke test results:
+- **Desktop Chrome:** Empty state displayed (0 verified active jobs); opt-in demo
+  toggle displays 5 demonstration records; filters (mode, level, location) reactive;
+  job detail modal opens/closes cleanly; 2-job side-by-side comparison modal displays
+  "SIN PUNTUACIÓN · Dos alternativas, sin ganador universal"; 0 console errors, 0 failed requests.
+- **Mobile Viewport (Pixel 5):** No horizontal overflow (`scrollWidth <= clientWidth`);
+  touch controls and modals fully usable; 0 console errors.
+- **Reduced Motion:** `prefers-reduced-motion: reduce` correctly suspends the WebGL
+  animation loop without exceptions.
 
 ## Issues Found
 
 | Severity | Description | Decision |
 |---|---|---|
-| Informational | Docker is unavailable | No impact; the project is a static site and has no infrastructure tier |
-| Blocking | Pages deployment metadata lookup failed in run `43603777615` | Retry the official workflow before declaring publication complete |
+| Informational | Docker is unavailable | No impact; static site without infrastructure tier |
+| Resolved | Pages deployment metadata lookup failure in attempt 1 | Resolved via official rerun (Attempt 2: SUCCESS) |
 
-No source or catalog correction was required. Seed and snapshot were not
-modified.
+No source or catalog correction was required. Seed and snapshot were not modified.
 
-## Next Step
+## Release Status
 
-Re-run the official workflow from GitHub Actions for the published SHA without
-changing the artifact or permissions. The follow-up documentation push did not
-start another run because the workflow `paths` filter excludes documentation
-files. Only after a successful `publish` job should R1-04 be completed; R1-05
-remains reserved for remote resource and content verification.
+- **R1-04 (Publicación):** COMPLETADA.
+- **R1-05 (Verificación de producción):** COMPLETADA.
+- **Release R1:** COMPLETADA Y CERRADA.
+- **Siguiente acción:** Gestión externa de autorización de fuentes (R2).

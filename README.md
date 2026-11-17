@@ -55,6 +55,35 @@ python server.py
 
 La captura editorial manual permanece separada del catálogo: revisa [data/candidates/README.md](data/candidates/README.md). La bandeja real `inbox.local.json` es local e ignorada por Git; no hay importación automática a la semilla.
 
+### CLI Unificado de Gestión Editorial y Observabilidad Local (`scripts/editorial_cli.py`)
+
+Para orquestar el flujo local de candidatos (Schema 2) de forma 100% offline y determinista con la biblioteca estándar de Python:
+
+```powershell
+# Ayuda general y subcomandos
+python scripts/editorial_cli.py --help
+
+# Validar bandeja con verificación de evidencias y vigencia
+python scripts/editorial_cli.py validate-inbox data/candidates/inbox.example.json --verify-evidence --as-of 2026-11-17
+
+# Inspeccionar métricas, distribución de estados y frescura
+python scripts/editorial_cli.py inspect data/candidates/inbox.example.json --verify-evidence
+
+# Deduplicar lote contra sí mismo y contra el catálogo canónico (sin modificar archivos)
+python scripts/editorial_cli.py deduplicate data/candidates/inbox.example.json
+
+# Generar informe integral consolidado (validación + dedup + evidencias)
+python scripts/editorial_cli.py report data/candidates/inbox.example.json --json-report
+
+# Importar y normalizar fixtures locales (Greenhouse, Lever o HTML/JSON-LD) a Schema 2
+python scripts/editorial_cli.py import --format greenhouse --source-id greenhouse-public-job-board-template --board-token empresa-ficticia --employer "Empresa Ficticia" --input tests/fixtures/ats/greenhouse_complete.json --output data/candidates/imported.json
+
+# Preparar y exportar candidatos para revisión humana (sin modificar semilla ni snapshot)
+python scripts/editorial_cli.py prepare-review --inbox data/candidates/inbox.example.json --output data/candidates/review_export.json --status pending_review
+```
+
+La CLI no realiza llamadas de red ni modifica automáticamente la semilla canónica ni el snapshot publicado. La promoción editorial continúa siendo humana y explícita.
+
 La generación automática usa hora actual para `generatedAt`, pero ese campo no se usa como evidencia de vigencia. Para una reconstrucción reproducible se puede fijar el timestamp:
 
 ```powershell
@@ -82,22 +111,20 @@ El servidor local expone los recursos declarados por la interfaz, incluido `canv
 - [Auditoría fechada 2026-10-25](docs/audits/project-state-audit-2026-10-25.md): snapshot previo a este bloque, no descripción del código actual.
 - [Investigación de mercado/fuentes](Informe-investigacion-mercado-fuentes-2026-10-03.md): investigación histórica; ninguna fuente queda autorizada por aparecer allí.
 
-Estado de continuidad: R0 está cerrada; R1 está implementada y la versión
-aprobada se sincronizó con `main` mediante fast-forward hasta `9bb6b39`.
-R1-03 queda validada localmente y R1-04 tiene CI de validación aprobado, pero
-el despliegue Pages falló en `Deploy Pages` por no encontrar temporalmente el
-artefacto `github-pages`; el artefacto sí fue cargado, pero no se declara
-publicación completada. El detalle está en
-[runtime-validation-report.md](runtime-validation-report.md). R2 está bloqueada por
-autorización y ausencia de una oportunidad real aprobada; R3
-está validada técnicamente con fixtures demostrativos, pero no con usuarios ni
-oportunidades reales; R4 mantiene las fuentes deshabilitadas y la automatización
-condicionada a autorización; R5 permanece aplazada. La siguiente acción única es
-obtener una respuesta escrita de una fuente concreta sobre consulta,
-automatización, conservación de metadatos, atribución, retirada, republicación,
-límites de uso y elegibilidad desde Perú. Los borradores están en
-[seguimiento de autorización](docs/sources/seguimiento-autorizacion-fuentes.md)
-y la candidata prioritaria está en
-[Canonical Careers](docs/sources/canonical-careers-2026-11-11.md). No añadir
-scoring, IA, rutas profesionales, Firecrawl ni crawling general hasta que la
+Estado de continuidad: R0 está cerrada; R1 está 100% completada y cerrada
+tras el despliegue exitoso en GitHub Pages (run 43603777615, deployment 7855911966)
+y la verificación en vivo de los cinco recursos públicos (R1-04 y R1-05).
+El detalle está en [runtime-validation-report.md](runtime-validation-report.md).
+R2 de producto permanece abierta y bloqueada por falta de autorización documental
+externa y ausencia de una primera oportunidad real aprobada; la línea técnica
+offline R2-OSS (R2-OSS-01 a R2-OSS-08) queda 100% completada y cerrada formalmente
+(193 pruebas automatizadas, pipeline E2E y CLI unificada). R3 está validada
+técnicamente con fixtures demostrativos, pero no con usuarios ni oportunidades reales;
+R4 mantiene las fuentes deshabilitadas y la automatización condicionada a autorización;
+R5 permanece aplazada. La siguiente acción única es obtener una respuesta escrita
+de una fuente concreta sobre consulta, automatización, conservación de metadatos,
+atribución, retirada, republicación, límites de uso y elegibilidad desde Perú.
+Los borradores están en [seguimiento de autorización](docs/sources/seguimiento-autorizacion-fuentes.md)
+y la candidata prioritaria está en [Canonical Careers](docs/sources/canonical-careers-2026-11-11.md).
+No añadir scoring, IA, rutas profesionales, Firecrawl ni crawling general hasta que la
 calidad de datos lo justifique.

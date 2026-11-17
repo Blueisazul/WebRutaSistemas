@@ -1078,9 +1078,30 @@ pero `actions/deploy-pages@v4` no pudo resolver sus metadatos y terminó con
 Se realizó un segundo push documental hasta `68d4c52`, pero no generó otra
 ejecución porque `.github/workflows/refresh-catalog.yml` excluye documentos en
 su filtro `paths`. No se modificará ese filtro ni se cambiarán permisos para
-forzar una aprobación artificial. R1-04 permanece **PARCIAL/BLOQUEADA** hasta
-reintentar el workflow oficial desde GitHub Actions y obtener `publish`
-exitoso; R1-05 sigue pendiente.
+forzar una aprobación artificial. R1-04 permanecía **PARCIAL/BLOQUEADA** hasta
+reintentar el workflow oficial desde GitHub Actions.
+
+## 58. R1-04 y R1-05: despliegue exitoso en Pages y cierre de Release R1 (2026-11-17)
+
+El reintento oficial (`rerun-failed-jobs`) sobre el run `43603777615` (Attempt 2)
+concluyó en **ÉXITO** a las 2026-11-17T14:20:13Z.
+
+- **R1-04 (Publicación):** `validate` y `publish` terminaron en `success`.
+  `actions/deploy-pages@v4` resolvió los metadatos del artefacto `github-pages`
+  y completó el despliegue bajo Deployment ID `7855911966`. **COMPLETADA.**
+- **R1-05 (Verificación de producción):** Se verificaron mediante HTTP y Playwright
+  los cinco recursos publicados en `https://blueisazul.github.io/WebRutaSistemas/`:
+  - `index.html` (HTTP 200, paridad de contenido con artefacto local aprobado).
+  - `app.js` (HTTP 200, paridad de contenido con artefacto local aprobado).
+  - `canvas.js` (HTTP 200, SHA-256 `E353C7F800E0CF75AAA34306724D0D19FE1303A4D2AF21FF31D4B52A9C631610`).
+  - `styles.css` (HTTP 200, SHA-256 `AB0088064235C30BDF1D6DC1E79DC230CFFA89703DFB75FE61F2E4DCB0C121FA`).
+  - `data/opportunities.json` (HTTP 200, paridad de contenido con artefacto local aprobado).
+- **Smoke test en vivo:** Estado vacío inicial (0 activas), opt-in de demos (5 ejemplos),
+  filtros reactivos, apertura/cierre de modal de detalle y comparador ("SIN PUNTUACIÓN")
+  aprobados en Chromium desktop y mobile (Pixel 5); 0 errores de consola, 0 fallos de red.
+  Soporte `prefers-reduced-motion` verificado. **COMPLETADA.**
+- **Cierre de Release R1:** R1 queda **100% COMPLETADA Y CERRADA**. No se alteró
+  la semilla ni el snapshot. El siguiente bloque es R2 (Gestión externa de fuentes).
 
 ## 47. R2: ejecución del flujo editorial real bloqueada (2026-11-12)
 
@@ -1201,3 +1222,27 @@ obsoletas en documentos, la actualización de continuidad en `README.md` y este
 registro. La divergencia remota requiere una decisión humana posterior sobre
 integración/revisión de los cambios locales; no es una acción segura dentro de
 este bloque.
+
+## 51. Línea R2-OSS: Ingeniería offline de recopilación e integración OSS (2026-11-17)
+
+Mientras la adquisición de datos de fuentes reales permanece bloqueada por falta de autorización documental externa (mantenida en `sources.json` con `decision: pending_review` y `budget: 0`), se implementó la línea de ingeniería offline R2-OSS para preparar la infraestructura técnica de ingestión, normalización y validación canónica:
+
+- **R2-OSS-01 `[INTEGRACIÓN_OSS]`:** Auditoría técnica integral de reutilización de software libre. Se descartaron Scrapy, Crawlee, Trafilatura y dedupe por sobreingeniería, licencias incompatibles (GPL-3.0) o huella excesiva de dependencias para el volumen previsto. Se adoptó el principio de micro-bibliotecas modulares y desarrollo propio justificado.
+- **R2-OSS-02 `[ADAPTACIÓN_OSS]` `[REFACTOR/FIX]`:** Refactorización y adaptación modular de los conectores ATS existentes (`greenhouse-job-board` y `lever-postings`) en `collector/ats_connectors.py` hacia el contrato de candidatos Schema 2 (`scripts/validate_candidates.py`). Se crearon 14 fixtures sintéticos en `tests/fixtures/ats/` y 18 pruebas unitarias.
+- **R2-OSS-03 `[DESARROLLO_PROPIO - Justificado]` `[INTEGRACIÓN_OSS]`:** Implementación del micro-extractor institucional HTML y JSON-LD (`collector/jsonld_extractor.py`) utilizando exclusivamente la biblioteca estándar de Python (`html.parser`, `json`, `urllib.parse`, `datetime`) sin dependencias externas. Reconoce objetos Schema.org `JobPosting` en bloques individuales, múltiples, listas y grafos `@graph`, normalizando a Schema 2 con evidencias biunívocas sin inventar datos. Se crearon 15 fixtures sintéticos en `tests/fixtures/html/` y 19 pruebas unitarias dedicadas.
+- **R2-OSS-04 `[DESARROLLO_PROPIO - Justificado]` `[REFACTOR/FIX]` `[INTEGRACIÓN_OSS]`:** Implementación del deduplicador determinista canónico y detector de colisiones (`collector/dedup.py`) con cero dependencias externas. Establece coincidencia primaria (`sourceId:externalReference`) con detección de colisiones contradictorias (`IDENTIFIER_COLLISION`), y coincidencia secundaria mediante firma normalizada conservadora (`POSSIBLE_DUPLICATE`). Permite comparar lotes contra la bandeja local y la semilla canónica en modo de solo lectura, emitiendo reportes deterministas sin fusiones destructivas ni eliminación automática de registros. Se crearon 22 pruebas unitarias dedicadas y fixtures sintéticos en `tests/fixtures/dedup/`.
+- **R2-OSS-05 `[DESARROLLO_PROPIO - Justificado]` `[INTEGRACIÓN_OSS]`:** Verificación de procedencia, vigencia y frescura de evidencias (`collector/evidence.py`). Módulo 100% offline implementado con biblioteca estándar (`datetime`, `urllib.parse`) que evalúa integridad estructural, procedencia HTTPS estricta (sin credenciales, puerto 443 o implícito, hosts autorizados), frescura temporal según TTL editorial (7 días, ADR-001, huso horario civil `America/Lima`), y vigencia temporal de la oportunidad (`proposed.deadline`). Separa taxativamente la frescura de la evidencia (`FRESH`, `STALE`) de la vigencia de la vacante (`DEADLINE_FUTURE`, `DEADLINE_EXPIRED`, etc.). Se integró con `scripts/validate_candidates.py` mediante argumentos opcionales `--verify-evidence` y `--json-report`, preservando compatibilidad retroactiva. Se crearon 30 escenarios sintéticos en `tests/fixtures/evidence/evidence_cases.json` y 43 pruebas unitarias dedicadas en `tests/test_evidence.py`.
+- **R2-OSS-06 `[DESARROLLO_PROPIO - Justificado]`:** CLI unificado de gestión de bandeja editorial y observabilidad local (`scripts/editorial_cli.py`). Orquesta de manera integral y 100% offline la normalización de entradas locales (ATS y HTML/JSON-LD vía `import`), deduplicación determinista (`deduplicate`), validación Schema 2 (`validate-inbox`), inspección de estados y métricas (`inspect`), reporte integral consolidado (`report`) y preparación de artefactos para revisión humana (`prepare-review`). No realiza llamadas de red, prohíbe terminantemente la escritura en la semilla canónica (`data/opportunities.seed.json`) o snapshot (`data/opportunities.json`), preserva la bandeja local frente a mutaciones destructivas y produce códigos de salida diferenciados (0 éxito, 1 error de datos, 2 error operativo). Se implementaron 30 pruebas unitarias y de integración dedicadas en `tests/test_editorial_cli.py`.
+- **R2-OSS-07 `[DESARROLLO_PROPIO - Justificado]` `[INTEGRACIÓN_OSS]`:** Integración End-to-End, endurecimiento de seguridad y verificación integral del pipeline editorial OSS. Se endureció `scripts/editorial_cli.py` con escrituras atómicas resistentes a fallos (`_atomic_write_json`), protección insensible a mayúsculas/minúsculas frente a path traversal hacia archivos protegidos (`opportunities.seed.json`, `opportunities.json`, `collector/sources.json` y `.git/`), y prevención estricta de colisiones entre rutas de entrada y salida. Se desarrolló la suite de integración de ciclo de vida completo [tests/test_editorial_pipeline_e2e.py](tests/test_editorial_pipeline_e2e.py) que demuestra en un entorno temporal aislado el flujo integral (importación ATS/HTML -> staging -> validación -> evidencias -> deduplicación -> reporte -> preparación de revisión humana), verificando determinismo absoluto y bloqueando a nivel de socket cualquier solicitud de red.
+- **R2-OSS-08 `[DESARROLLO_PROPIO - Justificado]` `[INTEGRACIÓN_OSS]`:** Consolidación, auditoría de integridad y cierre formal de la línea OSS offline. Se verificó la coherencia integral del repositorio, la exactitud de los contratos Schema 2 en todos los módulos, la reproducibilidad total de las pruebas (193 unitarias/integración y 8 E2E Playwright), la inviolabilidad criptográfica de los archivos canónicos (`opportunities.seed.json`, `opportunities.json`, `collector/sources.json`) y la ausencia de dependencias externas o llamadas de red. La línea de ingeniería offline R2-OSS queda formally cerrada al 100%.
+- **Evidencias de validación acumulada:**
+  - `python -m unittest discover -s tests -p "test_*.py"`: **193 pruebas unitarias y de integración aprobadas (0 fallos)**.
+  - `npx playwright test`: **8 pruebas E2E aprobadas**.
+  - `python scripts/build_catalog.py --check`: catálogo demostrativo consistente.
+  - `python scripts/validate_catalog.py`: catálogo válido sin errores.
+  - `python scripts/editorial_cli.py validate-inbox data/candidates/inbox.example.json --verify-evidence`: validación vía CLI operativa.
+  - `git status -- data/`: semilla canónica, snapshot publicado y registro de fuentes 100% inalterados (hashes SHA-256 idénticos).
+  - Cero solicitudes de red; cero fuentes externas activadas; sockets bloqueados en pruebas E2E.
+- **Estado de la línea R2-OSS:**
+  - **Línea B (Ingeniería OSS offline - R2-OSS-01 a R2-OSS-08):** **COMPLETADA Y CERRADA FORMALMENTE AL 100%.** Toda la infraestructura técnica de recopilación, normalización, deduplicación, validación y observabilidad local está operativa, endurecida y verificada.
+  - **Línea A (Producto y datos reales):** El bloqueo material para el MVP continúa vigente: se requiere la autorización externa formal de una fuente real para habilitar captura de datos en producción.
