@@ -188,6 +188,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("path", nargs="?", type=Path, default=DEFAULT_INBOX)
     parser.add_argument("--as-of", help="fecha civil Lima YYYY-MM-DD para validación reproducible")
+    parser.add_argument("--verify-evidence", action="store_true", help="activar verificación detallada de evidencias y vigencia")
+    parser.add_argument("--json-report", action="store_true", help="emitir informe de evidencias en formato JSON estructurado")
     args = parser.parse_args(argv)
     if not args.path.exists():
         print(f"No existe {args.path}. Copia data/candidates/inbox.example.json a inbox.local.json para iniciar.", file=sys.stderr)
@@ -204,10 +206,43 @@ def main(argv: list[str] | None = None) -> int:
         print("Error de validación: --as-of debe usar YYYY-MM-DD", file=sys.stderr)
         return 1
     errors, warnings = validate_payload(payload, sources=sources, today=today)
+
+    evidence_reports = []
+    if args.verify_evidence or args.json_report:
+        from collector.evidence import verify_candidates_evidence
+        candidates = payload.get("candidates", []) if isinstance(payload, dict) else []
+        evidence_reports = verify_candidates_evidence(candidates, as_of=today, sources=sources)
+
+    if args.json_report:
+        print(json.dumps({
+            "asOf": today.isoformat(),
+            "candidateValidationErrors": errors,
+            "candidateValidationWarnings": warnings,
+            "evidenceReports": [r.to_dict() for r in evidence_reports],
+        }, indent=2, ensure_ascii=False))
+        if errors or any(r.errors for r in evidence_reports):
+            return 1
+        return 0
+
     for warning in warnings:
         print(f"ADVERTENCIA: {warning}")
     for error in errors:
         print(f"ERROR: {error}", file=sys.stderr)
+
+    if args.verify_evidence:
+        print("\n=== INFORME DE EVIDENCIAS Y VIGENCIA (R2-OSS-05) ===")
+        print(f"Candidatos evaluados: {len(evidence_reports)}")
+        for r in evidence_reports:
+            print(f"[{r.candidate_id}] Procedencia: {r.provenance_summary} | Frescura: {r.freshness_summary} | Vigencia: {r.opportunity_validity}")
+            if r.deadline:
+                print(f"  Fecha límite: {r.deadline}")
+            if r.errors:
+                print(f"  Errores de evidencia: {', '.join(r.errors)}")
+            if r.warnings:
+                print(f"  Advertencias: {', '.join(r.warnings)}")
+            print(f"  Explicación: {r.explanation}")
+            print(f"  Acción recomendada: {r.recommended_action}")
+
     if errors:
         return 1
     count = len(payload["candidates"])

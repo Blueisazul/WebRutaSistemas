@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Múltiples Bloques Script JSON-LD - Sintético</title>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Ministerio Ficticio de Tecnología",
+    "url": "https://www.gob.pe/min-tec"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    "title": "Practicante de Gobernanza Digital (Sintético)",
+    "identifier": "MULTI-001",
+    "datePosted": "2026-10-28",
+    "validThrough": "2026-11-25",
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": "Ministerio Ficticio de Tecnología"
+    },
+    "jobLocation": "Lima, Perú",
+    "url": "https://www.gob.pe/min-tec/convocatorias/multi-001"
+  }
+  </script>
+</head>
+<body>
+  <h1>Página con dos bloques JSON-LD independientes</h1>
+</body>
+</html>

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "lev-uuid-990208",
+    "text": "Posting Con HTTP Inseguro (Sintético)",
+    "hostedUrl": "http://jobs.lever.co/empresa-ficticia/lev-uuid-990208"
+  },
+  {
+    "id": "lev-uuid-990209",
+    "text": "Posting Con Host No Autorizado (Sintético)",
+    "hostedUrl": "https://malicious-external-domain.example.com/job/990209"
+  },
+  {
+    "id": "lev-uuid-990210",
+    "text": "Posting Sin URL (Sintético)",
+    "hostedUrl": ""
+  }
+]

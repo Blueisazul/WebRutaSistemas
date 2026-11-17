@@ -1,0 +1,30 @@
+[
+  {
+    "id": "lev-uuid-990201",
+    "text": "Practicante Preprofesional de DevOps (Sintético)",
+    "hostedUrl": "https://jobs.lever.co/empresa-ficticia/lev-uuid-990201",
+    "applyUrl": "https://jobs.lever.co/empresa-ficticia/lev-uuid-990201/apply",
+    "createdAt": 1729944000000,
+    "workplaceType": "hybrid",
+    "categories": {
+      "location": "Lima, Perú",
+      "commitment": "Prácticas",
+      "team": "Infraestructura Cloud",
+      "department": "Ingeniería"
+    }
+  },
+  {
+    "id": "lev-uuid-990202",
+    "text": "Desarrollador Frontend Junior (Sintético)",
+    "hostedUrl": "https://jobs.lever.co/empresa-ficticia/lev-uuid-990202",
+    "applyUrl": "https://jobs.lever.co/empresa-ficticia/lev-uuid-990202/apply",
+    "createdAt": 1729857600000,
+    "workplaceType": "remote",
+    "categories": {
+      "location": "Remoto",
+      "commitment": "Tiempo completo",
+      "team": "Frontend",
+      "department": "Producto"
+    }
+  }
+]

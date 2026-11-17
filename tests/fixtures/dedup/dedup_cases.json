@@ -1,0 +1,182 @@
+{
+  "sameSourceSameRef": [
+    {
+      "candidateId": "CAND-001-A",
+      "sourceId": "fuente-alfa",
+      "proposed": {
+        "title": "Practicante de Sistemas",
+        "employer": "Entidad Alfa",
+        "externalReference": "REF-001"
+      }
+    },
+    {
+      "candidateId": "CAND-001-B",
+      "sourceId": "fuente-alfa",
+      "proposed": {
+        "title": "Practicante de Sistemas",
+        "employer": "Entidad Alfa",
+        "externalReference": "REF-001"
+      }
+    }
+  ],
+  "diffSourceSameRef": [
+    {
+      "candidateId": "CAND-002-A",
+      "sourceId": "fuente-alfa",
+      "proposed": {
+        "title": "Practicante de Redes",
+        "employer": "Entidad Alfa",
+        "externalReference": "999"
+      }
+    },
+    {
+      "candidateId": "CAND-002-B",
+      "sourceId": "fuente-beta",
+      "proposed": {
+        "title": "Practicante de Finanzas",
+        "employer": "Entidad Beta",
+        "externalReference": "999"
+      }
+    }
+  ],
+  "diffLocation": [
+    {
+      "candidateId": "CAND-003-A",
+      "sourceId": "fuente-alfa",
+      "proposed": {
+        "title": "Practicante de TI",
+        "employer": "Entidad Alfa",
+        "location": "Lima, Perú"
+      }
+    },
+    {
+      "candidateId": "CAND-003-B",
+      "sourceId": "fuente-beta",
+      "proposed": {
+        "title": "Practicante de TI",
+        "employer": "Entidad Alfa",
+        "location": "Arequipa, Perú"
+      }
+    }
+  ],
+  "diffMode": [
+    {
+      "candidateId": "CAND-004-A",
+      "sourceId": "fuente-alfa",
+      "proposed": {
+        "title": "Practicante de QA",
+        "employer": "Entidad Alfa",
+        "mode": "Remoto"
+      }
+    },
+    {
+      "candidateId": "CAND-004-B",
+      "sourceId": "fuente-beta",
+      "proposed": {
+        "title": "Practicante de QA",
+        "employer": "Entidad Alfa",
+        "mode": "Presencial"
+      }
+    }
+  ],
+  "diffType": [
+    {
+      "candidateId": "CAND-005-A",
+      "sourceId": "fuente-alfa",
+      "proposed": {
+        "title": "Desarrollador Junior",
+        "employer": "Entidad Alfa",
+        "opportunityType": "Práctica preprofesional"
+      }
+    },
+    {
+      "candidateId": "CAND-005-B",
+      "sourceId": "fuente-beta",
+      "proposed": {
+        "title": "Desarrollador Junior",
+        "employer": "Entidad Alfa",
+        "opportunityType": "Práctica profesional"
+      }
+    }
+  ],
+  "diffTitleSameEmployer": [
+    {
+      "candidateId": "CAND-006-A",
+      "sourceId": "fuente-alfa",
+      "proposed": {
+        "title": "Practicante de Sistemas",
+        "employer": "Entidad Alfa"
+      }
+    },
+    {
+      "candidateId": "CAND-006-B",
+      "sourceId": "fuente-alfa",
+      "proposed": {
+        "title": "Practicante de Contabilidad",
+        "employer": "Entidad Alfa"
+      }
+    }
+  ],
+  "leadingZeros": {
+    "identical": [
+      {
+        "candidateId": "CAND-007-A",
+        "sourceId": "fuente-alfa",
+        "proposed": {
+          "title": "Practicante TI",
+          "employer": "Entidad Alfa",
+          "externalReference": "00123"
+        }
+      },
+      {
+        "candidateId": "CAND-007-B",
+        "sourceId": "fuente-alfa",
+        "proposed": {
+          "title": "Practicante TI",
+          "employer": "Entidad Alfa",
+          "externalReference": "00123"
+        }
+      }
+    ],
+    "different": [
+      {
+        "candidateId": "CAND-007-C",
+        "sourceId": "fuente-alfa",
+        "proposed": {
+          "title": "Practicante TI",
+          "employer": "Entidad Alfa",
+          "externalReference": "00123"
+        }
+      },
+      {
+        "candidateId": "CAND-007-D",
+        "sourceId": "fuente-alfa",
+        "proposed": {
+          "title": "Practicante TI",
+          "employer": "Entidad Alfa",
+          "externalReference": "123"
+        }
+      }
+    ]
+  },
+  "identifierCollision": [
+    {
+      "candidateId": "CAND-018-A",
+      "sourceId": "fuente-alfa",
+      "proposed": {
+        "title": "Practicante de Desarrollo de Software",
+        "employer": "Entidad Alfa",
+        "externalReference": "CONV-001"
+      }
+    },
+    {
+      "candidateId": "CAND-018-B",
+      "sourceId": "fuente-alfa",
+      "proposed": {
+        "title": "Abogado Especialista en Contrataciones",
+        "employer": "Entidad Beta",
+        "externalReference": "CONV-001"
+      }
+    }
+  ]
+}

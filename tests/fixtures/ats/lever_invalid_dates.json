@@ -1,0 +1,20 @@
+[
+  {
+    "id": "lev-uuid-990205",
+    "text": "Posting Con Fecha Negativa (Sintético)",
+    "hostedUrl": "https://jobs.lever.co/empresa-ficticia/lev-uuid-990205",
+    "createdAt": -1000
+  },
+  {
+    "id": "lev-uuid-990206",
+    "text": "Posting Con Fecha Como Texto (Sintético)",
+    "hostedUrl": "https://jobs.lever.co/empresa-ficticia/lev-uuid-990206",
+    "createdAt": "not-a-timestamp"
+  },
+  {
+    "id": "lev-uuid-990207",
+    "text": "Posting Con Fecha Gigante (Sintético)",
+    "hostedUrl": "https://jobs.lever.co/empresa-ficticia/lev-uuid-990207",
+    "createdAt": 99999999999999999
+  }
+]

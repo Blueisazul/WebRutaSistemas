@@ -1,0 +1,28 @@
+{
+  "jobs": [
+    {
+      "id": 990105,
+      "title": "Insecure HTTP Job (Sintético)",
+      "absolute_url": "http://boards.greenhouse.io/empresa-ficticia/jobs/990105",
+      "location": {
+        "name": "Lima, Perú"
+      }
+    },
+    {
+      "id": 990106,
+      "title": "Disallowed Host Job (Sintético)",
+      "absolute_url": "https://phishing-site.example.com/job/990106",
+      "location": {
+        "name": "Lima, Perú"
+      }
+    },
+    {
+      "id": 990107,
+      "title": "Malformed URL Job (Sintético)",
+      "absolute_url": "not-a-valid-url",
+      "location": {
+        "name": "Lima, Perú"
+      }
+    }
+  ]
+}

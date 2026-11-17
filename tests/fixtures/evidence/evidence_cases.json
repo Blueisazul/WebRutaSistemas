@@ -1,0 +1,673 @@
+{
+  "source_bcp": {
+    "id": "src-bcp",
+    "name": "Banco de Crédito del Perú",
+    "decision": "approved",
+    "manualReviewStatus": "approved",
+    "publicReuseStatus": "approved",
+    "rightsReview": "metadata_only_approved",
+    "allowedHosts": ["jobs.bcp.com.pe", "bcp.com.pe"],
+    "allowedPostingHosts": ["jobs.bcp.com.pe"],
+    "verificationTtlDays": 7
+  },
+  "source_pending": {
+    "id": "src-pending",
+    "name": "Portal en Revisión",
+    "decision": "pending_review",
+    "manualReviewStatus": "pending_review",
+    "publicReuseStatus": "pending_review",
+    "rightsReview": "pending_review",
+    "allowedHosts": ["portal-pendiente.pe"],
+    "allowedPostingHosts": ["portal-pendiente.pe"],
+    "verificationTtlDays": 7
+  },
+  "cases": {
+    "case_01_valid_https_allowed_host": {
+      "dimension": "provenance",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-01",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-01",
+        "proposed": {
+          "title": "Practicante Sistemas",
+          "applyUrl": "https://jobs.bcp.com.pe/apply"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-01", "observedAt": "2026-11-16T10:00:00-05:00"},
+          {"field": "applyUrl", "url": "https://jobs.bcp.com.pe/opp-01", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "provenance_summary": "PROVENANCE_VALID",
+        "freshness_summary": "ALL_FRESH",
+        "opportunity_validity": "DEADLINE_UNKNOWN",
+        "has_errors": false
+      }
+    },
+    "case_02_http_insecure_url": {
+      "dimension": "provenance",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-02",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-02",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "http://jobs.bcp.com.pe/opp-02", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_INVALID",
+        "provenance_summary": "PROVENANCE_INVALID",
+        "has_errors": true
+      }
+    },
+    "case_03_malformed_url_no_host": {
+      "dimension": "provenance",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-03",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-03",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https:///no-host", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_INVALID",
+        "provenance_summary": "PROVENANCE_INVALID",
+        "has_errors": true
+      }
+    },
+    "case_04_credentials_in_url": {
+      "dimension": "provenance",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-04",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-04",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://admin:pass123@jobs.bcp.com.pe/opp-04", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_INVALID",
+        "provenance_summary": "PROVENANCE_INVALID",
+        "has_errors": true
+      }
+    },
+    "case_05_non_standard_port": {
+      "dimension": "provenance",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-05",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-05",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe:8080/opp-05", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_INVALID",
+        "provenance_summary": "PROVENANCE_INVALID",
+        "has_errors": true
+      }
+    },
+    "case_06_unallowed_host": {
+      "dimension": "provenance",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-06",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-06",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://unauthorized-domain.com/opp-06", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_INVALID",
+        "provenance_summary": "PROVENANCE_INVALID",
+        "has_errors": true
+      }
+    },
+    "case_07_missing_evidence_url": {
+      "dimension": "provenance",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-07",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-07",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": null, "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_INVALID",
+        "provenance_summary": "PROVENANCE_INVALID",
+        "has_errors": true
+      }
+    },
+    "case_08_inconsistent_evidence_url": {
+      "dimension": "provenance",
+      "as_of": "2026-11-17",
+      "source_key": null,
+      "candidate": {
+        "candidateId": "cand-08",
+        "sourceId": "src-generic",
+        "sourceUrl": "https://empresa.com/opp-08",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://otro-portal.org/opp-08", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_INVALID",
+        "provenance_summary": "PROVENANCE_INVALID",
+        "has_errors": true
+      }
+    },
+    "case_09_orphan_evidence": {
+      "dimension": "provenance",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-09",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-09",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-09", "observedAt": "2026-11-16T10:00:00-05:00"},
+          {"field": "salary", "url": "https://jobs.bcp.com.pe/opp-09", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "provenance_summary": "PROVENANCE_VALID",
+        "has_warnings": true,
+        "has_errors": false
+      }
+    },
+    "case_10_missing_evidence_for_proposed_field": {
+      "dimension": "provenance",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-10",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-10",
+        "proposed": {
+          "title": "Practicante Sistemas",
+          "employer": "Banco de Crédito del Perú"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-10", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_INVALID",
+        "has_errors": true
+      }
+    },
+    "case_11_fresh_observed_today": {
+      "dimension": "freshness",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-11",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-11",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-11", "observedAt": "2026-11-17T09:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "freshness_summary": "ALL_FRESH",
+        "age_days": 0
+      }
+    },
+    "case_12_fresh_within_ttl": {
+      "dimension": "freshness",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-12",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-12",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-12", "observedAt": "2026-11-14T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "freshness_summary": "ALL_FRESH",
+        "age_days": 3
+      }
+    },
+    "case_13_fresh_exact_ttl_boundary": {
+      "dimension": "freshness",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-13",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-13",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-13", "observedAt": "2026-11-10T00:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "freshness_summary": "ALL_FRESH",
+        "age_days": 7
+      }
+    },
+    "case_14_stale_1_day_over_ttl": {
+      "dimension": "freshness",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-14",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-14",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-14", "observedAt": "2026-11-09T23:59:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "freshness_summary": "ALL_STALE",
+        "age_days": 8,
+        "has_warnings": true
+      }
+    },
+    "case_15_deeply_stale_60_days": {
+      "dimension": "freshness",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-15",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-15",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-15", "observedAt": "2026-09-18T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "freshness_summary": "ALL_STALE",
+        "age_days": 60,
+        "has_warnings": true
+      }
+    },
+    "case_16_missing_observed_at": {
+      "dimension": "freshness",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-16",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-16",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-16", "observedAt": null}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_INVALID",
+        "freshness_summary": "ALL_STALE",
+        "has_errors": true
+      }
+    },
+    "case_17_malformed_observed_at": {
+      "dimension": "freshness",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-17",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-17",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-17", "observedAt": "17-11-2026 10:00 AM"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_INVALID",
+        "freshness_summary": "INVALID_TEMPORALITY",
+        "has_errors": true
+      }
+    },
+    "case_18_future_observed_at": {
+      "dimension": "freshness",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-18",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-18",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-18", "observedAt": "2026-11-18T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_INVALID",
+        "freshness_summary": "INVALID_TEMPORALITY",
+        "has_errors": true
+      }
+    },
+    "case_19_future_deadline": {
+      "dimension": "validity",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-19",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-19",
+        "proposed": {
+          "title": "Practicante Sistemas",
+          "deadline": "2026-11-30"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-19", "observedAt": "2026-11-16T10:00:00-05:00"},
+          {"field": "deadline", "url": "https://jobs.bcp.com.pe/opp-19", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "opportunity_validity": "DEADLINE_FUTURE"
+      }
+    },
+    "case_20_deadline_reached_today": {
+      "dimension": "validity",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-20",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-20",
+        "proposed": {
+          "title": "Practicante Sistemas",
+          "deadline": "2026-11-17"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-20", "observedAt": "2026-11-16T10:00:00-05:00"},
+          {"field": "deadline", "url": "https://jobs.bcp.com.pe/opp-20", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "opportunity_validity": "DEADLINE_REACHED"
+      }
+    },
+    "case_21_expired_deadline": {
+      "dimension": "validity",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-21",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-21",
+        "proposed": {
+          "title": "Practicante Sistemas",
+          "deadline": "2026-11-10"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-21", "observedAt": "2026-11-16T10:00:00-05:00"},
+          {"field": "deadline", "url": "https://jobs.bcp.com.pe/opp-21", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "opportunity_validity": "DEADLINE_EXPIRED",
+        "has_warnings": true
+      }
+    },
+    "case_22_missing_deadline": {
+      "dimension": "validity",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-22",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-22",
+        "proposed": {
+          "title": "Practicante Sistemas",
+          "deadline": null
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-22", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "opportunity_validity": "DEADLINE_UNKNOWN"
+      }
+    },
+    "case_23_invalid_deadline_format": {
+      "dimension": "validity",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-23",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-23",
+        "proposed": {
+          "title": "Practicante Sistemas",
+          "deadline": "30-11-2026"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-23", "observedAt": "2026-11-16T10:00:00-05:00"},
+          {"field": "deadline", "url": "https://jobs.bcp.com.pe/opp-23", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_INVALID",
+        "opportunity_validity": "DEADLINE_INVALID",
+        "has_errors": true
+      }
+    },
+    "case_24_timezone_offset_no_drift": {
+      "dimension": "validity",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-24",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-24",
+        "proposed": {
+          "title": "Practicante Sistemas",
+          "deadline": "2026-11-17"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-24", "observedAt": "2026-11-17T23:30:00-05:00"},
+          {"field": "deadline", "url": "https://jobs.bcp.com.pe/opp-24", "observedAt": "2026-11-17T23:30:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "freshness_summary": "ALL_FRESH",
+        "opportunity_validity": "DEADLINE_REACHED",
+        "age_days": 0
+      }
+    },
+    "case_25_fresh_evidence_expired_deadline": {
+      "dimension": "validity",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-25",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-25",
+        "proposed": {
+          "title": "Practicante Sistemas",
+          "deadline": "2026-11-10"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-25", "observedAt": "2026-11-16T10:00:00-05:00"},
+          {"field": "deadline", "url": "https://jobs.bcp.com.pe/opp-25", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "freshness_summary": "ALL_FRESH",
+        "opportunity_validity": "DEADLINE_EXPIRED"
+      }
+    },
+    "case_26_future_deadline_stale_evidence": {
+      "dimension": "validity",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-26",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-26",
+        "proposed": {
+          "title": "Practicante Sistemas",
+          "deadline": "2026-12-31"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-26", "observedAt": "2026-11-01T10:00:00-05:00"},
+          {"field": "deadline", "url": "https://jobs.bcp.com.pe/opp-26", "observedAt": "2026-11-01T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "freshness_summary": "ALL_STALE",
+        "opportunity_validity": "DEADLINE_FUTURE"
+      }
+    },
+    "case_27_empty_proposed": {
+      "dimension": "integrity",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-27",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-27",
+        "proposed": {},
+        "fieldEvidence": []
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "freshness_summary": "NO_EVIDENCE",
+        "opportunity_validity": "DEADLINE_UNKNOWN"
+      }
+    },
+    "case_28_multiple_evidences_single_field": {
+      "dimension": "integrity",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-28",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-28",
+        "proposed": {
+          "title": "Practicante Sistemas"
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-28a", "observedAt": "2026-11-16T10:00:00-05:00"},
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-28b", "observedAt": "2026-11-16T11:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "freshness_summary": "ALL_FRESH",
+        "has_warnings": true,
+        "evidence_count": 2
+      }
+    },
+    "case_29_optional_fields_null_no_evidence": {
+      "dimension": "integrity",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-29",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-29",
+        "proposed": {
+          "title": "Practicante Sistemas",
+          "salary": null,
+          "benefits": null,
+          "requirements": ""
+        },
+        "fieldEvidence": [
+          {"field": "title", "url": "https://jobs.bcp.com.pe/opp-29", "observedAt": "2026-11-16T10:00:00-05:00"}
+        ]
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_VALID",
+        "freshness_summary": "ALL_FRESH",
+        "has_errors": false
+      }
+    },
+    "case_30_malformed_candidate_structure": {
+      "dimension": "integrity",
+      "as_of": "2026-11-17",
+      "source_key": "source_bcp",
+      "candidate": {
+        "candidateId": "cand-30",
+        "sourceId": "src-bcp",
+        "sourceUrl": "https://jobs.bcp.com.pe/opp-30",
+        "proposed": "not-an-object",
+        "fieldEvidence": "not-a-list"
+      },
+      "expected": {
+        "structural_status": "STRUCTURAL_INVALID",
+        "has_errors": true
+      }
+    }
+  }
+}

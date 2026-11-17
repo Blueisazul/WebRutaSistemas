@@ -1,0 +1,18 @@
+{
+  "jobs": [
+    {
+      "id": null,
+      "title": "Job Sin Identificador (Sintético)",
+      "absolute_url": "https://boards.greenhouse.io/empresa-ficticia/jobs/null"
+    },
+    {
+      "id": 990108,
+      "title": "",
+      "absolute_url": "https://boards.greenhouse.io/empresa-ficticia/jobs/990108"
+    },
+    {
+      "title": "Job Con Campo ID Totalmente Ausente (Sintético)",
+      "absolute_url": "https://boards.greenhouse.io/empresa-ficticia/jobs/missing"
+    }
+  ]
+}

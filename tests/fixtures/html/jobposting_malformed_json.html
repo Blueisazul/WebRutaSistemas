@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>JSON-LD Malformado - Sintético</title>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    "title": "Aviso con sintaxis JSON rota (Sintético)",
+    "identifier": "MALFORMED-001",
+    "datePosted": "2026-10-30",
+    "unclosed_string: "este texto no cierra comillas correctamente...
+  }
+  </script>
+</head>
+<body>
+  <h1>Página con error de parseo JSON</h1>
+</body>
+</html>

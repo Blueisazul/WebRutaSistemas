@@ -1,0 +1,36 @@
+{
+  "jobs": [
+    {
+      "id": 990101,
+      "title": "Practicante Preprofesional de Desarrollo Backend (Sintético)",
+      "absolute_url": "https://boards.greenhouse.io/empresa-ficticia/jobs/990101",
+      "location": {
+        "name": "Lima, Perú"
+      },
+      "departments": [
+        {
+          "name": "Tecnología e Ingeniería"
+        }
+      ],
+      "offices": [
+        {
+          "name": "Sede Central San Isidro"
+        }
+      ]
+    },
+    {
+      "id": 990102,
+      "title": "Junior Cloud QA Engineer (Sintético)",
+      "absolute_url": "https://boards.greenhouse.io/empresa-ficticia/jobs/990102",
+      "location": {
+        "name": "Remote"
+      },
+      "departments": [
+        {
+          "name": "Aseguramiento de Calidad"
+        }
+      ],
+      "offices": []
+    }
+  ]
+}

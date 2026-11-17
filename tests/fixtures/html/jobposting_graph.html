@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Estructura @graph con JobPosting - Sintético</title>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://sistemas.unmsm.edu.pe/#website",
+        "url": "https://sistemas.unmsm.edu.pe/",
+        "name": "Portal de la FISI"
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://sistemas.unmsm.edu.pe/noticias/convocatoria-ti/#webpage",
+        "url": "https://sistemas.unmsm.edu.pe/noticias/convocatoria-ti/",
+        "name": "Convocatoria para Practicante TI"
+      },
+      {
+        "@type": "JobPosting",
+        "@id": "https://sistemas.unmsm.edu.pe/noticias/convocatoria-ti/#job",
+        "title": "Practicante de Laboratorio de Cómputo (Sintético)",
+        "identifier": "GRAPH-001",
+        "datePosted": "2026-10-25",
+        "validThrough": "2026-11-30",
+        "employmentType": "PART_TIME",
+        "hiringOrganization": {
+          "@type": "Organization",
+          "name": "Laboratorios FISI UNMSM"
+        },
+        "jobLocation": {
+          "@type": "Place",
+          "address": "Ciudad Universitaria, Lima"
+        },
+        "url": "https://sistemas.unmsm.edu.pe/noticias/convocatoria-ti/"
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <h1>Página estructurada con grafo JSON-LD</h1>
+</body>
+</html>

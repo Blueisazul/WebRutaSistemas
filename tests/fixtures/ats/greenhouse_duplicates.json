@@ -1,0 +1,20 @@
+{
+  "jobs": [
+    {
+      "id": 990109,
+      "title": "Ingeniero de Software Junior - Instancia 1 (Sintético)",
+      "absolute_url": "https://boards.greenhouse.io/empresa-ficticia/jobs/990109",
+      "location": {
+        "name": "Lima, Perú"
+      }
+    },
+    {
+      "id": 990109,
+      "title": "Ingeniero de Software Junior - Instancia Duplicada (Sintético)",
+      "absolute_url": "https://boards.greenhouse.io/empresa-ficticia/jobs/990109",
+      "location": {
+        "name": "Lima, Perú"
+      }
+    }
+  ]
+}
