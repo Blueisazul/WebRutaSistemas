@@ -35,7 +35,8 @@
 
 | Métrica | Registro Observado |
 |---|---|
-| **Resultado de la Tarea** | `[ ] Éxito sin ayuda` / `[ ] Éxito con ayuda` / `[ ] Fracaso o abandono` |
+| **Resultado de la Tarea** | `[ ] SUCCESS_WITHOUT_HELP` / `[ ] SUCCESS_WITH_HELP` / `[ ] ABANDONED` / `[ ] NOT_EXECUTED` |
+| **Intervención del Moderador** | `(Describir ayuda/pista brindada, o "Ninguna")` |
 | **Tiempo de Ejecución** | `___ min : ___ seg` |
 | **Confianza Declarada (1 a 5)** | `[ ] 1 (Muy inseguro) - [ ] 2 - [ ] 3 - [ ] 4 - [ ] 5 (Muy seguro)` |
 
@@ -57,7 +58,8 @@
 
 | Métrica | Registro Observado |
 |---|---|
-| **Resultado de la Tarea** | `[ ] Éxito sin ayuda` / `[ ] Éxito con ayuda` / `[ ] Fracaso o abandono` |
+| **Resultado de la Tarea** | `[ ] SUCCESS_WITHOUT_HELP` / `[ ] SUCCESS_WITH_HELP` / `[ ] ABANDONED` / `[ ] NOT_EXECUTED` |
+| **Intervención del Moderador** | `(Describir ayuda/pista brindada, o "Ninguna")` |
 | **Tiempo de Ejecución** | `___ min : ___ seg` |
 | **Confianza Declarada (1 a 5)** | `[ ] 1 (Muy inseguro) - [ ] 2 - [ ] 3 - [ ] 4 - [ ] 5 (Muy seguro)` |
 
@@ -81,7 +83,8 @@
 
 | Métrica | Registro Observado |
 |---|---|
-| **Resultado de la Tarea** | `[ ] Éxito sin ayuda` / `[ ] Éxito con ayuda` / `[ ] Fracaso o abandono` |
+| **Resultado de la Tarea** | `[ ] SUCCESS_WITHOUT_HELP` / `[ ] SUCCESS_WITH_HELP` / `[ ] ABANDONED` / `[ ] NOT_EXECUTED` |
+| **Intervención del Moderador** | `(Describir ayuda/pista brindada, o "Ninguna")` |
 | **Tiempo de Ejecución** | `___ min : ___ seg` |
 | **Confianza Declarada (1 a 5)** | `[ ] 1 (Muy inseguro) - [ ] 2 - [ ] 3 - [ ] 4 - [ ] 5 (Muy seguro)` |
 
@@ -104,7 +107,8 @@
 
 | Métrica | Registro Observado |
 |---|---|
-| **Resultado de la Tarea** | `[ ] Éxito sin ayuda` / `[ ] Éxito con ayuda` / `[ ] Fracaso o abandono` |
+| **Resultado de la Tarea** | `[ ] SUCCESS_WITHOUT_HELP` / `[ ] SUCCESS_WITH_HELP` / `[ ] ABANDONED` / `[ ] NOT_EXECUTED` |
+| **Intervención del Moderador** | `(Describir ayuda/pista brindada, o "Ninguna")` |
 | **Tiempo de Ejecución** | `___ min : ___ seg` |
 | **Confianza Declarada (1 a 5)** | `[ ] 1 (Muy inseguro) - [ ] 2 - [ ] 3 - [ ] 4 - [ ] 5 (Muy seguro)` |
 
@@ -129,7 +133,8 @@
 
 | Métrica | Registro Observado |
 |---|---|
-| **Resultado de la Tarea** | `[ ] Éxito sin ayuda` / `[ ] Éxito con ayuda` / `[ ] Fracaso o abandono` |
+| **Resultado de la Tarea** | `[ ] SUCCESS_WITHOUT_HELP` / `[ ] SUCCESS_WITH_HELP` / `[ ] ABANDONED` / `[ ] NOT_EXECUTED` |
+| **Intervención del Moderador** | `(Describir ayuda/pista brindada, o "Ninguna")` |
 | **Tiempo de Ejecución** | `___ min : ___ seg` |
 | **Confianza Declarada (1 a 5)** | `[ ] 1 (Muy inseguro) - [ ] 2 - [ ] 3 - [ ] 4 - [ ] 5 (Muy seguro)` |
 
