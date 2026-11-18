@@ -174,7 +174,7 @@ El roadmap existente permanece en la sección 21 y sus bloques posteriores del [
 | R0 | Cerrar alcance, contrato, criterios y decisiones | Auditoría + docs actuales | Este documento, sin contradicciones críticas sin registrar | **Cerrada documentalmente** |
 | R1 | Estabilizar versión actual | R0 | `canvas.js` local resuelto, marca unificada, diff revisado, E2E base, Pages desplegado | **Completada y verificada en producción** |
 | R2 | Obtener primera oportunidad real | R1 + fuentes públicas/autorización | Una ficha real aprobada en staging y luego seed/snapshot | **DONE. Línea offline R2-OSS cerrada. Línea A completada en R2-A-05: CookUnity 8039990003 (Supply Chain Analyst - Lima, Perú) promovida editorialmente al catálogo canónico como OP-005 con aprobación del propietario (APPROVE_WITH_LIMITATIONS), snapshot compilado y validado (193 pruebas unitarias, 8 pruebas E2E Playwright, validador de calidad) y publicado en GitHub Pages con 21 evidencias desglosadas por campo y canal oficial de postulación. Candidato Canonical 8379825 conservado en reserva. Desbloquea R3.** |
-| R3 | Validar utilidad del MVP | R2 | Pruebas con usuarios y medición de comprensión/comparación | **Validación técnica parcial; valor real bloqueado por R2** |
+| R3 | Validar utilidad del MVP | R2 | Pruebas con usuarios y medición de comprensión/comparación | **En ejecución. Desbloqueada por R2-A-05 con oportunidad real OP-005 en producción. Subfase R3-01 (Preparación y protocolo de investigación) completada (DONE): línea base UX, protocolo de pruebas de usabilidad, plantilla individual de sesión, repositorio de hallazgos y auditoría de preparación entregados. Subtareas R3-01-01 a R3-01-05 formalizadas. Pendiente R3-02 (ejecución de sesiones con 5-8 usuarios reales).** |
 | R4 | Automatizar fuente autorizada | R2/R3 + permiso técnico | Adaptador acotado, candidatos offline, sin promoción automática | **Bloqueada; no existe fuente autorizada** |
 | R5 | Evaluación profesional explicable | Datos reales suficientes + R3 | Señales auditables sin score obligatorio | Aplazada |
 | R6 | Preferencias, guardados y alertas | R3 + necesidad demostrada | Diseño de privacidad y persistencia justificado | Aplazada |
@@ -208,6 +208,20 @@ El roadmap existente permanece en la sección 21 y sus bloques posteriores del [
 4. Autorizar la integración/publicación del lote sin commit tras revisión completa del diff.
 5. Definir, después del piloto, si el volumen justifica CMS/backend; no se presume ahora.
 
-## 9. Cierre R0
+## 9. Cierre R0 y Seguimiento de Fases Posteriores
 
-R0 queda **cerrada documentalmente**. R1 queda **implementada y validada en servidor local, suite y smoke de navegador**, con la salvedad de que no se incorporó un runner E2E permanente. No se activaron fuentes ni se cambió el alcance. El bloqueo material para el MVP sigue siendo la autorización y verificación de una primera oportunidad real.
+- **R0:** **Cerrada documentalmente**.
+- **R1:** **Cerrada y desplegada**.
+- **R2:** **Cerrada formalmente** con la línea offline R2-OSS (ingesta, normalización, dedup, evidencias y CLI) y la línea A (R2-A-01 a R2-A-05), culminando con la publicación en producción de la oportunidad real CookUnity (`OP-005`) en GitHub Pages.
+- **R3 — Validación de Producto:** **En ejecución**.
+  - `R3-01`: Preparación y protocolo de investigación (`DONE`).
+    - `R3-01-01`: Auditoría UX del producto publicado (`DONE` -> `docs/research/r3-01-ux-baseline-2026-11-18.md`).
+    - `R3-01-02`: Definición del protocolo de investigación (`DONE` -> `docs/research/r3-01-user-research-protocol-2026-11-18.md`).
+    - `R3-01-03`: Diseño de escenarios y tareas A a E (`DONE` -> `docs/research/r3-01-user-research-protocol-2026-11-18.md`).
+    - `R3-01-04`: Métricas y taxonomía de evaluación (`DONE` -> `docs/research/r3-01-findings-template-2026-11-18.md`).
+    - `R3-01-05`: Instrumentación y plantillas locales (`DONE` -> `docs/research/r3-01-usability-test-template-2026-11-18.md`).
+  - `R3-02`: Ejecución de sesiones con participantes reales (5-8 usuarios) (`PENDIENTE`).
+  - `R3-03`: Análisis y consolidación de hallazgos (`PENDIENTE`).
+  - `R3-04`: Refactor/Fix UX justificado (`PENDIENTE`).
+  - `R3-05`: Decisión documentada sobre si el MVP satisface los criterios originales (`PENDIENTE`).
+- **R4 — Automatización Controlada:** **Bloqueada** hasta que R3 demuestre valor con usuarios y justifique técnica y éticamente la adquisición automática.

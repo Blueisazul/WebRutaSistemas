@@ -11,7 +11,7 @@ import sys
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from unittest.mock import patch
 
@@ -65,6 +65,7 @@ class TestEditorialPipelineE2E(unittest.TestCase):
         with patch("socket.socket", side_effect=RuntimeError("Red prohibida en pipeline offline")), \
              tempfile.TemporaryDirectory() as td:
 
+            today_str = datetime.now(cli.LIMA_TIMEZONE).date().isoformat()
             work_dir = Path(td)
             gh_out = work_dir / "gh_staging.json"
             lever_out = work_dir / "lever_staging.json"
@@ -146,7 +147,7 @@ class TestEditorialPipelineE2E(unittest.TestCase):
                 val_code = cli.main([
                     "validate-inbox",
                     str(merged_inbox),
-                    "--as-of", "2026-11-17",
+                    "--as-of", today_str,
                     "--verify-evidence",
                 ])
             # Valid Schema 2 candidates (with expected editorial warnings)
@@ -177,7 +178,7 @@ class TestEditorialPipelineE2E(unittest.TestCase):
                 insp_code = cli.main([
                     "inspect",
                     str(merged_inbox),
-                    "--as-of", "2026-11-17",
+                    "--as-of", today_str,
                     "--verify-evidence",
                 ])
             self.assertEqual(insp_code, cli.EXIT_OK)
@@ -195,14 +196,14 @@ class TestEditorialPipelineE2E(unittest.TestCase):
                     "report",
                     str(merged_inbox),
                     "--seed", str(SEED_PATH),
-                    "--as-of", "2026-11-17",
+                    "--as-of", today_str,
                     "--output", str(consolidated_report),
                 ])
             self.assertEqual(rep_code, cli.EXIT_OK)
             self.assertTrue(consolidated_report.exists())
             report_content = json.loads(consolidated_report.read_text(encoding="utf-8"))
             self.assertEqual(report_content["operation"], "report")
-            self.assertEqual(report_content["asOf"], "2026-11-17")
+            self.assertEqual(report_content["asOf"], today_str)
             self.assertTrue(report_content["validationSummary"]["passed"])
             self.assertIn("itemsRequiringHumanReview", report_content)
 
@@ -233,7 +234,7 @@ class TestEditorialPipelineE2E(unittest.TestCase):
                     "report",
                     str(merged_inbox),
                     "--seed", str(SEED_PATH),
-                    "--as-of", "2026-11-17",
+                    "--as-of", today_str,
                     "--json-report",
                 ])
             report_run_1 = json.loads(rep_buf_2.getvalue())
@@ -244,7 +245,7 @@ class TestEditorialPipelineE2E(unittest.TestCase):
                     "report",
                     str(merged_inbox),
                     "--seed", str(SEED_PATH),
-                    "--as-of", "2026-11-17",
+                    "--as-of", today_str,
                     "--json-report",
                 ])
             report_run_2 = json.loads(rep_buf_3.getvalue())
