@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "verificationTtlDays": 7,
   "timezone": "America/Lima",
-  "sourceNote": "Muestra demostrativa histórica; no se ha vuelto a corroborar y no constituye un catálogo de vacantes activas.",
+  "sourceNote": "Catálogo curado de oportunidades para Ingeniería de Sistemas en Perú; incluye convocatorias reales vigentes y registros históricos de referencia.",
   "opportunities": [
     {
       "id": "OP-001",
@@ -184,6 +184,168 @@
       "employmentEndDate": "2026-08-24",
       "allowedHosts": [
         "oportunidadlaboral.ositran.gob.pe"
+      ]
+    },
+    {
+      "id": "OP-005",
+      "employer": "CookUnity",
+      "publisher": "CookUnity",
+      "title": "Supply Chain Analyst",
+      "sector": "Tecnología",
+      "family": "Sistemas empresariales",
+      "level": "Junior",
+      "kind": "Profesional",
+      "mode": null,
+      "location": "Lima, Perú",
+      "eligibility": "Perú",
+      "salary": "No publicado",
+      "salaryNote": "No informado en la convocatoria pública",
+      "duration": "Full-time; duración no especificada",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://careers.cookunity.com/jobs/8039990003",
+      "applyUrl": "https://job-boards.greenhouse.io/cookunity/jobs/8039990003",
+      "evidenceUrl": "https://careers.cookunity.com/jobs/8039990003",
+      "requisition": "8039990003",
+      "tasks": "Análisis y reportería operativa en cadena de suministro; consultas y validación de calidad de datos en SQL; seguimiento de indicadores en Google Sheets y sistemas ERP/MRP.",
+      "requirements": "1+ años de experiencia previa en áreas analíticas o cadena de suministro; bachiller o egresado en Ingeniería (Sistemas, Industrial o afines); dominio de consultas SQL (joins, agregaciones, validación); Google Sheets avanzado; ERP/MRP; inglés profesional.",
+      "skills": "SQL · Analítica de operaciones · Google Sheets · ERP/MRP",
+      "growth": "Especialización en análisis de datos operacionales, optimización de flujos y sistemas de información empresarial. No es un puesto de desarrollo de software ni práctica preprofesional.",
+      "risk": "Exige 1+ años de experiencia previa y dedicación full-time (no apta para estudiantes con ciclo regular). Salario no publicado. Modalidad específica en sede Lima no detallada en el feed.",
+      "continuity": "Puesto regular de tiempo completo; sujeto a desempeño y evaluación del empleador.",
+      "benefits": "Beneficios de ley conforme a legislación peruana para contratación local; herramientas tecnológicas y entorno global de colaboración.",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-17",
+      "lastVerifiedAt": "2026-11-17T22:28:37-05:00",
+      "publishedAt": "2026-10-21",
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "careers.cookunity.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://careers.cookunity.com/jobs/8039990003",
+        "observedAt": "2026-11-17T22:28:37-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Equipo Editorial / Propietario Ruta Sistemas",
+        "reason": "Oportunidad real de analítica de datos operacionales y ERP/MRP en Lima, aprobada con limitaciones en R2-A-04 y autorizada para promoción.",
+        "decidedAt": "2026-11-17T22:44:00-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/cookunity/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/cookunity/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/cookunity/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/cookunity/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "publishedAt",
+          "url": "https://boards-api.greenhouse.io/v1/boards/cookunity/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/cookunity/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "requirements",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "tasks",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "skills",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "benefits",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "growth",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "continuity",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        },
+        {
+          "field": "risk",
+          "url": "https://careers.cookunity.com/jobs/8039990003",
+          "observedAt": "2026-11-17T22:28:37-05:00"
+        }
       ]
     }
   ]

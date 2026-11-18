@@ -145,15 +145,15 @@ def seed_database(connection: sqlite3.Connection) -> None:
             payload.pop("history", None)
 
             values = (
-                record["id"], source_id, record.get("requisition", ""), record.get("employer", ""),
-                record.get("title", ""), record.get("sector", ""), record.get("family", ""),
-                record.get("level", ""), record.get("kind", ""), record.get("mode", ""),
-                record.get("location", ""), record.get("eligibility", ""), record.get("salary", ""),
-                record.get("salaryNote", ""), record.get("duration", ""), record.get("deadline") or "",
-                record.get("published", ""), record.get("checked", ""), publication_status,
-                verification_status, record.get("requisition", ""), record.get("tasks", ""),
-                record.get("requirements", ""), record.get("skills", ""), record.get("growth", ""),
-                record.get("risk", ""), record.get("continuity", ""), record.get("benefits", ""),
+                record["id"], source_id, record.get("requisition") or "", record.get("employer") or "",
+                record.get("title") or "", record.get("sector") or "", record.get("family") or "",
+                record.get("level") or "", record.get("kind") or "", record.get("mode") or "",
+                record.get("location") or "", record.get("eligibility") or "", record.get("salary") or "",
+                record.get("salaryNote") or "", record.get("duration") or "", record.get("deadline") or "",
+                record.get("published") or "", record.get("checked") or "", publication_status,
+                verification_status, record.get("requisition") or "", record.get("tasks") or "",
+                record.get("requirements") or "", record.get("skills") or "", record.get("growth") or "",
+                record.get("risk") or "", record.get("continuity") or "", record.get("benefits") or "",
                 int(publication_status == "historical"), record.get("applyUrl", source_url),
                 json.dumps(payload, ensure_ascii=False),
             )

@@ -4,9 +4,9 @@ Catálogo piloto de oportunidades laborales para estudiantes y profesionales de 
 
 ## Estado real
 
-La interfaz estática permite buscar y filtrar un catálogo JSON. El conjunto actual conserva cinco fichas **demostrativas** y ninguna está habilitada para postular: una convocatoria vencida, una cerrada/histórica y tres con vigencia desconocida, todas sin verificación vigente. No hay fuentes automáticas aprobadas ni ofertas reales activas actualmente. La fecha de generación del catálogo no significa que las fichas se hayan vuelto a comprobar.
+La interfaz estática permite buscar y filtrar un catálogo JSON. Tras la culminación del primer flujo editorial real (R2-A-05), el catálogo contiene **1 oportunidad real activa verificada** (`OP-005`: *Supply Chain Analyst* en CookUnity, Lima, Perú) con canal de postulación oficial habilitado y 21 evidencias trazables por campo. Asimismo, se conservan cinco fichas **demostrativas** (ninguna habilitada para postular) para pruebas de interfaz y comparación.
 
-Las fichas demostrativas no aparecen en la búsqueda normal: se muestran solo al activar **“Incluir ejemplos demostrativos”** y están identificadas como ejemplos. Los contadores de oportunidades reales excluyen esas fichas. Cuando no hay oportunidades reales verificadas, la página lo indica y explica que cada publicación se incorpora tras revisar su origen y canal de postulación.
+Las fichas demostrativas no aparecen en la búsqueda normal: se muestran solo al activar **“Incluir ejemplos demostrativos”** y están identificadas como ejemplos. Los contadores de oportunidades reales reflejan exclusivamente las oportunidades reales verificadas y activas. Cuando no hay oportunidades reales verificadas para un filtro determinado, la página lo indica y explica que cada publicación se incorpora tras revisar su origen y canal de postulación.
 
 ## Fuente de datos y estados
 

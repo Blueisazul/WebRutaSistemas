@@ -1,6 +1,34 @@
-# Seguimiento de autorización de fuentes
+# Seguimiento de Fuentes y Autorización
 
-**Estado al 2026-11-11:** borradores preparados, no enviados. Ninguna fuente está autorizada para extracción automática o republicación por este registro. No usar correos ni formularios en nombre del usuario sin una instrucción posterior.
+**Actualización de Revisión Editorial y Preparación de Aprobación (Hito R2-A-04 — 2026-11-18):**
+Se completó la auditoría de evidencia y revisión editorial humana de la oportunidad seleccionada:
+- **CookUnity Greenhouse ATS (`8039990003`):** *Supply Chain Analyst* en `Lima, Lima Province, Peru` (`PERU_LOCAL`).
+  * Auditoría temporal: Verificación en tiempo real a las `2026-11-17T22:28:37-05:00` (HTTP 200 OK en Greenhouse API y portal oficial de carreras).
+  * Dictamen editorial: `APPROVE_WITH_LIMITATIONS`. Se constató que es un puesto de tiempo completo enfocado en analítica de datos SQL y sistemas ERP/MRP que requiere 1+ años de experiencia (adecuado para bachilleres/egresados de Sistemas, no para estudiantes activos en ciclo regular ni prácticas de desarrollo de software puro).
+  * Candidato en reserva: Canonical `8379825` (*Graduate Software Engineer*) preservado en staging en estado `pending_review` sin modificaciones.
+  * Informe completo: [docs/audits/r2-a-04-editorial-decision-2026-11-18.md](../audits/r2-a-04-editorial-decision-2026-11-18.md).
+
+**Actualización de Recaptura Controlada y Consolidación de Evidencia (Hito R2-A-03 — 2026-11-18):**
+Se ejecutó la recaptura controlada y consolidación del expediente de la primera oportunidad real seleccionada:
+- **CookUnity Greenhouse ATS (`8039990003`):** *Supply Chain Analyst* en `Lima, Lima Province, Peru` (`PERU_LOCAL`).
+  * Verificación en tiempo real: HTTP 200 OK en Greenhouse API (`boards-api.greenhouse.io/v1/boards/cookunity/jobs/8039990003`), portal oficial de carreras (`careers.cookunity.com/jobs/8039990003`) y ATS Greenhouse (`job-boards.greenhouse.io/cookunity/jobs/8039990003`).
+  * Datos enriquecidos con evidencia: `publishedAt` confirmado como `2026-10-21` (según `first_published` en API y `datePosted` en Schema.org JobPosting JSON-LD).
+  * Evidencias: 7 evidencias verificadas con frescura inmediata (`ALL_FRESH`, TTL 7 días Lima).
+  * Candidato en reserva: Canonical `8379825` (*Graduate Software Engineer*) preservado en staging en estado `pending_review` sin modificaciones.
+  * Expediente completo documentado en [docs/audits/r2-a-03-controlled-capture-2026-11-18.md](../audits/r2-a-03-controlled-capture-2026-11-18.md).
+
+**Actualización de Curaduría Editorial y Verificación de Elegibilidad (Hito R2-A-02 — 2026-11-17):**
+La auditoría editorial sobre 7 oportunidades en staging (`data/candidates/inbox.local.json`) identificó dos oportunidades aptas para consideración del propietario del proyecto (`ESTADO A`):
+1. **Canonical Greenhouse ATS (`8379825`):** *Graduate Software Engineer, Open Source and Linux, Canonical Ubuntu* (Remoto global / huso horario AMER que incluye Perú, dirigida a recién graduados 2026/2027 en Ciencias de la Computación o Ingeniería de Sistemas).
+2. **CookUnity Greenhouse ATS (`8039990003`):** *Supply Chain Analyst* (Presencial/Híbrida en Lima, Perú, con enfoque en consultas SQL, aseguramiento de calidad de datos, sistemas ERP y modelado de datos).
+
+Los cuatro candidatos previos de Wikimedia Foundation fueron descartados formalmente: la vacante de prácticas (`8268853`) excluye postulantes fuera de ciertos estados de EE.UU. (`NOT_ELIGIBLE`) y las tres restantes exigen perfiles Senior (`NOT_RELEVANT`). El informe exhaustivo de curaduría se encuentra en [docs/audits/r2-a-02-editorial-review-2026-11-17.md](../audits/r2-a-02-editorial-review-2026-11-17.md).
+
+**Actualización estratégica (Hito R2-A-01-REV — 2026-11-17):**
+Ruta Sistemas ha ampliado su marco de adquisición hacia el **descubrimiento e integración de fuentes públicas, feeds abiertos y mecanismos documentados de sindicación de vacantes (APIs públicas keyless de ATS)**. La operación del proyecto no está supeditada de manera universal a la respuesta bilateral de una única entidad (como SERVIR o Canonical). Para fuentes públicas con APIs documentadas (como Greenhouse Job Board API y Lever Postings API), la ingestión a staging se rige por especificación técnica y directrices de uso público, manteniendo la verificación estricta de procedencia, TTL de 7 días y elegibilidad territorial para Perú. El informe exhaustivo de fuentes públicas y la muestra en staging se encuentran en [docs/audits/r2-a-01-rev-public-sources-discovery-2026-11-17.md](../audits/r2-a-01-rev-public-sources-discovery-2026-11-17.md).
+
+**Historial de expedientes de autorización (Hito R2-A-01):**
+Los borradores preparados para consulta bilateral formal se conservan intactos a continuación como parte del archivo histórico de gobernanza para entidades con términos restrictivos o portales sin APIs públicas. Ninguna solicitud ha sido enviada por el asistente ni se usan datos personales sin instrucción expresa del propietario.
 
 ## Evidencia y contactos oficiales
 
@@ -68,13 +96,41 @@
 > Atentamente,<br>
 > Equipo Ruta Sistemas
 
+## Borrador para Canonical Careers
+
+**Para:** legal@canonical.com<br>
+**Asunto:** Inquiry regarding non-commercial indexing of job metadata for Ruta Sistemas
+
+> Dear Canonical Legal Team:
+>
+> I am writing on behalf of Ruta Sistemas, an independent, open, and non-commercial educational project based in Peru designed to help computer science and systems engineering students identify legitimate career and internship opportunities, with a special focus on remote roles eligible from Peru (https://github.com/Blueisazul/WebRutaSistemas).
+>
+> In reviewing your Website Terms and Conditions (https://canonical.com/legal/terms), we noted that content is authorized for personal, non-commercial, and educational use. To ensure absolute compliance with your guidelines, we are requesting explicit clarification regarding the indexing of select engineering opportunities in our curated directory.
+>
+> 1. Manual Query: Is our editorial team permitted to periodically review public postings at canonical.com/careers?
+> 2. Minimal Metadata Retention & Display: Are we authorized to store and display minimal factual metadata (job title, department, location/country eligibility, publication date, and official canonical URLs)? We do NOT store full job descriptions, application forms, recruiter names, applicant CVs, or personal data.
+> 3. Official Application Redirection: May we direct candidates exclusively to Canonical's official application URLs (never replacing or proxying Canonical's recruitment process)?
+> 4. Automated Access / ATS Feeds (Optional): Does Canonical offer or permit a documented public feed, API endpoint, or low-frequency automated mechanism (e.g., 1 request per run, complying with User-Agent identification and rate limits)?
+> 5. Attribution: What specific attribution notice and hyperlink format does Canonical require when displaying your opportunities?
+> 6. Takedown & Deletion Policy: We enforce a strict editorial policy to remove or mark as closed any expired role within 7 days, and we commit to immediately removing any listing upon request from Canonical. Please confirm if you have a preferred contact channel for updates or takedown notices.
+> 7. Remote Eligibility for Peru: Could you confirm whether remote engineering positions that indicate global or regional distribution accept applicants residing in Peru, or whether eligibility must be confirmed on an individual job basis?
+>
+> Our project keeps the source entirely disabled and stores zero candidate records pending your written guidance. We do not claim any endorsement or existing authorization from Canonical.
+>
+> Sincerely,<br>
+> [Nombre del Responsable / Project Lead]<br>
+> Ruta Sistemas
+
 ## Registro de seguimiento y decisión
 
-| Fuente | Contacto verificado | Estado del borrador | Respuesta | Decisión actual |
-|---|---|---|---|---|
-| Talento Perú / SERVIR | `talentoperu@servir.gob.pe`; página de campaña oficial | Preparado; no enviado | Pendiente | `pending_review` |
-| FISI / UNMSM | `decanato.fisi@unmsm.edu.pe`; directorio oficial | Preparado; no enviado | Pendiente | `pending_review` |
-| Canonical Careers | `legal@canonical.com`; términos oficiales | Preparado en expediente; no enviado | Pendiente | `pending_review` |
+| Fuente | Contacto verificado | Estado del borrador | Solicitud enviada | Respuesta | Decisión actual |
+|---|---|---|---|---|---|
+| Canonical Careers (Bilateral) | `legal@canonical.com`; términos oficiales | Preparado y revisado; listo para envío | No enviada | Pendiente | `pending_review` |
+| Talento Perú / SERVIR | `talentoperu@servir.gob.pe`; página de campaña oficial | Preparado y revisado; listo para envío | No enviada | Pendiente | `pending_review` |
+| FISI / UNMSM | `decanato.fisi@unmsm.edu.pe`; directorio oficial | Preparado; no enviado | No enviada | Pendiente | `pending_review` |
+| Canonical (Greenhouse Public ATS) | API pública `boards-api.greenhouse.io` | Candidato `8379825` validado en staging (AMER/Worldwide) | No aplica (Pública) | Factual keyless | `pending_review` (En reserva; apta para futura promoción) |
+| CookUnity (Greenhouse Public ATS) | API pública `boards-api.greenhouse.io` | Candidato `8039990003` auditado, revisado y promovido al catálogo (`OP-005`, R2-A-05) | No aplica (Pública) | Factual keyless | `published` (Promovida con limitaciones: rol profesional no inicial; 21 evidencias activas) |
+| Wikimedia (Greenhouse Public ATS) | API pública `boards-api.greenhouse.io` | 4 candidatos evaluados en staging; descartados por territorio/seniority | No aplica (Pública) | Factual keyless | `pending_review` (Sin candidatos aptos) |
 
 ### Criterios para reabrir la decisión
 

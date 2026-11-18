@@ -20,9 +20,10 @@ class LocalServerCatalogTests(unittest.TestCase):
         server.seed_database(connection)
         with patch("server.connect_db", return_value=connection):
             result = server.query_catalog({})
-        self.assertEqual(result["metrics"]["total"], 0)
-        self.assertTrue(result["opportunities"])
-        self.assertTrue(all(item["publicationStatus"] != "active" for item in result["opportunities"]))
+        sample_rows = [item for item in result["opportunities"] if item.get("recordKind") == "demonstration"]
+        self.assertTrue(sample_rows)
+        self.assertTrue(all(item["publicationStatus"] != "active" for item in sample_rows))
+        self.assertEqual(result["metrics"]["total"], 1)
         self.assertTrue(all("status" not in item and "history" not in item for item in result["opportunities"]))
 
 
