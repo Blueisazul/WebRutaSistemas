@@ -89,10 +89,16 @@ Se formalizó la rúbrica de QA en [`docs/research/r3-02-fieldwork-and-recruitme
 
 1. **Directorio y Repositorio de Sesiones:** [`docs/research/sessions/`](file:///c:/Users/sant1/Downloads/EmpleoWeb/docs/research/sessions/)
    - [`README.md`](file:///c:/Users/sant1/Downloads/EmpleoWeb/docs/research/sessions/README.md) *(Normas de gobernanza, privacidad y tabla de control).*
-   - [`P01.md` a `P08.md`](file:///c:/Users/sant1/Downloads/EmpleoWeb/docs/research/sessions/) *(8 plantillas individuales en blanco listas para captura).*
+   - [`P01.md` a `P08.md`](file:///c:/Users/sant1/Downloads/EmpleoWeb/docs/research/sessions/) *(8 plantillas individuales en blanco listas para captura con enum estandarizado y Sección 6 de QA).*
 2. **Cuaderno de Campo y Reclutamiento:** [`docs/research/r3-02-fieldwork-and-recruitment-tracker-2026-11-18.md`](file:///c:/Users/sant1/Downloads/EmpleoWeb/docs/research/r3-02-fieldwork-and-recruitment-tracker-2026-11-18.md)
    - Embudo de convocatoria, perfiles, guía de observación de las 6 fricciones y rúbrica de control de calidad.
-3. **Informe de Auditoría de Campo:** [`docs/audits/r3-02-user-sessions-2026-11-18.md`](file:///c:/Users/sant1/Downloads/EmpleoWeb/docs/audits/r3-02-user-sessions-2026-11-18.md) *(Este documento).*
+3. **Kit de Materiales de Convocatoria y Consentimiento:** [`docs/research/r3-02-recruitment-materials-kit-2026-11-18.md`](file:///c:/Users/sant1/Downloads/EmpleoWeb/docs/research/r3-02-recruitment-materials-kit-2026-11-18.md)
+   - Plantillas oficiales de invitación por canal (WhatsApp/correo/LinkedIn) y consentimiento informado.
+4. **Guía de Moderación y Campo Paso a Paso:** [`docs/research/r3-02-moderator-field-guide-2026-11-18.md`](file:///c:/Users/sant1/Downloads/EmpleoWeb/docs/research/r3-02-moderator-field-guide-2026-11-18.md)
+   - Protocolo 45 min, guiones de observación para escenarios A–E y reglas de oro anti-inducción.
+5. **Auditoría de Preparación Operativa:** [`docs/audits/r3-02-fieldwork-readiness-review-2026-11-18.md`](file:///c:/Users/sant1/Downloads/EmpleoWeb/docs/audits/r3-02-fieldwork-readiness-review-2026-11-18.md)
+   - Dictamen A (Preparación Operativa Confirmada) y verificación de integridad documental.
+6. **Informe de Auditoría de Campo y Sesiones:** [`docs/audits/r3-02-user-sessions-2026-11-18.md`](file:///c:/Users/sant1/Downloads/EmpleoWeb/docs/audits/r3-02-user-sessions-2026-11-18.md) *(Este documento).*
 
 ---
 

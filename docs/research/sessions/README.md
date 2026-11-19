@@ -14,6 +14,14 @@ Este directorio alberga los registros individuales de las pruebas de usabilidad 
    - Una sesión solo se considerará válida (`VALID`) si cuenta con consentimiento confirmado, cubre los escenarios A–E (o documenta el motivo fundado de no ejecución), incluye métricas objetivas (tiempo, resultado, confianza) y citas textuales anonimizadas.
    - Sesiones incompletas o sesgadas por inducción del facilitador se clasificarán como `INVALID` o `INCOMPLETE`.
 
+## Documentos Rectores y Guías Operativas de Apoyo
+
+Antes de iniciar cada sesión, el equipo de investigación debe revisar:
+- **Kit de Convocatoria y Consentimiento:** [`../r3-02-recruitment-materials-kit-2026-11-18.md`](../r3-02-recruitment-materials-kit-2026-11-18.md)
+- **Guía de Moderación Paso a Paso:** [`../r3-02-moderator-field-guide-2026-11-18.md`](../r3-02-moderator-field-guide-2026-11-18.md)
+- **Cuaderno de Campo y Rastreador:** [`../r3-02-fieldwork-and-recruitment-tracker-2026-11-18.md`](../r3-02-fieldwork-and-recruitment-tracker-2026-11-18.md)
+- **Protocolo de Investigación R3-01:** [`../r3-01-user-research-protocol-2026-11-18.md`](../r3-01-user-research-protocol-2026-11-18.md)
+
 ## Índice de Sesiones
 
 | Código | Perfil Asignado | Fecha Programada / Ejecutada | Estado | Archivo |

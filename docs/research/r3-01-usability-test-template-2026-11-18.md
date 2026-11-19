@@ -49,7 +49,7 @@
 > *"..."*
 
 #### Fricciones o Dudas Expresadas:
-- 
+-
 
 ---
 
@@ -74,7 +74,7 @@
 > *"..."*
 
 #### Fricciones o Dudas Expresadas:
-- 
+-
 
 ---
 
@@ -98,7 +98,7 @@
 > *"..."*
 
 #### Fricciones o Dudas Expresadas:
-- 
+-
 
 ---
 
@@ -124,7 +124,7 @@
 > *"..."*
 
 #### Fricciones o Dudas Expresadas:
-- 
+-
 
 ---
 
@@ -148,23 +148,23 @@
 > *"..."*
 
 #### Fricciones o Dudas Expresadas:
-- 
+-
 
 ---
 
 ## 3. Cuestionario de Cierre y Percepción Global
 
-1. **Claridad General:** *"En una escala del 1 al 5, ¿qué tan clara y confiable te pareció la información de las oportunidades mostradas?"*  
-   Calificación: `[ ] 1 - [ ] 2 - [ ] 3 - [ ] 4 - [ ] 5`  
+1. **Claridad General:** *"En una escala del 1 al 5, ¿qué tan clara y confiable te pareció la información de las oportunidades mostradas?"*
+   Calificación: `[ ] 1 - [ ] 2 - [ ] 3 - [ ] 4 - [ ] 5`
    *Comentario:*
 
-2. **Diferencia vs Otros Portales:** *"¿En qué se diferencia lo que viste hoy respecto a portales de empleo tradicionales (LinkedIn, Computrabajo, etc.)?"*  
+2. **Diferencia vs Otros Portales:** *"¿En qué se diferencia lo que viste hoy respecto a portales de empleo tradicionales (LinkedIn, Computrabajo, etc.)?"*
    *Respuesta:*
 
-3. **Aspecto más útil:** *"¿Qué elemento o información te resultó más valiosa?"*  
+3. **Aspecto más útil:** *"¿Qué elemento o información te resultó más valiosa?"*
    *Respuesta:*
 
-4. **Aspecto más confuso o frustrante:** *"¿Qué fue lo que más te generó dudas o te costó entender?"*  
+4. **Aspecto más confuso o frustrante:** *"¿Qué fue lo que más te generó dudas o te costó entender?"*
    *Respuesta:*
 
 ---
@@ -185,3 +185,17 @@
 - **Patrón dominante de navegación:**
 - **Observaciones no verbales (dudas, pausas largas, retrocesos):**
 - **Recomendación preliminar para el análisis de hallazgos:**
+
+---
+
+## 6. Control de Calidad (QA de la Sesión)
+
+- [ ] **Criterio 1 — Segmento Confirmado:** El participante pertenece legítimamente a P-EST, P-EGR o P-JUN.
+- [ ] **Criterio 2 — Consentimiento y Privacidad:** Consentimiento informado otorgado; cero datos identificables (PII/CV) registrados.
+- [ ] **Criterio 3 — Neutralidad de Moderación:** El facilitador no indujo respuestas ni justificó el diseño de la interfaz.
+- [ ] **Criterio 4 — Cobertura de Escenarios:** Se ejecutaron las tareas A–E o se documentó la justificación de no ejecución.
+- [ ] **Criterio 5 — Integridad Métrica:** Se registraron tiempos, resultado (enum oficial), nivel de confianza y al menos dos citas textuales.
+
+**Veredicto QA:** [ ] VALID / [ ] INCOMPLETE / [ ] INVALID
+**Auditor de QA:** [Nombre / Rol]
+**Fecha de Revisión:** AAAA-MM-DD

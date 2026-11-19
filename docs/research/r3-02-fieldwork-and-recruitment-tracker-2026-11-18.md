@@ -93,9 +93,9 @@ Antes de consolidar los resultados de una sesión en la matriz de hallazgos ([`d
    - Ningún dato personal identificable (DNI, nombres, teléfonos, CVs) presente en el texto.
 2. **Neutralidad de la Moderación (`PASS`/`FAIL`):**
    - El moderador no indicó las respuestas ni justificó el diseño de la web.
-   - Si se brindó asistencia para desbloquear una tarea, fue consignada como *"Éxito con ayuda"*.
+   - Si se brindó asistencia para desbloquear una tarea, fue consignada obligatoriamente como `SUCCESS_WITH_HELP` y documentada en la fila *Intervención del Moderador*.
 3. **Completitud de Evidencia (`PASS`/`FAIL`):**
-   - Métricas cuantitativas completas: Resultado (Éxito s/a, Éxito c/a, Abandono), Tiempo en minutos y segundos, Nivel de confianza (1 a 5).
+   - Métricas cuantitativas completas: Resultado (`SUCCESS_WITHOUT_HELP`, `SUCCESS_WITH_HELP`, `ABANDONED`, `NOT_EXECUTED`), Tiempo en minutos y segundos, Nivel de confianza (1 a 5).
    - Notas cualitativas y al menos 2 citas textuales directas en pensamiento en voz alta.
 4. **Veredicto QA:**
    - `VALID`: Sesión completa y objetiva. Se suma al conteo oficial.
@@ -106,7 +106,8 @@ Antes de consolidar los resultados de una sesión en la matriz de hallazgos ([`d
 
 ## 6. Procedimiento para el Equipo Humano tras Completar las Sesiones
 
-1. Volcar las notas y citas de cada entrevista en su archivo correspondiente: `docs/research/sessions/P01.md` a `P08.md`.
-2. Actualizar el estado de cada sesión en la tabla del apartado 3 (`VALID` o `INCOMPLETE`).
-3. Cuando se alcance la cuota de al menos **5 sesiones válidas** cubriendo los 3 perfiles:
+1. **Reclutamiento y Moderación:** Conducir las sesiones utilizando el [Kit de Convocatoria y Consentimiento](./r3-02-recruitment-materials-kit-2026-11-18.md) y la [Guía de Moderación Paso a Paso](./r3-02-moderator-field-guide-2026-11-18.md) sobre la versión oficial de producción ([https://blueisazul.github.io/WebRutaSistemas/](https://blueisazul.github.io/WebRutaSistemas/)).
+2. **Volcado Inmediato:** Volcar las notas y citas de cada entrevista en su archivo correspondiente: `docs/research/sessions/P01.md` a `P08.md`.
+3. **Aplicación de QA:** Completar la Sección 6 de control de calidad en la plantilla individual y actualizar el estado de cada sesión en la tabla del apartado 3 (`VALID`, `INCOMPLETE` o `INVALID`).
+4. **Desbloqueo de R3-03:** Cuando se alcance la cuota de al menos **5 sesiones válidas** cubriendo los 3 perfiles (`P-EST`, `P-EGR` y `P-JUN`):
    - Notificar al agente para proceder con el cierre de **R3-02** y apertura de **R3-03 (Análisis y Priorización de Hallazgos)**.

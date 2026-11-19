@@ -220,8 +220,8 @@ El roadmap existente permanece en la sección 21 y sus bloques posteriores del [
     - `R3-01-03`: Diseño de escenarios y tareas A a E (`DONE` -> `docs/research/r3-01-user-research-protocol-2026-11-18.md`).
     - `R3-01-04`: Métricas y taxonomía de evaluación (`DONE` -> `docs/research/r3-01-findings-template-2026-11-18.md`).
     - `R3-01-05`: Instrumentación y plantillas locales (`DONE` -> `docs/research/r3-01-usability-test-template-2026-11-18.md`).
-  - `R3-02`: Ejecución de sesiones con participantes reales (5-8 usuarios) (`NOT_STARTED` en campo; paquete operativo y plantillas individuales P01..P08 preparadas en `docs/research/sessions/`, cuaderno de campo `docs/research/r3-02-fieldwork-and-recruitment-tracker-2026-11-18.md` y auditoría `docs/audits/r3-02-user-sessions-2026-11-18.md` listos; pendiente reclutamiento y moderación humana).
-  - `R3-03`: Análisis y consolidación de hallazgos (`PENDIENTE`).
-  - `R3-04`: Refactor/Fix UX justificado (`PENDIENTE`).
-  - `R3-05`: Decisión documentada sobre si el MVP satisface los criterios originales (`PENDIENTE`).
+  - `R3-02`: Trabajo de campo con usuarios reales (5-8 participantes) (Preparación técnica y operativa `DONE`; ejecución empírica en estado `NOT_STARTED` / `PENDING_HUMAN`, pendiente de convocatoria y moderación presencial/remota por el equipo humano; paquete operativo verificado con kit `docs/research/r3-02-recruitment-materials-kit-2026-11-18.md`, guía `docs/research/r3-02-moderator-field-guide-2026-11-18.md`, plantillas `P01.md`..`P08.md` y auditorías en `docs/audits/`).
+  - `R3-03`: Análisis y consolidación de hallazgos (`BLOCKED`: bloqueado hasta que existan al menos 5 sesiones humanas válidas con representación de P-EST, P-EGR y P-JUN).
+  - `R3-04`: Refactor/Fix UX justificado (`BLOCKED`).
+  - `R3-05`: Decisión documentada sobre si el MVP satisface los criterios originales (`BLOCKED`).
 - **R4 — Automatización Controlada:** **Bloqueada** hasta que R3 demuestre valor con usuarios y justifique técnica y éticamente la adquisición automática.
