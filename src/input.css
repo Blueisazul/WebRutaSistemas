@@ -2,7 +2,26 @@
 @import "./site.css";
 @source "../index.html";
 @source "../app.js";
+
 @theme {
+  --color-ice-blue: #65c7f2;
+  --color-crystal-blue: #299edc;
+  --color-arctic-blue: #1765b5;
+  --color-brand-black: #202120;
+  --color-brand-dark: #505050;
+  --color-brand-muted: #757575;
+  --color-surface-raised: #f9f9f9;
+  --color-border-muted: #efefef;
+
+  --color-iceBlue: #65c7f2;
+  --color-crystalBlue: #299edc;
+  --color-arcticBlue: #1765b5;
+  --color-brandBlack: #202120;
+  --color-brandDark: #505050;
+  --color-brandMuted: #757575;
+  --color-surfaceRaised: #f9f9f9;
+  --color-borderMuted: #efefef;
+
   --color-route-950: #14211c;
   --color-route-800: #244b3b;
   --color-route-700: #315f4b;

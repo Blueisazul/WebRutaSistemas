@@ -41,11 +41,11 @@ const vertexShaderSource = `#version 300 es
 
       vec3 getSpine(float u, float t) {
         float x = mix(-8.5, 8.5, u);
-        float y = -1.55 
-                + sin(u * 3.8 - 0.6 - t * 0.18) * 0.45 
+        float y = -1.55
+                + sin(u * 3.8 - 0.6 - t * 0.18) * 0.45
                 + cos(u * 2.0 + 0.3) * 0.25;
-        float z = -6.2 
-                + sin(u * 3.14159) * 1.45 
+        float z = -6.2
+                + sin(u * 3.14159) * 1.45
                 + cos(u * 3.6 - t * 0.18) * 0.60;
         return vec3(x, y, z);
       }
@@ -210,10 +210,12 @@ bindAttribute(speedData, "aSpeed", 1);
 bindAttribute(seedData, "aSeed", 3);
 
 // ============================================================================
-// 4. PROYECCIÓN Y RESIZE (Blindado contra dimensiones 0x0)
+// 4. PROYECCIÓN Y RESIZE (Blindado contra dimensiones 0x0 y reflows en bucle)
 // ============================================================================
 let projScaleX = 1;
 let projScaleY = 1;
+let cachedContainerWidth = 0;
+let cachedContainerHeight = 0;
 
 function updateProjection() {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -223,6 +225,8 @@ function updateProjection() {
   const { width, height } = container.getBoundingClientRect();
 
   if (width <= 0 || height <= 0) return;
+  cachedContainerWidth = width;
+  cachedContainerHeight = height;
 
   canvas.width = Math.floor(width * dpr);
   canvas.height = Math.floor(height * dpr);
@@ -298,11 +302,9 @@ const flowAnchors = [
 ];
 
 function updateFlowNodes(t) {
-    const container = canvas.parentElement;
-    if (!container) return;
-
-    const { width, height } = container.getBoundingClientRect();
-    if (width <= 0 || height <= 0) return;
+    if (cachedContainerWidth <= 0 || cachedContainerHeight <= 0) return;
+    const width = cachedContainerWidth;
+    const height = cachedContainerHeight;
 
     for (const node of flowAnchors) {
         if (!node.el) continue;
@@ -364,14 +366,20 @@ function updateFlowNodes(t) {
 }
 
 // ============================================================================
-// 6. BUCLE DE RENDERIZADO
+// 6. BUCLE DE RENDERIZADO CON CONTROL DE VISIBILIDAD (IntersectionObserver)
 // ============================================================================
 const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 let animationFrameId = null;
 let motionEnabled = !motionQuery.matches;
+let isHeroVisible = true;
 const startTime = performance.now();
 
 function render(now) {
+    if (!isHeroVisible) {
+        animationFrameId = null;
+        return;
+    }
+
     const t = (now - startTime) * 0.001;
 
     gl.clearColor(0, 0, 0, 0);
@@ -381,16 +389,34 @@ function render(now) {
     gl.drawArrays(gl.POINTS, 0, numParticles);
 
     updateFlowNodes(t);
-    if (motionEnabled) {
+    if (motionEnabled && isHeroVisible) {
         animationFrameId = requestAnimationFrame(render);
     } else {
         animationFrameId = null;
     }
 }
 
+// Pausa automática de WebGL cuando el Hero sale del viewport para evitar repaints en scroll
+const heroObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+        const wasVisible = isHeroVisible;
+        isHeroVisible = entry.isIntersecting;
+        if (isHeroVisible && !wasVisible && motionEnabled && animationFrameId === null) {
+            animationFrameId = requestAnimationFrame(render);
+        } else if (!isHeroVisible && animationFrameId !== null) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+    }
+}, { threshold: 0.02 });
+
+if (canvas.parentElement) {
+    heroObserver.observe(canvas.parentElement);
+}
+
 function updateMotionPreference(event) {
     motionEnabled = !event.matches;
-    if (motionEnabled && animationFrameId === null) {
+    if (motionEnabled && isHeroVisible && animationFrameId === null) {
         animationFrameId = requestAnimationFrame(render);
     } else if (!motionEnabled && animationFrameId !== null) {
         cancelAnimationFrame(animationFrameId);
@@ -410,6 +436,7 @@ window.addEventListener("pagehide", () => {
         cancelAnimationFrame(animationFrameId);
         animationFrameId = null;
     }
+    heroObserver.disconnect();
     resizeObserver.disconnect();
     window.removeEventListener("resize", updateProjection);
 });

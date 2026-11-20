@@ -1,6 +1,8 @@
 let catalog = [];
 let opportunities = [];
 
+const catalogView = document.querySelector('#catalog-view');
+const opportunityView = document.querySelector('#opportunity-view');
 const list = document.querySelector('#job-list');
 const count = document.querySelector('#result-count');
 const empty = document.querySelector('#empty-state');
@@ -203,9 +205,36 @@ function statusTag(job) {
 }
 
 function modeTag(job) {
-  const mode = job.mode || 'No especificado';
+  const mode = job.mode || 'No especificada';
   const className = mode.toLowerCase().includes('remoto') ? 'remote' : 'mode';
   return `<span class="tag ${className}">${escapeHTML(mode)}</span>`;
+}
+
+function formatLocationEligibility(job) {
+  const loc = (job.location || '').trim();
+  const elig = (job.eligibility || '').trim();
+  if (loc && elig) {
+    if (loc.toLowerCase() === elig.toLowerCase()) return loc;
+    if (loc.toLowerCase().includes(elig.toLowerCase())) return loc;
+    return `${loc} (Elegibilidad: ${elig})`;
+  }
+  return loc || elig || 'No confirmada';
+}
+
+function formatContractDuration(job) {
+  const contract = (job.contractType || '').trim();
+  const duration = (job.duration || '').trim();
+  const continuity = (job.continuity || '').trim();
+  const parts = [];
+  const ign = /^(?:no especificad[oa]|no informad[oa]|no aplica)/i;
+  if (contract && !ign.test(contract)) parts.push(contract);
+  if (duration && !ign.test(duration)) parts.push(duration);
+  if (continuity && !ign.test(continuity)) {
+    if (!parts.some((p) => p.toLowerCase().includes(continuity.toLowerCase()) || continuity.toLowerCase().includes(p.toLowerCase()))) {
+      parts.push(continuity);
+    }
+  }
+  return parts.length > 0 ? parts.join(' · ') : 'No especificado';
 }
 
 function renderCard(job) {
@@ -218,19 +247,49 @@ function renderCard(job) {
   const familyLabel = job.family === 'Desarrollo y QA' ? job.family : job.family;
   const metaDate = `Consulta registrada ${escapeHTML(job.lastCheckedDate || 'No disponible')}`;
   const typeLabel = job.recordKind === 'demonstration' ? 'Ficha de demostración' : (job.kind === 'Profesional' ? job.level : job.kind);
+  const fitStatus = state.publicationStatus === 'active'
+    ? 'Oportunidad activa · Verificada'
+    : (state.publicationStatus === 'historical' || state.opportunityStatus === 'expired')
+      ? 'No disponible para postular'
+      : 'Vigencia no confirmada';
   return `<article class="job-card" data-id="${id}">
     <div class="job-main">
       <div class="company-mark ${targetClass}" aria-hidden="true">${escapeHTML(initials(job.employer))}</div>
       <div class="job-copy min-w-0">
-        <div class="job-title-row"><h3 class="job-title" role="button" tabindex="0" data-open="${id}">${escapeHTML(job.title)}</h3>${statusTag(job)}</div>
+        <div class="job-title-row"><h3 class="job-title"><a href="?id=${id}" role="button" tabindex="0" data-open="${id}" class="text-inherit no-underline hover:underline">${escapeHTML(job.title)}</a></h3>${statusTag(job)}</div>
         <p class="company-name">${escapeHTML(job.employer)} <span>·</span> ${escapeHTML(job.sector)}</p>
         <div class="job-tags">${modeTag(job)}<span class="tag">${escapeHTML(familyLabel)}</span><span class="tag ${job.level === 'Senior' ? 'senior' : ''}">${escapeHTML(typeLabel)}</span></div>
-        <p class="job-location">⌖ ${escapeHTML(job.location || 'Ubicación no especificada')} <span>·</span> ${escapeHTML(job.eligibility || 'Elegibilidad no confirmada')}</p>
+        <p class="job-location">⌖ ${escapeHTML(formatLocationEligibility(job))}</p>
       </div>
     </div>
-    <div class="job-fit"><strong>${state.publicationStatus === 'historical' || state.opportunityStatus === 'expired' ? 'No disponible para postular' : 'Vigencia no confirmada'}</strong><span>${escapeHTML(job.growth || '')}</span></div>
-    <div class="job-meta"> <strong class="salary ${salary === 'No publicado' ? 'missing' : ''}">${salary}</strong><span class="check-date">${metaDate}</span><button class="card-button" type="button" data-open="${id}">Ver evaluación <span aria-hidden="true">↗</span></button><button class="compare-button ${isCompared ? 'selected' : ''}" type="button" data-compare="${id}" aria-pressed="${isCompared}">${isCompared ? 'Quitar de comparación' : 'Añadir a comparación'}</button></div>
+    <div class="job-fit"><strong>${fitStatus}</strong><span>${escapeHTML(job.growth || '')}</span></div>
+    <div class="job-meta"> <strong class="salary ${salary === 'No publicado' ? 'missing' : ''}">${salary}</strong><span class="check-date">${metaDate}</span><button class="card-button" type="button" data-open="${id}">Ver detalle <span aria-hidden="true">↗</span></button><button class="compare-button ${isCompared ? 'selected' : ''}" type="button" data-compare="${id}" aria-pressed="${isCompared}">${isCompared ? 'Quitar de comparación' : 'Añadir a comparación'}</button></div>
   </article>`;
+}
+
+function formatDateTime(value, { includeTime = false, shortMonth = false } = {}) {
+  if (!value) return 'No disponible';
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [year, month, day] = value.split('-');
+    return `${day}/${month}/${year}`;
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.valueOf())) return String(value);
+  const dateOptions = {
+    timeZone: 'America/Lima',
+    year: 'numeric',
+    month: shortMonth ? 'short' : '2-digit',
+    day: '2-digit',
+  };
+  if (includeTime) {
+    const formatted = date.toLocaleString('es-PE', {
+      ...dateOptions,
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    return `${formatted} (hora Lima)`;
+  }
+  return date.toLocaleDateString('es-PE', dateOptions);
 }
 
 function knownValue(value) {
@@ -345,6 +404,451 @@ function renderEmployerAssessment(job) {
   </section>`;
 }
 
+function lucideIcon(name, className = 'w-5 h-5') {
+  const icons = {
+    'badge-check': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}" aria-hidden="true"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m16 9-5.5 5.5L8 12"/></svg>`, building: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>',
+    'triangle-alert': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`,
+    pin: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
+    wallet: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>',
+    file: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>',
+    clock: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><circle cx="16" cy="16" r="6"/><polyline points="16 14 16 16 18 17"/></svg>',
+    calendar: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><path d="M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"/><path d="M3 10h18"/><path d="M16 19h6"/><path d="M19 16v6"/></svg>',
+    shield: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>',
+    check: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>',
+    code: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>'
+  };
+  return icons[name] || '';
+}
+
+function cleanContractDuration(job) {
+  const contract = (job.contractType || '').trim();
+  const duration = (job.duration || '').trim();
+  const cleanParts = [];
+  const ign = /^(?:no especificad[oa]|no informad[oa]|no aplica|duraci[oó]n no especificada)[\s.]*$/i;
+
+  if (contract && !ign.test(contract)) {
+    cleanParts.push(contract);
+  }
+  if (duration) {
+    if (/full-time|tiempo completo/i.test(duration)) {
+      cleanParts.push('Full-time');
+    } else if (!ign.test(duration)) {
+      const d = duration.replace(/;?\s*duraci[oó]n no especificada/i, '').trim();
+      if (d) cleanParts.push(d);
+    }
+  }
+  return cleanParts.length > 0 ? cleanParts.join(' · ') : null;
+}
+
+function renderDetailContent(job, { isStandalone = false } = {}) {
+  const state = currentStates(job);
+  const sourceUrl = safeHttpsUrl(job.sourceUrl);
+  const applyUrl = safeHttpsUrl(job.applyUrl);
+  const canApply = state.publicationStatus === 'active' && job.recordKind !== 'demonstration';
+  const statusText = canApply
+    ? `La fuente del empleador se revisó el ${formatDateTime(job.lastVerifiedAt)}; esta comprobación no garantiza disponibilidad posterior.`
+    : state.opportunityStatus === 'expired'
+      ? 'La fecha límite de postulación ya pasó. Se conserva como referencia y no se habilita el enlace para postular.'
+      : state.publicationStatus === 'historical'
+        ? 'Registro histórico conservado para referencia. No está disponible para postular.'
+        : `${job.recordKind === 'demonstration' ? 'Ficha de demostración. ' : ''}No tiene evidencia vigente suficiente para presentarla como postulable. Última verificación: ${formatDateTime(job.lastVerifiedAt)}; última consulta registrada: ${formatDateTime(job.lastCheckedDate)}. No se afirma que siga publicada.`;
+  const fieldEvidence = Array.isArray(job.fieldEvidence) ? job.fieldEvidence : [];
+  const evidenceLabels = { employer: 'Empleador', publisher: 'Difusor', title: 'Puesto', applyUrl: 'Canal de postulación', deadline: 'Fecha límite', salary: 'Remuneración', mode: 'Modalidad', location: 'Ubicación', requirements: 'Requisitos', benefits: 'Beneficios', skills: 'Tecnologías', training: 'Formación', contractType: 'Tipo de contrato', duration: 'Duración', sector: 'Sector', family: 'Familia profesional', level: 'Nivel', kind: 'Tipo de oportunidad', growth: 'Experiencia para el siguiente paso', continuity: 'Continuidad', risk: 'Riesgos' };
+  const fieldEvidenceHtml = fieldEvidence.filter((item) => evidenceLabels[item.field] && safeHttpsUrl(item.url)).map((item) => `<li><a href="${escapeHTML(safeHttpsUrl(item.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(evidenceLabels[item.field])} · evidencia ↗</a> <span>${escapeHTML(formatDateTime(item.observedAt))}</span></li>`).join('');
+  const sourcePublisher = job.publisher || job.employer || 'Fuente oficial';
+  const evidenceLink = job.evidenceUrl ? `<a class="detail-evidence-link" href="${escapeHTML(safeHttpsUrl(job.evidenceUrl) || '#')}" target="_blank" rel="noopener noreferrer">Abrir bases/documento de evidencia ↗</a>` : '';
+  const isVerified = state.verificationStatus === 'verified';
+  const verifiedDateFormatted = formatDateTime(job.lastVerifiedAt || job.lastCheckedDate);
+
+  const backNav = isStandalone ? `
+    <div class="opportunity-back-nav mb-6">
+      <button type="button" class="back-to-catalog flex items-center gap-1.5 text-sm font-semibold text-stone-700 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-3.5 py-2 rounded-lg transition-colors cursor-pointer" data-action="back-to-catalog">
+        <span aria-hidden="true">←</span> Volver al catálogo
+      </button>
+    </div>
+  ` : '';
+
+  const bottomBackNav = isStandalone ? `
+    <div class="opportunity-bottom-nav mt-8 pt-6 border-t border-stone-200 flex justify-between items-center">
+      <button type="button" class="back-to-catalog flex items-center gap-1.5 text-sm font-semibold text-stone-700 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-4 py-2.5 rounded-lg transition-colors cursor-pointer" data-action="back-to-catalog">
+        <span aria-hidden="true">←</span> Volver al catálogo
+      </button>
+      <a href="#inicio" class="text-xs text-stone-500 hover:text-stone-800">Ir arriba ↑</a>
+    </div>
+  ` : '';
+
+  // Resumen: tarjetas visuales con iconos Lucide y omisión estricta de datos no verificados
+  const summaryCards = [];
+
+  if (knownValue(job.mode) && !/no especificad|no informad/i.test(job.mode)) {
+    summaryCards.push({
+      icon: 'monitor',
+      label: 'Modalidad',
+      value: escapeHTML(job.mode),
+    });
+  }
+
+  summaryCards.push({
+    icon: 'building',
+    label: 'Entidad que difunde',
+    value: escapeHTML(sourcePublisher),
+  });
+
+  const locElig = formatLocationEligibility(job);
+  if (locElig && !/no confirmad|no especificad/i.test(locElig)) {
+    summaryCards.push({
+      icon: 'pin',
+      label: 'Ubicación y elegibilidad',
+      value: escapeHTML(locElig),
+    });
+  }
+
+  if (knownValue(job.salary) && !/no publicado|no especificad|no informad/i.test(job.salary)) {
+    summaryCards.push({
+      icon: 'wallet',
+      label: 'Compensación',
+      value: escapeHTML(job.salary) + (job.salaryNote && !/no informad/i.test(job.salaryNote) ? ` · ${escapeHTML(job.salaryNote)}` : ''),
+    });
+  }
+
+  const contractDuration = cleanContractDuration(job);
+  if (contractDuration) {
+    summaryCards.push({
+      icon: 'file',
+      label: 'Contrato y plazo',
+      value: escapeHTML(contractDuration),
+    });
+  }
+
+  if (job.deadline && isCivilDate(job.deadline)) {
+    summaryCards.push({
+      icon: 'clock',
+      label: 'Fecha límite',
+      value: escapeHTML(formatDateTime(job.deadline)),
+    });
+  }
+
+  if (job.publishedAt && isCivilDate(job.publishedAt)) {
+    summaryCards.push({
+      icon: 'calendar',
+      label: 'Fecha de publicación',
+      value: escapeHTML(formatDateTime(job.publishedAt)),
+    });
+  }
+
+  summaryCards.push({
+    icon: 'shield',
+    label: 'Última verificación o consulta',
+    value: escapeHTML(verifiedDateFormatted),
+  });
+
+  const summaryCardsHtml = summaryCards.map((card) => `
+    <div class="summary-card detail-item flex items-start gap-3.5 p-4 ">
+      <div class="summary-icon shrink-0 p-2.5 rounded-lg bg-slate-100 text-crystal-blue" aria-hidden="true">
+        ${lucideIcon(card.icon, 'w-5 h-5')}
+      </div>
+      <div class="min-w-0 flex-1">
+        <label class="block text-[11px] font-semibold uppercase tracking-wider"> <spam class="text-arctic-blue">${card.label}</spam></label>
+        <p class="text-sm font-semibold text-stone-900 mt-1 break-words">${card.value}</p>
+      </div>
+    </div>
+  `).join('');
+
+  // Tecnologías y herramientas como etiquetas visuales
+  const skillsList = knownValue(job.skills)
+    ? job.skills.split(/\s*·\s*|,\s*/).map((s) => s.trim()).filter(Boolean)
+    : [];
+
+  const skillsHtml = skillsList.length > 0 ? `
+    <section class="skills-section mb-8 px-5 pb-5" aria-label="Tecnologías y herramientas declaradas">
+      <h4 class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">Tecnologías y herramientas declaradas</h4>
+      <div class="flex flex-wrap gap-2">
+        ${skillsList.map((skill) => `
+          <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-ice-blue/10 text-crystal-blue border border-ice-blue/30">
+            ${escapeHTML(skill)}
+          </span>
+        `).join('')}
+      </div>
+    </section>
+  ` : '';
+
+  return `
+    ${backNav}
+    <div class="opportunity-header mb-6">
+      <p class="dialog-eyebrow text-xs font-mono font-medium text-stone-500 uppercase tracking-wider mb-1">${escapeHTML(job.requisition || job.id)} · ${escapeHTML(job.sourceKind || 'Fuente de empleo')}</p>
+      <h2 class="dialog-title text-2xl md:text-3xl font-bold tracking-tight text-stone-900 py-2" id="${isStandalone ? 'opportunity-page-title' : 'dialog-title'}">${escapeHTML(job.title)}</h2>
+      <div class="dialog-tags flex flex-wrap gap-2 mb-6">${statusTag(job)}<span class="tag inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-stone-100 text-stone-800 border border-stone-200">${escapeHTML(job.family || 'Tecnología y Sistemas')}</span><span class="tag inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-stone-100 text-stone-800 border border-stone-200">${escapeHTML(job.level || job.kind || 'Oportunidad')}</span></div>
+    </div>
+
+    <!-- 1. ✓ Fuente oficial verificada (sección destacada en posición superior) -->
+    <section class="official-source-hero mb-5 rounded-xl border border-borderMuted bg-brandBlack p-4">
+
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+        <!-- Información -->
+        <div class="min-w-0 flex-1 text-white">
+
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold
+              ${isVerified ? 'text-crystal-blue' : 'text-crystal-blue'}">
+              ${isVerified
+      ? lucideIcon('badge-check', 'h-3.5 w-3.5')
+      : lucideIcon('triangle-alert', 'h-3.5 w-3.5')}
+              ${isVerified ? '✓ Fuente oficial verificada' : 'Fuente de consulta'}
+            </span>
+          </div>
+
+          <h3 class="mt-1.5 break-words text-lg font-semibold text-white">
+            ${escapeHTML(sourcePublisher)}
+          </h3>
+
+          ${job.employer && job.employer !== sourcePublisher ? `
+            <p class="mt-0.5 text-xs text-white">
+              Empleador:
+              <strong class="font-semibold">${escapeHTML(job.employer)}</strong>
+            </p>
+          ` : ''}
+
+          <p class="mt-1 text-xs leading-relaxed text-white">
+            ${isVerified
+      ? 'Publicación oficial verificada directamente en el portal del empleador o difusor'
+      : 'Convocatoria registrada pendiente de comprobación directa'}
+            · Consulta:
+            <strong class="font-medium text-white">
+              ${escapeHTML(verifiedDateFormatted)}
+            </strong>
+          </p>
+
+        </div>
+
+        <!-- Acciones alineadas a la derecha -->
+        <div class="flex w-full shrink-0 flex-col items-stretch gap-2 sm:w-48 sm:items-stretch">
+
+          ${sourceUrl ? `
+            <a
+              href="${escapeHTML(sourceUrl)}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-source inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg
+                    border border-borderMuted bg-white px-3 py-2
+                    text-xs font-semibold text-brandDark
+                    transition-colors duration-150
+                    hover:border-iceBlue hover:bg-surfaceRaised hover:text-arcticBlue
+                    focus-visible:outline-2 focus-visible:outline-offset-2
+                    focus-visible:outline-arcticBlue"
+            >
+              Ver publicación original
+              <span aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right preview-icon"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
+            </a>
+          ` : ''}
+
+          ${canApply && applyUrl ? `
+            <a
+              href="${escapeHTML(applyUrl)}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-apply-main inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg mt-2
+                    bg-crystalBlue px-3 py-2 text-xs font-semibold mb-2
+                    transition-colors duration-150
+                    hover:bg-arcticBlue
+                    focus-visible:outline-2 focus-visible:outline-offset-2
+                    focus-visible:outline-arcticBlue"
+            >
+              <span class="text-white">Ir a postulación</span>
+              <span class="text-white" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right preview-icon"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
+            </a>
+          ` : `
+            <span
+              class="inline-flex min-h-9 items-center justify-center rounded-lg
+                    bg-surfaceRaised px-3 py-2 text-xs text-white"
+              aria-disabled="true"
+            >
+              Postulación deshabilitada
+            </span>
+          `}
+
+        </div>
+
+      </div>
+
+      <!-- Fuente / Ficha informativa -->
+      ${sourceUrl ? `
+        <div class="mt-3 border-t border-borderMuted pb-2 pt-4">
+          <p class="break-words text-[11px] text-slate-100">
+            Ficha informativa:
+            <a
+              href="${escapeHTML(sourceUrl)}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="font-medium text-arcticBlue
+                    focus-visible:outline-2 focus-visible:outline-offset-2
+                    focus-visible:outline-arcticBlue"
+            >
+              <span class="text-slate-100">${escapeHTML(job.sourceKind || sourcePublisher)} ⌝ </span>
+            </a>
+          </p>
+        </div>
+      ` : ''}
+
+    </section>
+
+
+
+    <!-- 2. Resumen (cuadrícula visual con iconos Lucide y omisión de datos no verificados) -->
+    <section class="summary-section rounded-xl bg-white shadow-xs hover:border-stone-300 transition-colors" aria-label="Resumen de condiciones de la oportunidad">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-stone-500 px-5 pt-4">Resumen</h3>
+      <div class="summary-grid detail-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        ${summaryCardsHtml}
+      </div>
+      <div>
+        <!-- 3. Tecnologías y herramientas declaradas (inmediatamente debajo del Resumen) -->
+        ${skillsHtml}
+      </div>
+    </section>
+
+    <!-- 5. Tareas y Requisitos del puesto -->
+    <section class="bg-white border border-stone-200/80 rounded-xl p-4 shadow-xs">
+      <div class="mb-6 mt-6">
+        <h3 class="text-[14px] font-bold uppercase tracking-wider text-stone-700 mb-2">Qué harías</h3>
+        <p class="text-sm text-stone-700 leading-relaxed ">${escapeHTML(job.tasks || 'La descripción completa se consulta en la fuente original.')}</p>
+      </div>
+
+      <div class="detail-section mb-6">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">Requisitos del puesto</h3>
+        <p class="text-sm text-stone-700 leading-relaxed">${escapeHTML(job.requirements || 'Revisar requisitos en la publicación original.')}</p>
+      </div>
+
+      ${knownValue(job.growth) ? `
+        <div class="detail-section mb-6">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">Qué experiencia podrías llevar al siguiente paso</h3>
+          <p class="text-sm text-stone-700 leading-relaxed">${escapeHTML(job.growth)}</p>
+        </div>
+      ` : ''}
+
+      ${knownValue(job.benefits) ? `
+        <div class="detail-section mb-6">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">Beneficios publicados</h3>
+          <p class="text-sm text-stone-700 leading-relaxed">${escapeHTML(job.benefits)}</p>
+        </div>
+      ` : ''}
+    </section>
+
+    <!-- 4. Qué se verificó (reubicado debajo de Tecnologías y herramientas declaradas) -->
+    <section class="verification-section mb-8">
+      <div class="evidence-box ${canApply ? '' : 'warning'} rounded-xl border p-4.5 mb-4 ${canApply ? 'bg-stone-50/70 border-stone-200' : 'bg-amber-50/60 border-amber-200'}">
+        <b class="text-sm font-bold text-stone-900">${canApply ? 'Qué se verificó' : 'Estado de publicación'}</b>
+        <p class="text-xs text-stone-600 mt-1 leading-relaxed">${escapeHTML(statusText)}</p>
+      </div>
+
+      <details class="evidence-collapsible rounded-xl border border-stone-200 bg-white p-4">
+        <summary class="cursor-pointer text-xs font-semibold text-stone-700 hover:text-stone-900 flex items-center justify-between">
+          <span>Procedencia por dato (${fieldEvidence.length} campos registrados)</span>
+        </summary>
+        <div class="evidence-collapsible-body mt-4 pt-3 border-t border-stone-100">
+          ${fieldEvidenceHtml ? `<ul class="field-evidence-list divide-y divide-stone-100 text-xs">${fieldEvidenceHtml}</ul>` : '<p class="text-xs text-stone-500">No hay evidencia desglosada por campo en esta ficha.</p>'}
+          ${evidenceLink ? `<p class="external-note mt-3 text-xs">${evidenceLink}</p>` : ''}
+        </div>
+      </details>
+    </section>
+
+    <p class="external-note mt-8 text-xs text-stone-500 text-center">No guardamos tu CV ni enviamos postulaciones desde este prototipo.</p>
+    ${bottomBackNav}
+  `;
+}
+
+function renderOpportunityPage(job, updateHistory = true) {
+  if (typeof opportunityView === 'undefined' || typeof catalogView === 'undefined' || !opportunityView || !catalogView) return;
+  opportunityView.innerHTML = renderDetailContent(job, { isStandalone: true });
+  catalogView.classList.add('hidden');
+  catalogView.hidden = true;
+  opportunityView.classList.remove('hidden');
+  opportunityView.hidden = false;
+  if (typeof window !== 'undefined') {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    document.title = `${job.title} · ${job.employer} — Ruta Sistemas`;
+    if (updateHistory && window.history && window.history.pushState) {
+      const currentParam = new URLSearchParams(window.location.search).get('id');
+      if (currentParam !== job.id) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('id', job.id);
+        window.history.pushState({ id: job.id, standalone: true }, '', url.toString());
+      }
+    }
+  }
+}
+
+function renderNotFoundPage(requestedId) {
+  if (typeof opportunityView === 'undefined' || typeof catalogView === 'undefined' || !opportunityView || !catalogView) return;
+  opportunityView.innerHTML = `
+    <div class="opportunity-not-found p-8 text-center max-w-xl mx-auto my-12 bg-white rounded-xl border border-stone-200 shadow-sm">
+      <p class="dialog-eyebrow text-xs uppercase font-semibold text-stone-500 mb-2">ERROR 404 · REGISTRO NO ENCONTRADO</p>
+      <h2 class="text-xl font-bold text-stone-900 mb-2">Oportunidad no encontrada</h2>
+      <p class="text-sm text-stone-600 mb-6">El identificador <code>${escapeHTML(requestedId || '')}</code> no corresponde a ninguna oportunidad disponible en este catálogo.</p>
+      <button type="button" class="back-to-catalog inline-flex items-center gap-1.5 text-sm font-semibold text-stone-700 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-4 py-2.5 rounded-lg transition-colors cursor-pointer" data-action="back-to-catalog">
+        <span aria-hidden="true">←</span> Volver al catálogo
+      </button>
+    </div>
+  `;
+  catalogView.classList.add('hidden');
+  catalogView.hidden = true;
+  opportunityView.classList.remove('hidden');
+  opportunityView.hidden = false;
+  if (typeof window !== 'undefined') {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    document.title = 'Oportunidad no encontrada — Ruta Sistemas';
+  }
+}
+
+function closeOpportunityPage(updateHistory = true) {
+  if (typeof opportunityView === 'undefined' || typeof catalogView === 'undefined' || !opportunityView || !catalogView) return;
+  opportunityView.classList.add('hidden');
+  opportunityView.hidden = true;
+  opportunityView.innerHTML = '';
+  catalogView.classList.remove('hidden');
+  catalogView.hidden = false;
+  if (typeof document !== 'undefined') {
+    document.title = 'Ruta Sistemas';
+  }
+  if (updateHistory && typeof window !== 'undefined' && window.history && window.history.pushState) {
+    const params = new URLSearchParams(window.location.search);
+    params.delete('id');
+    const newSearch = params.toString() ? `?${params.toString()}` : '';
+    const newUrl = `${window.location.pathname}${newSearch}${window.location.hash}`;
+    window.history.pushState({}, '', newUrl);
+  }
+}
+
+function getOpportunityIdFromUrl() {
+  if (typeof window === 'undefined' || !window.location) return null;
+  const params = new URLSearchParams(window.location.search);
+  const idParam = params.get('id');
+  if (idParam) return idParam;
+  const hash = window.location.hash || '';
+  const match = hash.match(/^#\/?oportunidad\/([A-Za-z0-9_-]+)$/);
+  return match ? match[1] : null;
+}
+
+function handleRouting() {
+  if (typeof window === 'undefined' || !window.location) return;
+  if (typeof opportunityView === 'undefined' || typeof catalogView === 'undefined' || !opportunityView || !catalogView) return;
+  const requestedId = getOpportunityIdFromUrl();
+  if (!requestedId) {
+    if (!opportunityView.hidden) {
+      closeOpportunityPage(false);
+    }
+    if (typeof dialog !== 'undefined' && dialog && dialog.open) {
+      dialog.close();
+    }
+    return;
+  }
+  const job = catalog.find((item) => item.id === requestedId);
+  if (job) {
+    renderOpportunityPage(job, false);
+  } else if (catalog.length > 0) {
+    renderNotFoundPage(requestedId);
+  }
+}
+
 function updateComparePanel() {
   const selected = compareIds.map((id) => catalog.find((job) => job.id === id)).filter(Boolean);
   compareIds = selected.map((job) => job.id);
@@ -371,7 +875,13 @@ function toggleCompare(id) {
 function comparisonValue(job, field) {
   if (field === 'status') {
     const state = currentStates(job);
-    return `${state.opportunityStatus} · ${state.verificationStatus} · ${state.publicationStatus}`;
+    const oppStatusMap = { open: 'Abierta', closed: 'Cerrada', expired: 'Expirada' };
+    const verStatusMap = { verified: 'Verificada', stale: 'Atrasada', unconfirmed: 'Sin verificar' };
+    const pubStatusMap = { active: 'Activa', historical: 'Histórica', unconfirmed: 'Sin verificar' };
+    const opp = oppStatusMap[state.opportunityStatus] || state.opportunityStatus;
+    const ver = verStatusMap[state.verificationStatus] || state.verificationStatus;
+    const pub = pubStatusMap[state.publicationStatus] || state.publicationStatus;
+    return `${opp} · ${ver} · ${pub}`;
   }
   if (field === 'salary') return knownValue(job.salary) ? job.salary : 'No publicado';
   return knownValue(job[field]) ? job[field] : 'No informado';
@@ -473,13 +983,34 @@ function updateCatalogView() {
     return;
   }
   opportunities = getVisibleJobs();
+  const isFiltered = Boolean(
+    (filters.query && filters.query.value.trim() !== '')
+    || (filters.location && filters.location.value.trim() !== '')
+    || (filters.mode && filters.mode.value !== '')
+    || (filters.kind && filters.kind.value !== '')
+    || (filters.family && filters.family.value !== '')
+    || (filters.sector && filters.sector.value !== '')
+    || (filters.level && filters.level.value !== '')
+    || (filters.salary && filters.salary.value !== '')
+    || (filters.risk && filters.risk.value !== '')
+  );
   const includeExamples = document.querySelector('#include-demonstrations').checked;
   const includeOtherStates = document.querySelector('#include-unconfirmed').checked || filters.history.checked;
-  const showNoVerifiedOpportunities = !includeExamples && !includeOtherStates;
-  empty.querySelector('h3').textContent = showNoVerifiedOpportunities ? 'No hay oportunidades verificadas disponibles' : 'No encontramos coincidencias';
-  empty.querySelector('p').textContent = showNoVerifiedOpportunities
-    ? 'Las oportunidades se incorporan después de revisar la publicación original y el canal de postulación. Puedes activar “Incluir ejemplos demostrativos” para explorar ejemplos que no son vacantes reales.'
-    : 'Prueba quitar algún filtro. Los ejemplos demostrativos nunca representan vacantes reales ni habilitan la postulación.';
+  const showNoVerifiedOpportunities = !isFiltered && !includeExamples && !includeOtherStates;
+
+  if (catalog.length === 0) {
+    empty.querySelector('h3').textContent = 'No hay oportunidades disponibles';
+    empty.querySelector('p').textContent = 'El catálogo no contiene convocatorias actualmente.';
+  } else if (opportunities.length === 0 && isFiltered) {
+    empty.querySelector('h3').textContent = 'No encontramos coincidencias para esta búsqueda';
+    empty.querySelector('p').textContent = 'Prueba quitar algún filtro o modificar los términos de búsqueda.';
+  } else if (showNoVerifiedOpportunities) {
+    empty.querySelector('h3').textContent = 'No hay oportunidades verificadas disponibles';
+    empty.querySelector('p').textContent = 'Las oportunidades se incorporan después de revisar la publicación original y el canal de postulación. Puedes activar “Incluir ejemplos demostrativos” para explorar ejemplos que no son vacantes reales.';
+  } else {
+    empty.querySelector('h3').textContent = 'No encontramos coincidencias';
+    empty.querySelector('p').textContent = 'Prueba quitar algún filtro. Los ejemplos demostrativos nunca representan vacantes reales ni habilitan la postulación.';
+  }
   document.querySelector('#empty-clear').hidden = false;
   render();
 }
@@ -499,51 +1030,16 @@ function populateFilters() {
 }
 
 function renderDialog(job) {
-  const state = currentStates(job);
-  const sourceUrl = safeHttpsUrl(job.sourceUrl);
-  const applyUrl = safeHttpsUrl(job.applyUrl);
-  const canApply = state.publicationStatus === 'active' && job.recordKind !== 'demonstration';
-  const risk = job.risk || 'La fuente no especifica esta condición. Confírmala en el anuncio original.';
-  const statusText = canApply
-    ? `La fuente del empleador se revisó el ${job.lastVerifiedAt}; esta comprobación no garantiza disponibilidad posterior.`
-    : state.opportunityStatus === 'expired'
-      ? 'La fecha límite de postulación ya pasó. Se conserva como referencia y no se habilita el enlace para postular.'
-      : state.publicationStatus === 'historical'
-        ? 'Registro histórico conservado para referencia. No está disponible para postular.'
-        : `${job.recordKind === 'demonstration' ? 'Ficha de demostración. ' : ''}No tiene evidencia vigente suficiente para presentarla como postulable. Última verificación: ${job.lastVerifiedAt || 'no disponible'}; última consulta registrada: ${job.lastCheckedDate || 'no disponible'}. No se afirma que siga publicada.`;
-  const fieldEvidence = Array.isArray(job.fieldEvidence) ? job.fieldEvidence : [];
-  const evidenceLabels = { employer: 'Empleador', publisher: 'Difusor', title: 'Puesto', applyUrl: 'Canal de postulación', deadline: 'Fecha límite', salary: 'Remuneración', mode: 'Modalidad', location: 'Ubicación', requirements: 'Requisitos', benefits: 'Beneficios', skills: 'Tecnologías', training: 'Formación', contractType: 'Tipo de contrato', duration: 'Duración', sector: 'Sector', family: 'Familia profesional', level: 'Nivel', kind: 'Tipo de oportunidad', growth: 'Experiencia para el siguiente paso', continuity: 'Continuidad', risk: 'Riesgos' };
-  const fieldEvidenceHtml = fieldEvidence.filter((item) => evidenceLabels[item.field] && safeHttpsUrl(item.url)).map((item) => `<li><a href="${escapeHTML(safeHttpsUrl(item.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(evidenceLabels[item.field])} · evidencia ↗</a> <span>${escapeHTML(item.observedAt || 'fecha no disponible')}</span></li>`).join('');
-  const sourcePublisher = job.publisher || 'No identificado en esta ficha';
-  const evidenceLink = job.evidenceUrl ? `<a class="detail-evidence-link" href="${escapeHTML(safeHttpsUrl(job.evidenceUrl) || '#')}" target="_blank" rel="noopener noreferrer">Abrir bases/documento de evidencia ↗</a>` : '';
-  dialogContent.innerHTML = `<p class="dialog-eyebrow">${escapeHTML(job.requisition || job.id)} · ${escapeHTML(job.sourceKind || 'Fuente de empleo')}</p>
-    <h2 class="dialog-title" id="dialog-title">${escapeHTML(job.title)}</h2><p class="dialog-company">Empleador: ${escapeHTML(job.employer || 'No informado')} · ${escapeHTML(job.sector || 'Sector no informado')}</p>
-    <div class="dialog-tags">${statusTag(job)}${modeTag(job)}<span class="tag">${escapeHTML(job.level || 'Nivel no especificado')}</span></div>
-    <div class="evidence-box ${canApply ? '' : 'warning'}"><b>${canApply ? 'Qué se verificó' : 'Estado de publicación'}</b><p>${escapeHTML(statusText)}</p></div>
-    <div class="detail-grid">
-      <div class="detail-item"><label>Modalidad</label><p>${escapeHTML(job.mode || 'No especificada')}</p></div>
-      <div class="detail-item"><label>Entidad que difunde</label><p>${escapeHTML(sourcePublisher)}</p></div>
-      <div class="detail-item"><label>Elegibilidad / ubicación</label><p>${escapeHTML(job.eligibility || job.location || 'No confirmada')}</p></div>
-      <div class="detail-item"><label>Compensación</label><p>${escapeHTML(job.salary || 'No publicado')}${job.salaryNote ? ` · ${escapeHTML(job.salaryNote)}` : ''}</p></div>
-      <div class="detail-item"><label>Contrato / plazo</label><p>${escapeHTML(job.duration || 'No especificado')}</p></div>
-      <div class="detail-item"><label>Fecha límite</label><p>${escapeHTML(job.deadline || 'No indicada')}</p></div>
-      <div class="detail-item"><label>Fecha de publicación</label><p>${escapeHTML(job.publishedAt || 'No indicada')}</p></div>
-      <div class="detail-item"><label>Última verificación o consulta</label><p>${escapeHTML(job.lastVerifiedAt || job.lastCheckedDate || 'No disponible')}</p></div>
-    </div>
-    <section class="detail-section"><h3>Qué harías</h3><p>${escapeHTML(job.tasks || 'La descripción completa se consulta en la fuente original.')}</p></section>
-    <section class="detail-section"><h3>Qué experiencia podrías llevar al siguiente paso</h3><p>${escapeHTML(job.growth || 'Encaje y experiencia todavía no analizados.')}</p></section>
-    <section class="detail-section"><h3>Requisitos y herramientas</h3><p>${escapeHTML(job.requirements || 'Revisar requisitos en la publicación original.')}${job.skills ? `<br /><br /><b>Tecnologías/señales:</b> ${escapeHTML(job.skills)}` : ''}</p></section>
-    <section class="detail-section"><h3>Continuidad y riesgos</h3><p>${escapeHTML(job.continuity || 'No informada.') } ${escapeHTML(risk)}</p></section>
-    <section class="detail-section"><h3>Beneficios publicados</h3><p>${escapeHTML(job.benefits || 'No informados; revisar condiciones en la publicación original.')}</p></section>
-    <section class="detail-section"><h3>Señales de evaluación</h3><p class="evaluation-intro">Estas señales resumen datos y límites del registro. No son una puntuación ni una recomendación automática.</p><div class="signal-grid">${renderSignals(job)}</div></section>
-    ${renderEmployerAssessment(job)}
-    ${job.editorialDecision?.reason ? `<section class="detail-section"><h3>Decisión editorial</h3><p>${escapeHTML(job.editorialDecision.status || 'Registrada')} · ${escapeHTML(job.editorialDecision.reason)}${job.editorialDecision.decidedAt ? ` (${escapeHTML(job.editorialDecision.decidedAt)})` : ''}</p></section>` : ''}
-    ${sourceUrl ? `<p class="external-note">Ficha informativa: <a href="${escapeHTML(sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHTML(job.sourceKind || sourcePublisher)} ↗</a></p>` : ''}
-    ${fieldEvidenceHtml ? `<section class="detail-section"><h3>Procedencia por dato</h3><ul class="field-evidence-list">${fieldEvidenceHtml}</ul></section>` : '<section class="detail-section"><h3>Procedencia por dato</h3><p>No hay evidencia desglosada por campo en esta ficha.</p></section>'}
-    ${evidenceLink ? `<p class="external-note">${evidenceLink}</p>` : ''}
-    ${canApply && applyUrl ? `<a class="apply-link" href="${escapeHTML(applyUrl)}" target="_blank" rel="noopener noreferrer">Ir a postulación <span aria-hidden="true">↗</span></a>` : '<p class="apply-disabled">Postulación deshabilitada hasta contar con una verificación vigente y un canal de postulación comprobado.</p>'}
-    <p class="external-note">No guardamos tu CV ni enviamos postulaciones desde este prototipo.</p>`;
+  dialogContent.innerHTML = renderDetailContent(job, { isStandalone: false });
   dialog.showModal();
+  if (typeof window !== 'undefined' && window.history && window.history.pushState) {
+    const currentParam = new URLSearchParams(window.location.search).get('id');
+    if (currentParam !== job.id) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('id', job.id);
+      window.history.pushState({ id: job.id, modal: true }, '', url.toString());
+    }
+  }
 }
 
 function notify(message) {
@@ -584,6 +1080,7 @@ async function loadCatalog() {
       : 'Sin consultas registradas sobre oportunidades reales';
     document.querySelector('#catalog-source-note').textContent = result.sourceNote || 'Revisa cada publicación en su fuente original.';
     updateCatalogView();
+    if (typeof handleRouting === 'function') handleRouting();
   } catch (error) {
     console.error('[Ruta Sistemas] No se pudo cargar el catálogo:', error);
     catalogLoadError = true;
@@ -634,30 +1131,69 @@ compareClear.addEventListener('click', () => {
   updateComparePanel();
   render();
 });
+
+if (dialog) {
+  dialog.addEventListener('close', () => {
+    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('id')) {
+        params.delete('id');
+        const newSearch = params.toString() ? `?${params.toString()}` : '';
+        const newUrl = `${window.location.pathname}${newSearch}${window.location.hash}`;
+        window.history.pushState({}, '', newUrl);
+      }
+    }
+  });
+}
+
+if (opportunityView) {
+  opportunityView.addEventListener('click', (event) => {
+    const backBtn = event.target.closest('[data-action="back-to-catalog"]');
+    if (backBtn) {
+      event.preventDefault();
+      closeOpportunityPage(true);
+    }
+  });
+}
+
 list.addEventListener('click', (event) => {
   const compareButton = event.target.closest('[data-compare]');
   if (compareButton) {
     toggleCompare(compareButton.dataset.compare);
     return;
   }
-  const button = event.target.closest('[data-open]');
+  const openLink = event.target.closest('a[data-open]');
+  if (openLink) {
+    if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.button === 0) {
+      event.preventDefault();
+      const job = catalog.find((item) => item.id === openLink.dataset.open);
+      if (job) renderOpportunityPage(job, true);
+    }
+    return;
+  }
+  const button = event.target.closest('button[data-open]');
   if (!button) return;
-  const job = opportunities.find((item) => item.id === button.dataset.open);
+  const job = catalog.find((item) => item.id === button.dataset.open);
   if (job) renderDialog(job);
 });
+
 list.addEventListener('keydown', (event) => {
   const title = event.target.closest('[data-open][role="button"]');
   if (title && (event.key === 'Enter' || event.key === ' ')) {
     event.preventDefault();
-    const job = opportunities.find((item) => item.id === title.dataset.open);
-    if (job) renderDialog(job);
+    const job = catalog.find((item) => item.id === title.dataset.open);
+    if (job) renderOpportunityPage(job, true);
   }
 });
+
 document.addEventListener('keydown', (event) => {
-  if (event.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName) && !dialog.open) {
+  if (event.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName) && (!dialog || !dialog.open) && (!opportunityView || opportunityView.hidden)) {
     event.preventDefault();
     filters.query.focus();
   }
 });
+
+window.addEventListener('popstate', handleRouting);
+window.addEventListener('hashchange', handleRouting);
 
 loadCatalog();
