@@ -252,18 +252,123 @@ function renderCard(job) {
     : (state.publicationStatus === 'historical' || state.opportunityStatus === 'expired')
       ? 'No disponible para postular'
       : 'Vigencia no confirmada';
-  return `<article class="job-card" data-id="${id}">
-    <div class="job-main">
-      <div class="company-mark ${targetClass}" aria-hidden="true">${escapeHTML(initials(job.employer))}</div>
-      <div class="job-copy min-w-0">
-        <div class="job-title-row"><h3 class="job-title"><a href="?id=${id}" role="button" tabindex="0" data-open="${id}" class="text-inherit no-underline hover:underline">${escapeHTML(job.title)}</a></h3>${statusTag(job)}</div>
-        <p class="company-name">${escapeHTML(job.employer)} <span>·</span> ${escapeHTML(job.sector)}</p>
-        <div class="job-tags">${modeTag(job)}<span class="tag">${escapeHTML(familyLabel)}</span><span class="tag ${job.level === 'Senior' ? 'senior' : ''}">${escapeHTML(typeLabel)}</span></div>
-        <p class="job-location">⌖ ${escapeHTML(formatLocationEligibility(job))}</p>
+  return `<article class="job-card group grid grid-cols-1 gap-4 rounded-xl border border-borderMuted bg-white p-4 transition-colors duration-150 hover:border-crystalBlue/50 sm:p-5 lg:grid-cols-[minmax(0,1fr)_170px_190px] lg:items-center lg:gap-5"
+  data-id="${id}" >
+    <!-- IZQUIERDA: Información del empleo -->
+    <div class="flex min-w-0 items-start gap-3.5">
+
+      <!-- Identidad de empresa -->
+      <div
+        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-md font-bold text-arcticBlue"
+        aria-hidden="true"
+      >
+        ${escapeHTML(initials(job.employer))}
+      </div>
+
+      <!-- Información principal -->
+      <div class="min-w-0 flex-1">
+
+        <!-- Título y estado -->
+        <div class="flex flex-wrap items-center gap-2">
+          <h3 class="min-w-0 text-md font-semibold leading-5 text-brandBlack">
+            <a href="?id=${id}" role="button" tabindex="0" data-open="${id}" class="rounded-sm no-underline hover:text-arcticBlue hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-crystalBlue">
+              ${escapeHTML(job.title)}
+            </a>
+          </h3>
+
+          ${statusTag(job)}
+        </div>
+
+        <!-- Empresa y sector -->
+        <p class="mt-1 text-xs text-brandMuted">
+          <span class="font-medium text-brandDark">
+            ${escapeHTML(job.employer)}
+          </span>
+          <span aria-hidden="true"> · </span>
+          ${escapeHTML(job.sector)}
+        </p>
+
+        <!-- Etiquetas -->
+        <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+          ${modeTag(job)}
+
+          <span class="inline-flex items-center rounded-md bg-surfaceRaised px-2 py-1 text-[10px] font-medium text-brandDark">
+            ${escapeHTML(familyLabel)}
+          </span>
+
+          <span class="inline-flex items-center rounded-md px-2 py-1 text-[10px] font-medium ${job.level === 'Senior'
+      ? 'bg-iceBlue/15 text-arcticBlue'
+      : 'bg-surfaceRaised text-brandDark'
+    }">
+            ${escapeHTML(typeLabel)}
+          </span>
+        </div>
+
+        <!-- Ubicación -->
+        <p class="mt-2 flex items-center gap-1.5 text-[11px] text-brandMuted">
+          <svg aria-hidden="true" class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span class="min-w-0">${escapeHTML(formatLocationEligibility(job))}</span>
+        </p>
       </div>
     </div>
-    <div class="job-fit"><strong>${fitStatus}</strong><span>${escapeHTML(job.growth || '')}</span></div>
-    <div class="job-meta"> <strong class="salary ${salary === 'No publicado' ? 'missing' : ''}">${salary}</strong><span class="check-date">${metaDate}</span><button class="card-button" type="button" data-open="${id}">Ver detalle <span aria-hidden="true">↗</span></button><button class="compare-button ${isCompared ? 'selected' : ''}" type="button" data-compare="${id}" aria-pressed="${isCompared}">${isCompared ? 'Quitar de comparación' : 'Añadir a comparación'}</button></div>
+
+    <!-- CENTRO: Compatibilidad -->
+    <div class="flex flex-col gap-1 border-t border-borderMuted pt-3 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+      <strong class="text-xs font-semibold text-brandDark">
+        ${fitStatus}
+      </strong>
+
+      <span class="text-[11px] leading-4 text-brandMuted">
+        ${escapeHTML(job.growth || '')}
+      </span>
+    </div>
+
+    <!-- DERECHA: Información y acciones -->
+    <div class="flex flex-wrap items-center justify-between gap-3 border-t border-borderMuted pt-3 sm:flex-nowrap lg:flex-col lg:items-end lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+
+      <!-- Sueldo y fecha -->
+      <div class="flex flex-col gap-1 lg:items-end">
+        <strong class="text-sm font-semibold ${salary === 'No publicado'
+      ? 'text-brandMuted'
+      : 'text-brandBlack'
+    }">
+          ${salary}
+        </strong>
+
+        <span class="text-[10px] text-brandMuted">
+          ${metaDate}
+        </span>
+      </div>
+
+      <!-- Acciones -->
+      <div class="flex w-full flex-col gap-2">
+
+        <button
+          class="card-button inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-arcticBlue px-3 text-xs font-semibold text-white transition-colors hover:bg-crystalBlue active:bg-arcticBlue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-crystalBlue"
+          type="button"
+          data-open="${id}"
+        >
+          Ver detalle
+          <span aria-hidden="true">↗</span>
+        </button>
+
+        <button
+          class="compare-button inline-flex h-9 w-full items-center justify-center rounded-lg border border-borderMuted bg-white px-2.5 text-[11px] font-medium text-brandDark transition-colors hover:border-crystalBlue hover:bg-iceBlue/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-crystalBlue ${isCompared
+      ? 'selected border-crystalBlue bg-iceBlue/10 text-arcticBlue'
+      : ''
+    }"
+          type="button"
+          data-compare="${id}"
+          aria-pressed="${isCompared}"
+        >
+          ${isCompared ? 'Quitar de comparación' : 'Añadir a comparación'}
+        </button>
+
+      </div>
+    </div>
   </article>`;
 }
 
@@ -706,7 +811,7 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
       </div>
     </section>
 
-    <!-- 5. Tareas y Requisitos del puesto -->
+    <!-- 4. Tareas y Requisitos del puesto -->
     <section class="bg-white border border-stone-200/80 rounded-xl p-4 shadow-xs">
       <div class="mb-6 mt-6">
         <h3 class="text-[14px] font-bold uppercase tracking-wider text-stone-700 mb-2">Qué harías</h3>
@@ -733,25 +838,80 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
       ` : ''}
     </section>
 
-    <!-- 4. Qué se verificó (reubicado debajo de Tecnologías y herramientas declaradas) -->
-    <section class="verification-section mb-8">
-      <div class="evidence-box ${canApply ? '' : 'warning'} rounded-xl border p-4.5 mb-4 ${canApply ? 'bg-stone-50/70 border-stone-200' : 'bg-amber-50/60 border-amber-200'}">
-        <b class="text-sm font-bold text-stone-900">${canApply ? 'Qué se verificó' : 'Estado de publicación'}</b>
-        <p class="text-xs text-stone-600 mt-1 leading-relaxed">${escapeHTML(statusText)}</p>
+    <!-- Verificación y procedencia -->
+    <section class="verification-section bg-white border border-stone-200/80 rounded-xl p-4 shadow-xs mt-6">
+
+      <!-- Estado de verificación -->
+      <div class="evidence-box flex items-start gap-2.5">
+        <svg
+          aria-hidden="true"
+          class="mt-0.5 h-4 w-4 shrink-0 ${canApply ? 'text-arcticBlue' : 'text-amber-600'}"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          ${canApply
+      ? '<path d="m5 12 4 4L19 6"/>'
+      : '<circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/>'}
+        </svg>
+
+        <div class="min-w-0">
+          <p class="text-xs font-semibold text-brandBlack">
+            ${canApply ? 'Qué se verificó' : 'Estado de publicación'}
+          </p>
+
+          <p class="mt-1 text-xs leading-relaxed text-brandMuted">
+            ${escapeHTML(statusText)}
+          </p>
+        </div>
       </div>
 
-      <details class="evidence-collapsible rounded-xl border border-stone-200 bg-white p-4">
-        <summary class="cursor-pointer text-xs font-semibold text-stone-700 hover:text-stone-900 flex items-center justify-between">
-          <span>Procedencia por dato (${fieldEvidence.length} campos registrados)</span>
+      <!-- Procedencia -->
+      <details class="evidence-collapsible group mt-3 border-t border-borderMuted pt-3">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 text-xs text-brandDark hover:text-arcticBlue focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-crystalBlue">
+          <span>
+            Procedencia por dato
+            <span class="ml-1 text-brandMuted">
+              (${fieldEvidence.length} campos registrados)
+            </span>
+          </span>
+
+          <svg
+            aria-hidden="true"
+            class="h-4 w-4 shrink-0 text-brandMuted transition-transform duration-150 group-open:rotate-180"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
         </summary>
-        <div class="evidence-collapsible-body mt-4 pt-3 border-t border-stone-100">
-          ${fieldEvidenceHtml ? `<ul class="field-evidence-list divide-y divide-stone-100 text-xs">${fieldEvidenceHtml}</ul>` : '<p class="text-xs text-stone-500">No hay evidencia desglosada por campo en esta ficha.</p>'}
-          ${evidenceLink ? `<p class="external-note mt-3 text-xs">${evidenceLink}</p>` : ''}
+
+        <div class="mt-3">
+          ${fieldEvidenceHtml
+      ? `<ul class="divide-y divide-borderMuted text-xs">${fieldEvidenceHtml}</ul>`
+      : '<p class="text-xs text-brandMuted">No hay evidencia desglosada por campo en esta ficha.</p>'}
+
+          ${evidenceLink
+      ? `<div class="mt-3 text-xs text-brandMuted">${evidenceLink}</div>`
+      : ''}
         </div>
       </details>
+
     </section>
 
-    <p class="external-note mt-8 text-xs text-stone-500 text-center">No guardamos tu CV ni enviamos postulaciones desde este prototipo.</p>
+    <!-- Nota informativa -->
+    <p class="mt-6 text-center text-[11px] text-brandMuted">
+      No guardamos tu CV ni enviamos postulaciones desde este prototipo.
+    </p>
+
+
     ${bottomBackNav}
   `;
 }

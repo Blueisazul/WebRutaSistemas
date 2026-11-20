@@ -347,113 +347,151 @@
           </div>
         </div>
 
-        <!-- Formulario de filtros -->
-        <form id="filters" role="search"
-          class="flex flex-wrap items-center gap-2.5 rounded-2xl border border-borderMuted bg-surfaceRaised p-3">
+        <!-- Panel de filtros -->
+        <form id="filters" role="search" class="rounded-2xl border border-borderMuted bg-white p-4 sm:p-5 space-y-4">
+
           <!-- Búsqueda principal -->
-          <label
-            class="flex h-10 min-w-[200px] flex-[1_1_220px] items-center gap-2.5 rounded-xl border border-neutral-200 bg-white px-3 transition-colors focus-within:border-crystalBlue focus-within:ring-2 focus-within:ring-iceBlue/25">
-            <span class="sr-only">Buscar puesto, empresa o tecnología</span>
-            <svg aria-hidden="true" class="h-4 w-4 shrink-0 text-brandMuted" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.3-4.3" />
-            </svg>
-            <input type="search" id="query" placeholder="Puesto, empresa o tecnología" autocomplete="off"
-              class="w-full min-w-0 bg-transparent text-[13px] text-brandBlack placeholder:text-brandMuted focus:outline-none" />
-            <kbd
-              class="rounded border border-neutral-200 bg-surfaceRaised px-1.5 py-0.5 text-[10px] font-medium text-brandMuted">
-              /
-            </kbd>
-          </label>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 
-          <!-- Ubicación -->
-          <label
-            class="flex h-10 min-w-[160px] flex-[1_1_170px] items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 transition-colors focus-within:border-crystalBlue focus-within:ring-2 focus-within:ring-iceBlue/25">
-            <span class="sr-only">Ciudad o país</span>
-            <svg aria-hidden="true" class="h-4 w-4 shrink-0 text-brandMuted" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-            <input type="search" id="location" placeholder="Ciudad o país" autocomplete="off"
-              class="w-full min-w-0 bg-transparent text-[13px] text-brandBlack placeholder:text-brandMuted focus:outline-none" />
-          </label>
+            <label
+              class="flex h-11 min-w-0 items-center gap-3 rounded-xl border border-borderMuted bg-slate-100 px-3.5 transition-colors hover:border-crystalBlue focus-within:border-crystalBlue focus-within:ring-2 focus-within:ring-iceBlue/25">
+              <span class="sr-only">Buscar puesto, empresa o tecnología</span>
+              <svg aria-hidden="true" class="h-[18px] w-[18px] shrink-0 text-brandMuted" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <circle cx="11" cy="11" r="7.5" />
+                <path d="m16.5 16.5 4 4" />
+              </svg>
+              <input type="search" id="query" placeholder="Puesto, empresa o tecnología" autocomplete="off"
+                class="w-full min-w-0 bg-transparent text-[13px] text-brandBlack placeholder:text-brandMuted outline-none" />
+              <kbd
+                class="hidden rounded-md border border-borderMuted bg-white px-2 py-0.5 text-[10px] font-medium text-brandMuted sm:block">
+                /
+              </kbd>
+            </label>
 
-          <!-- Selectores -->
-          <label class="min-w-[135px] flex-1">
-            <span class="sr-only">Modalidad</span>
-            <select id="mode"
-              class="h-10 w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-brandDark transition-colors hover:border-neutral-300 focus:border-crystalBlue focus:outline-none focus:ring-2 focus:ring-iceBlue/25">
-              <option value="">Modalidad</option>
-              <option>Presencial</option>
-              <option>Híbrido</option>
-              <option>Remoto</option>
-              <option>Flexible</option>
-            </select>
-          </label>
+            <!-- Ubicación -->
+            <label
+              class="flex h-11 min-w-0 items-center gap-3 rounded-xl border border-borderMuted bg-slate-100 px-3.5 transition-colors hover:border-crystalBlue focus-within:border-crystalBlue focus-within:ring-2 focus-within:ring-iceBlue/25">
+              <span class="sr-only">Ciudad o país</span>
+              <svg aria-hidden="true" class="h-[18px] w-[18px] shrink-0 text-brandMuted" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <input type="search" id="location" placeholder="Ciudad o país" autocomplete="off"
+                class="w-full min-w-0 bg-transparent text-[13px] text-brandBlack placeholder:text-brandMuted outline-none" />
+            </label>
 
-          <label class="min-w-[155px] flex-1">
-            <span class="sr-only">Tipo de oportunidad</span>
-            <select id="kind"
-              class="h-10 w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-brandDark transition-colors hover:border-neutral-300 focus:border-crystalBlue focus:outline-none focus:ring-2 focus:ring-iceBlue/25">
-              <option value="">Tipo de oportunidad</option>
-              <option>Práctica profesional</option>
-              <option>Práctica preprofesional</option>
-              <option>Junior / profesional</option>
-            </select>
-          </label>
+          </div>
 
-          <label class="min-w-[145px] flex-1">
-            <span class="sr-only">Sector</span>
-            <select id="sector"
-              class="h-10 w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-brandDark transition-colors hover:border-neutral-300 focus:border-crystalBlue focus:outline-none focus:ring-2 focus:ring-iceBlue/25">
-              <option value="">Todos los sectores</option>
-            </select>
-          </label>
+          <!-- Separador -->
+          <div class="flex items-center gap-3">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-brandMuted">
+              Refinar resultados
+            </span>
+            <div class="h-px flex-1 bg-borderMuted"></div>
+          </div>
 
-          <label class="min-w-[145px] flex-1">
-            <span class="sr-only">Nivel profesional</span>
-            <select id="level"
-              class="h-10 w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-brandDark transition-colors hover:border-neutral-300 focus:border-crystalBlue focus:outline-none focus:ring-2 focus:ring-iceBlue/25">
-              <option value="">Todos los niveles</option>
-            </select>
-          </label>
+          <!-- Filtros secundarios -->
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
 
-          <label class="min-w-[155px] flex-1">
-            <span class="sr-only">Familia profesional</span>
-            <select id="family"
-              class="h-10 w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-brandDark transition-colors hover:border-neutral-300 focus:border-crystalBlue focus:outline-none focus:ring-2 focus:ring-iceBlue/25">
-              <option value="">Familia profesional</option>
-              <option>Desarrollo y QA</option>
-              <option>Datos y BI</option>
-              <option>Sistemas empresariales</option>
-            </select>
-          </label>
+            <!-- Modalidad -->
+            <label class="min-w-0 space-y-1.5">
+              <span class="block text-xs font-medium text-brandDark">Modalidad</span>
+              <select id="mode"
+                class="h-10 w-full rounded-lg border border-borderMuted bg-white px-3 text-xs text-brandDark outline-none transition-colors hover:border-crystalBlue focus:border-crystalBlue focus:ring-2 focus:ring-iceBlue/25">
+                <option value="">Todas</option>
+                <option>Presencial</option>
+                <option>Híbrido</option>
+                <option>Remoto</option>
+                <option>Flexible</option>
+              </select>
+            </label>
 
-          <label class="min-w-[145px] flex-1">
-            <span class="sr-only">Sueldo</span>
-            <select id="salary-filter"
-              class="h-10 w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-brandDark transition-colors hover:border-neutral-300 focus:border-crystalBlue focus:outline-none focus:ring-2 focus:ring-iceBlue/25">
-              <option value="">Cualquier sueldo</option>
-              <option value="published">Sueldo publicado</option>
-            </select>
-          </label>
+            <!-- Tipo de oportunidad -->
+            <label class="min-w-0 space-y-1.5">
+              <span class="block text-xs font-medium text-brandDark">Tipo de oportunidad</span>
+              <select id="kind"
+                class="h-10 w-full rounded-lg border border-borderMuted bg-white px-3 text-xs text-brandDark outline-none transition-colors hover:border-crystalBlue focus:border-crystalBlue focus:ring-2 focus:ring-iceBlue/25">
+                <option value="">Todos los tipos</option>
+                <option>Práctica profesional</option>
+                <option>Práctica preprofesional</option>
+                <option>Junior / profesional</option>
+              </select>
+            </label>
 
-          <label class="min-w-[155px] flex-1">
-            <span class="sr-only">Riesgo</span>
-            <select id="risk-filter"
-              class="h-10 w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-brandDark transition-colors hover:border-neutral-300 focus:border-crystalBlue focus:outline-none focus:ring-2 focus:ring-iceBlue/25">
-              <option value="">Cualquier condición</option>
-              <option value="temporary">Mostrar señales temporales</option>
-            </select>
-          </label>
+            <!-- Sector -->
+            <label class="min-w-0 space-y-1.5">
+              <span class="block text-xs font-medium text-brandDark">Sector</span>
+              <select id="sector"
+                class="h-10 w-full rounded-lg border border-borderMuted bg-white px-3 text-xs text-brandDark outline-none transition-colors hover:border-crystalBlue focus:border-crystalBlue focus:ring-2 focus:ring-iceBlue/25">
+                <option value="">Todos los sectores</option>
+              </select>
+            </label>
 
-          <button type="reset" id="clear-filters"
-            class="h-10 shrink-0 rounded-xl px-3.5 text-[12px] font-semibold text-arcticBlue transition-colors hover:bg-iceBlue/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-crystalBlue">
-            Limpiar filtros
-          </button>
+            <!-- Nivel -->
+            <label class="min-w-0 space-y-1.5">
+              <span class="block text-xs font-medium text-brandDark">Nivel profesional</span>
+              <select id="level"
+                class="h-10 w-full rounded-lg border border-borderMuted bg-white px-3 text-xs text-brandDark outline-none transition-colors hover:border-crystalBlue focus:border-crystalBlue focus:ring-2 focus:ring-iceBlue/25">
+                <option value="">Todos los niveles</option>
+              </select>
+            </label>
+
+            <!-- Familia -->
+            <label class="min-w-0 space-y-1.5">
+              <span class="block text-xs font-medium text-brandDark">Familia profesional</span>
+              <select id="family"
+                class="h-10 w-full rounded-lg border border-borderMuted bg-white px-3 text-xs text-brandDark outline-none transition-colors hover:border-crystalBlue focus:border-crystalBlue focus:ring-2 focus:ring-iceBlue/25">
+                <option value="">Todas las familias</option>
+                <option>Desarrollo y QA</option>
+                <option>Datos y BI</option>
+                <option>Sistemas empresariales</option>
+              </select>
+            </label>
+
+            <!-- Sueldo -->
+            <label class="min-w-0 space-y-1.5">
+              <span class="block text-xs font-medium text-brandDark">Sueldo</span>
+              <select id="salary-filter"
+                class="h-10 w-full rounded-lg border border-borderMuted bg-white px-3 text-xs text-brandDark outline-none transition-colors hover:border-crystalBlue focus:border-crystalBlue focus:ring-2 focus:ring-iceBlue/25">
+                <option value="">Cualquier sueldo</option>
+                <option value="published">Sueldo publicado</option>
+              </select>
+            </label>
+
+            <!-- Riesgo -->
+            <label class="min-w-0 space-y-1.5">
+              <span class="block text-xs font-medium text-brandDark">Condiciones</span>
+              <select id="risk-filter"
+                class="h-10 w-full rounded-lg border border-borderMuted bg-white px-3 text-xs text-brandDark outline-none transition-colors hover:border-crystalBlue focus:border-crystalBlue focus:ring-2 focus:ring-iceBlue/25">
+                <option value="">Cualquier condición</option>
+                <option value="temporary">Mostrar señales temporales</option>
+              </select>
+            </label>
+
+          </div>
+
+          <!-- Acciones -->
+          <div class="flex items-center justify-between gap-3 border-t border-borderMuted pt-3">
+            <span class="text-[11px] text-brandMuted">
+              Ajusta los filtros para encontrar mejores resultados
+            </span>
+
+            <button type="reset" id="clear-filters"
+              class="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg px-3 text-xs font-semibold text-arcticBlue transition-colors hover:bg-iceBlue/10 active:bg-iceBlue/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-crystalBlue">
+              <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 2.64-6.36L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+              Limpiar filtros
+            </button>
+          </div>
+
         </form>
+
+
 
         <!-- Barra de resultados -->
         <div class="flex min-h-[56px] items-center justify-between py-3">
