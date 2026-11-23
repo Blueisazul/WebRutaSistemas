@@ -95,14 +95,18 @@ class TestClassificationAndCoverage(unittest.TestCase):
     def test_approved_sources_configured_cleanly(self):
         reg = load_source_registry()
         approved = [s for s in reg["sources"] if s.get("enabled") and s.get("decision") == "approved"]
-        self.assertEqual(len(approved), 5, "Must have exactly 5 approved ATS sources")
+        self.assertEqual(len(approved), 9, "Must have exactly 9 approved sources (6 ATS + 3 Peruvian)")
         source_ids = {s["id"] for s in approved}
         expected_ids = {
             "greenhouse-canonical",
             "greenhouse-sezzle",
             "greenhouse-cookunity",
+            "greenhouse-encora",
             "lever-fintual",
             "lever-kavak",
+            "ositran-convocatorias",
+            "defensoria-del-pueblo-cas",
+            "utp-hiringroom-campus",
         }
         self.assertEqual(source_ids, expected_ids)
 

@@ -1,5 +1,45 @@
 # Seguimiento de Fuentes y Autorización
 
+**Actualización de Integración de Empresa Privada en Perú y Publicación en Catálogo (Hito R4-10-PE-CATALOG-RELEASE-01 — 2026-11-23):**
+Se completó la investigación técnica de empresas privadas de tecnología con presencia y operaciones en Perú, revalidación de las fuentes del Estado y expansión del catálogo público:
+1. **Encora Perú (`greenhouse-encora`):**
+   - Tipo: Empresa multinacional de ingeniería de software y servicios digitales de primer nivel con sede corporativa en Perú (anteriormente Avantica Technologies, ubicada en Av. Antonio Miró Quesada 425, Piso 11, Magdalena del Mar - Torre Prisma, Lima).
+   - Acceso: API pública oficial sin autenticación de Greenhouse Job Board (`https://boards-api.greenhouse.io/v1/boards/encora10/jobs`) y portal de aplicaciones (`https://job-boards.greenhouse.io/encora10/jobs/`).
+   - Conector: `greenhouse-job-board` (`boardToken: "encora10"`).
+   - Estado: `approved` (habilitada controlada, presupuesto: 5 peticiones/run, minDelay: 2000 ms).
+   - Cobertura: 342 convocatorias totales evaluadas, 118 situadas en Perú, de las cuales 90 corresponden directamente a Ingeniería de Sistemas, Software, Datos, QA y Soporte IT.
+   - Candidatos promovidos al catálogo canónico: 13 oportunidades verificadas activas (`OP-099` a `OP-111`), incluyendo 1 formativa (Practicante PreProfesional IT Support) y 12 técnicas de nivel medio/semisenior en Lima y Remoto nacional.
+2. **Revalidación de Convocatorias del Estado (OSITRAN y Defensoría del Pueblo):**
+   - Revalidación integral de los 10 candidatos capturados en R4-09.
+   - Constatación: Las 3 convocatorias de OSITRAN (CP 029, CP 027, CP 026) y las 7 convocatorias de la Defensoría del Pueblo (CAS 185, 118, 117, 116, 21, 20, 17) alcanzaron publicación de Actas de Evaluación Final o Resultados de Mérito (concluidas/cerradas).
+   - Decisión editorial: Marcadas como `rejected` con ciclo de vida `CLOSED` en staging bajo el principio fail-closed (cero publicación de ofertas cerradas o caducadas).
+3. **Métricas de bandeja e inventario:**
+   - Bandeja local (`data/candidates/inbox.local.json`): 254 candidatos (164 previos + 90 de Encora).
+   - Catálogo canónico (`data/opportunities.seed.json`): ampliado de 99 a 112 oportunidades (107 activas + 5 históricas demostrativas).
+
+**Actualización de Integración de Fuentes Peruanas (Hito R4-09-PE-SOURCES-01 — 2026-11-22):**
+Se completó la prospección, evaluación técnica y autorización controlada de tres fuentes oficiales y verificables en el ámbito peruano para corregir la concentración excesiva en ofertas internacionales en inglés:
+1. **OSITRAN Convocatorias (`ositran-convocatorias`):**
+   - Tipo: Portal oficial de entidad del Estado peruano (Organismo Supervisor de la Inversión en Infraestructura de Transporte de Uso Público).
+   - Acceso: HTTP GET directo a `https://oportunidadlaboral.ositran.gob.pe/convocatoria?nuevo=1` sin CAPTCHA, WAFs agresivos ni necesidad de credenciales.
+   - Conector: `ositran-portal` (con soporte de extracción de bases PDF mediante descompresión zlib nativa estándar sin librerías externas).
+   - Estado: `approved` (habilitada controlada, presupuesto: 5 peticiones/run, minDelay: 2000 ms).
+   - Oportunidades relevantes identificadas: CP 029-2026 (Practicantes Profesionales de TI: Sistemas, Software, Informática), CP 027-2026 (Practicante Preprofesional de Sistemas e Informática), CP 026-2026 (Practicante Profesional de Sistemas e Informática).
+2. **Defensoría del Pueblo CAS (`defensoria-del-pueblo-cas`):**
+   - Tipo: Portal oficial de entidad constitucionalmente autónoma del Estado peruano.
+   - Acceso: Tabla HTML accesible en `https://www.defensoria.gob.pe/convocatorias/convocatorias-cas.php` con canal de postulación oficial en `https://apps2.defensoria.gob.pe:8443/CasOnline/`.
+   - Conector: `defensoria-cas`.
+   - Estado: `approved` (habilitada controlada, presupuesto: 5 peticiones/run, minDelay: 2000 ms).
+   - Oportunidades relevantes identificadas: CAS 185-2026-DP (Analista en Desarrollo de Sistemas), CAS 118-2026-DP (Analista en Desarrollo de Sistemas), CAS 117-2026-DP (Analista en Redes), CAS 116-2026-DP (Analista en Desarrollo de Sistemas), CAS 20-2026-DP (Especialista en Arquitectura de Software e Interoperabilidad III), CAS 17-2026-DP (Analista de Datos).
+3. **UTP Empleos Campus HiringRoom (`utp-hiringroom-campus`):**
+   - Tipo: Portal institucional de empleo universitario que canaliza vacantes verificadas para estudiantes y egresados en Perú.
+   - Acceso: `https://utp.hiringroomcampus.com/` con especificación de metadatos abiertos Schema.org `JobPosting` en formato JSON-LD.
+   - Conector: `hiringroom-board` (procesado mediante `jsonld_extractor.py`).
+   - Estado: `approved` (habilitada controlada, presupuesto: 5 peticiones/run, minDelay: 2000 ms).
+4. **Talento Perú (SERVIR):**
+   - Estado: permanece `pending_review` (deshabilitada) debido a que su aplicativo oficial de búsqueda (`app.servir.gob.pe`) opera bajo Java Server Faces con estado de sesión y token dinámico, clasificándose como `MANUAL_ONLY` sin API pública documentada.
+5. **Candidatos ingresados a staging:** 10 nuevos candidatos normalizados bajo Candidate Schema 2 con evidencias rastreables ingresados a `data/candidates/inbox.local.json` (total staging acumulado: 164 candidatos). Catálogo canónico (`data/opportunities.seed.json`) y snapshot público (`data/opportunities.json`) mantenidos 100% inalterados.
+
 **Actualización de Revisión Editorial y Preparación de Aprobación (Hito R2-A-04 — 2026-11-18):**
 Se completó la auditoría de evidencia y revisión editorial humana de la oportunidad seleccionada:
 - **CookUnity Greenhouse ATS (`8039990003`):** *Supply Chain Analyst* en `Lima, Lima Province, Peru` (`PERU_LOCAL`).
@@ -125,6 +165,9 @@ Los borradores preparados para consulta bilateral formal se conservan intactos a
 
 | Fuente | Contacto verificado | Estado del borrador | Solicitud enviada | Respuesta | Decisión actual |
 |---|---|---|---|---|---|
+| OSITRAN Convocatorias (Estado PE) | Portal oficial `oportunidadlaboral.ositran.gob.pe` | Verificación técnica de portal público y bases PDF; conector `ositran-portal` | No requiere consulta bilateral (Portal público oficial) | HTTP 200 OK factual | `approved` (Habilitada en R4-09) |
+| Defensoría del Pueblo CAS (Estado PE) | Portal oficial `defensoria.gob.pe` | Verificación técnica de portal público de convocatorias CAS; conector `defensoria-cas` | No requiere consulta bilateral (Portal público oficial) | HTTP 200 OK factual | `approved` (Habilitada en R4-09) |
+| UTP HiringRoom Campus (Institucional PE) | Portal oficial `utp.hiringroomcampus.com` | Verificación técnica de especificación Schema.org JobPosting JSON-LD | No requiere consulta bilateral (Metadatos abiertos) | HTTP 200 OK factual | `approved` (Habilitada en R4-09) |
 | Canonical Careers (Bilateral) | `legal@canonical.com`; términos oficiales | Preparado y revisado; listo para envío | No enviada | Pendiente | `pending_review` |
 | Talento Perú / SERVIR | `talentoperu@servir.gob.pe`; página de campaña oficial | Preparado y revisado; listo para envío | No enviada | Pendiente | `pending_review` |
 | FISI / UNMSM | `decanato.fisi@unmsm.edu.pe`; directorio oficial | Preparado; no enviado | No enviada | Pendiente | `pending_review` |

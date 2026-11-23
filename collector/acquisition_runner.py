@@ -26,6 +26,14 @@ from collector.ats_connectors import (
     transform_greenhouse_payload,
     transform_lever_payload,
 )
+from collector.pe_connectors import (
+    fetch_defensoria_cas,
+    fetch_hiringroom_board,
+    fetch_ositran_convocatorias,
+    transform_defensoria_html,
+    transform_hiringroom_html,
+    transform_ositran_html,
+)
 from collector.classification import classify_candidate
 from collector.dedup import (
     EXACT_DUPLICATE,
@@ -295,7 +303,13 @@ def run_pilot_acquisition(
             s for s in all_sources
             if s.get("enabled") is True
             and s.get("decision") == "approved"
-            and s.get("connector") in ("greenhouse-job-board", "lever-postings")
+            and s.get("connector") in (
+                "greenhouse-job-board",
+                "lever-postings",
+                "ositran-portal",
+                "defensoria-cas",
+                "hiringroom-board",
+            )
         ]
 
     # 2. Load existing staging inbox and canonical seed data
@@ -332,24 +346,54 @@ def run_pilot_acquisition(
             if fixtures_dir:
                 fixture_file = fixtures_dir / f"{s_id}.json"
                 if not fixture_file.exists():
+                    fixture_file = fixtures_dir / f"{s_id}.html"
+                if not fixture_file.exists():
                     # Fallback to general ats fixture matching connector
                     if connector == "greenhouse-job-board":
                         fixture_file = fixtures_dir / "greenhouse_complete.json"
                     elif connector == "lever-postings":
                         fixture_file = fixtures_dir / "lever_complete.json"
+                    elif connector == "ositran-portal":
+                        fixture_file = fixtures_dir / "ositran_sample.html"
+                    elif connector == "defensoria-cas":
+                        fixture_file = fixtures_dir / "defensoria_sample.html"
+                    elif connector == "hiringroom-board":
+                        fixture_file = fixtures_dir / "hiringroom_sample.html"
 
                 if fixture_file.exists():
-                    fixture_data = json.loads(fixture_file.read_text(encoding="utf-8"))
                     if connector == "greenhouse-job-board":
+                        fixture_data = json.loads(fixture_file.read_text(encoding="utf-8"))
                         raw_candidates = transform_greenhouse_payload(
                             source,
                             fixture_data,
                             captured_at=captured_at_str,
                         )
                     elif connector == "lever-postings":
+                        fixture_data = json.loads(fixture_file.read_text(encoding="utf-8"))
                         raw_candidates = transform_lever_payload(
                             source,
                             fixture_data,
+                            captured_at=captured_at_str,
+                        )
+                    elif connector == "ositran-portal":
+                        html_text = fixture_file.read_text(encoding="utf-8")
+                        raw_candidates = transform_ositran_html(
+                            source,
+                            html_text,
+                            captured_at=captured_at_str,
+                        )
+                    elif connector == "defensoria-cas":
+                        html_text = fixture_file.read_text(encoding="utf-8")
+                        raw_candidates = transform_defensoria_html(
+                            source,
+                            html_text,
+                            captured_at=captured_at_str,
+                        )
+                    elif connector == "hiringroom-board":
+                        html_text = fixture_file.read_text(encoding="utf-8")
+                        raw_candidates = transform_hiringroom_html(
+                            source,
+                            html_text,
                             captured_at=captured_at_str,
                         )
                     fixture_loaded = True
@@ -364,6 +408,24 @@ def run_pilot_acquisition(
                     )
                 elif connector == "lever-postings":
                     raw_candidates = fetch_lever_board(
+                        source,
+                        request_count=0,
+                        captured_at=captured_at_str,
+                    )
+                elif connector == "ositran-portal":
+                    raw_candidates = fetch_ositran_convocatorias(
+                        source,
+                        request_count=0,
+                        captured_at=captured_at_str,
+                    )
+                elif connector == "defensoria-cas":
+                    raw_candidates = fetch_defensoria_cas(
+                        source,
+                        request_count=0,
+                        captured_at=captured_at_str,
+                    )
+                elif connector == "hiringroom-board":
+                    raw_candidates = fetch_hiringroom_board(
                         source,
                         request_count=0,
                         captured_at=captured_at_str,

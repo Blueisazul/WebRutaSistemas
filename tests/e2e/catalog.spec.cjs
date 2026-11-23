@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 async function enableExamples(page) {
   await page.getByRole('checkbox', { name: 'Incluir ejemplos demostrativos' }).check();
-  await expect(page.locator('#result-count')).toHaveText('99 resultados');
+  await expect(page.locator('#result-count')).toHaveText('112 resultados');
 }
 
 function trackRuntimeProblems(page) {
@@ -20,7 +20,7 @@ test('loads the catalog and displays active verified opportunities with empty st
   await page.goto('/');
 
   await expect(page).toHaveTitle('Ruta Sistemas');
-  await expect(page.locator('#result-count')).toHaveText('94 resultados');
+  await expect(page.locator('#result-count')).toHaveText('107 resultados');
   await expect(page.locator('#job-list')).toBeVisible();
   await expect(page.locator('button.card-button[data-open]')).toHaveCount(12);
   await expect(page.locator('#job-list')).toContainText('Canonical');
@@ -32,7 +32,7 @@ test('loads the catalog and displays active verified opportunities with empty st
   await expect(page.locator('#job-list')).toBeHidden();
 
   await page.locator('#clear-filters').click();
-  await expect(page.locator('#result-count')).toHaveText('94 resultados');
+  await expect(page.locator('#result-count')).toHaveText('107 resultados');
 
   await page.keyboard.press('/');
   await expect(page.locator('#query')).toBeFocused();
@@ -44,7 +44,7 @@ test('filters examples and active opportunities by mode, level, location, and re
   await enableExamples(page);
 
   await page.locator('#mode').selectOption({ label: 'Remoto' });
-  await expect(page.locator('#result-count')).toHaveText('96 resultados');
+  await expect(page.locator('#result-count')).toHaveText('98 resultados');
   await expect(page.locator('button.card-button[data-open]')).toHaveCount(12);
 
   await page.locator('#level').selectOption({ label: 'Senior' });
@@ -54,7 +54,7 @@ test('filters examples and active opportunities by mode, level, location, and re
   await expect(page.locator('#result-count')).toHaveText('2 resultados');
 
   await page.locator('#clear-filters').click();
-  await expect(page.locator('#result-count')).toHaveText('99 resultados');
+  await expect(page.locator('#result-count')).toHaveText('112 resultados');
   await expect(page.locator('#mode')).toHaveValue('');
   await expect(page.locator('#level')).toHaveValue('');
   await expect(page.locator('#location')).toHaveValue('');
@@ -289,7 +289,7 @@ test('R3-ALPHA-UX-01A: handles catalog pagination, navigation, limits, resets, a
   await expect(page.locator('button.card-button[data-open]')).toHaveCount(5);
   await expect(prevBtn).toBeDisabled();
   await expect(nextBtn).toBeEnabled();
-  await expect(pageInfo).toHaveText('Página 1 de 19 · Mostrando 1–5 de 94 oportunidades');
+  await expect(pageInfo).toHaveText('Página 1 de 22 · Mostrando 1–5 de 107 oportunidades');
 
   // Select first item for comparator on page 1
   const firstCompareBtn = page.locator('.compare-button').first();
@@ -302,7 +302,7 @@ test('R3-ALPHA-UX-01A: handles catalog pagination, navigation, limits, resets, a
   await expect(page.locator('button.card-button[data-open]')).toHaveCount(5);
   await expect(prevBtn).toBeEnabled();
   await expect(nextBtn).toBeEnabled();
-  await expect(pageInfo).toHaveText('Página 2 de 19 · Mostrando 6–10 de 94 oportunidades');
+  await expect(pageInfo).toHaveText('Página 2 de 22 · Mostrando 6–10 de 107 oportunidades');
 
   // Select second item for comparator on page 2
   const secondCompareBtn = page.locator('.compare-button').first();
@@ -313,14 +313,14 @@ test('R3-ALPHA-UX-01A: handles catalog pagination, navigation, limits, resets, a
 
   // Navigate back to Page 1: verify compare selection is still active on first item
   await prevBtn.click();
-  await expect(pageInfo).toHaveText('Página 1 de 19 · Mostrando 1–5 de 94 oportunidades');
+  await expect(pageInfo).toHaveText('Página 1 de 22 · Mostrando 1–5 de 107 oportunidades');
   await expect(page.locator('.compare-button').first()).toHaveClass(/selected/);
 
   // 3. Changing filters resets to Page 1
   await nextBtn.click();
-  await expect(pageInfo).toHaveText('Página 2 de 19 · Mostrando 6–10 de 94 oportunidades');
+  await expect(pageInfo).toHaveText('Página 2 de 22 · Mostrando 6–10 de 107 oportunidades');
   await page.locator('#query').fill('Remoto');
-  await expect(pageInfo).toHaveText('Página 1 de 19 · Mostrando 1–5 de 93 oportunidades');
+  await expect(pageInfo).toHaveText('Página 1 de 19 · Mostrando 1–5 de 95 oportunidades');
 
   // 4. Mathematical page count calculations for 13, 20, 24, 25, 40, 100+ items
   const mathChecks = await page.evaluate(() => {

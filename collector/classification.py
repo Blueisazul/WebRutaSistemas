@@ -90,7 +90,7 @@ DIRECT_RELEVANCE_PATTERNS = [
     r"\bkernel\b",
     r"\bdistributed systems\b",
     r"\bnetwork\b",
-    r"\bredes\b",
+    r"\bredes(?!\s*sociales)\b",
     r"\barchitect\b",
     r"\barquitecto\b",
 ]
@@ -150,6 +150,7 @@ NON_RELEVANT_PATTERNS = [
     r"\bmercadeo\b",
     r"\bgrowth marketing\b",
     r"\bsocial media\b",
+    r"\bredes sociales\b",
     r"\brecruiter\b",
     r"\breclutador\b",
     r"\btalent acquisition\b",
@@ -294,14 +295,14 @@ def classify_candidate(
         relevance_reason = "Título no informado o vacío."
 
     # Special handling: if non-relevant keyword appears alongside direct (e.g., 'Engineering Recruiter')
-    if matched_direct and any(re.search(p, norm_title) for p in [r"\brecruiter\b", r"\breclutador\b", r"\btalent acquisition\b", r"\bsales\b", r"\bmarketing\b", r"\bchef\b"]):
+    if matched_direct and any(re.search(p, norm_title) for p in [r"\brecruiter\b", r"\breclutador\b", r"\btalent acquisition\b", r"\bsales\b", r"\bmarketing\b", r"\bchef\b", r"\bredes sociales\b", r"\bsocial media\b"]):
         # Unless it's explicitly 'Sales Engineer' or similar, recruiter/sales takes precedence
         if "sales engineer" in norm_title or "solutions engineer" in norm_title:
             relevance = "DIRECT"
             relevance_reason = "Rol técnico de preventa / arquitectura de soluciones."
         else:
             relevance = "NOT_RELEVANT"
-            relevance_reason = "Rol de reclutamiento o ventas enfocado en ingeniería, no posición técnica."
+            relevance_reason = "Rol de reclutamiento, ventas o marketing en redes sociales, no posición técnica de sistemas."
 
     # --- 2. CLASSIFY GEOGRAPHIC ELIGIBILITY ---
     geo = "UNKNOWN"

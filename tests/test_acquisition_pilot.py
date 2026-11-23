@@ -17,7 +17,7 @@ import sys
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -36,7 +36,13 @@ from collector.policy import find_source, load_source_registry
 FIXTURES_ATS_DIR = ROOT / "tests" / "fixtures" / "ats"
 SEED_PATH = ROOT / "data" / "opportunities.seed.json"
 SNAPSHOT_PATH = ROOT / "data" / "opportunities.json"
-TODAY = date(2026, 11, 22)
+
+
+def lima_today() -> date:
+    return datetime.now(timezone(timedelta(hours=-5), "America/Lima")).date()
+
+
+TODAY = lima_today()
 
 
 def _calc_sha256(path: Path) -> str:
@@ -343,7 +349,7 @@ class TestAcquisitionPilotR4(unittest.TestCase):
                     "--source", "greenhouse-canonical",
                     "--inbox", str(temp_inbox),
                     "--fixtures-dir", str(FIXTURES_ATS_DIR),
-                    "--as-of", "2026-11-22",
+                    "--as-of", TODAY.isoformat(),
                     "--dry-run",
                 ])
 
@@ -364,7 +370,7 @@ class TestAcquisitionPilotR4(unittest.TestCase):
                     "--source", "lever-kavak",
                     "--inbox", str(temp_inbox),
                     "--fixtures-dir", str(FIXTURES_ATS_DIR),
-                    "--as-of", "2026-11-22",
+                    "--as-of", TODAY.isoformat(),
                     "--output", str(report_file),
                     "--json-report",
                 ])

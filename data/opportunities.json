@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-23T02:58:40+00:00",
+  "generatedAt": "2026-11-23T13:54:01+00:00",
   "verificationTtlDays": 7,
   "timezone": "America/Lima",
   "sourceNote": "Catálogo curado de oportunidades para Ingeniería de Sistemas en Perú; incluye convocatorias reales vigentes y registros históricos de referencia.",
@@ -11929,6 +11929,1566 @@
           "field": "salary",
           "url": "https://job-boards.greenhouse.io/canonical/jobs/5150422",
           "observedAt": "2026-11-22T21:55:00-05:00"
+        }
+      ]
+    },
+    {
+      "id": "OP-099",
+      "employer": "Encora",
+      "publisher": "Portal público oficial (ATS Greenhouse)",
+      "title": "Practicante PreProfesional para IT Support/ Helpdesk",
+      "sector": "Tecnología",
+      "family": "Sistemas empresariales",
+      "level": "Estudiante",
+      "kind": "Práctica preprofesional",
+      "mode": "Presencial",
+      "location": "Lima (Torre Prisma, Magdalena del Mar)",
+      "eligibility": "Estudiantes universitarios en Perú (presencial Lima)",
+      "salary": "No publicado",
+      "salaryNote": "Subvención económica mensual acorde a ley de modalidades formativas (no informada en el portal público)",
+      "duration": "Convenio de prácticas preprofesionales (30h/semana)",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+      "applyUrl": "https://job-boards.greenhouse.io/encora10/jobs/5297208007",
+      "evidenceUrl": "https://job-boards.greenhouse.io/encora10/jobs/5297208007",
+      "requisition": "5297208007",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-23",
+      "lastVerifiedAt": "2026-11-23T08:46:38-05:00",
+      "publishedAt": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "encora.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://job-boards.greenhouse.io/encora10/jobs/5297208007",
+        "observedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Auditor Editorial R4-10 / Ruta Sistemas",
+        "reason": "Convocatoria oficial verificada activa de Encora en Perú (Practicante PreProfesional para IT Support/ Helpdesk), aprobada formalmente para el catálogo público mediante R4-10-PE-CATALOG-RELEASE-01.",
+        "decidedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5297208007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5297208007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5297208007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5297208007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5297208007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "mode",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5297208007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5297208007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5297208007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5297208007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5297208007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5297208007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5297208007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5297208007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        }
+      ]
+    },
+    {
+      "id": "OP-100",
+      "employer": "Encora",
+      "publisher": "Portal público oficial (ATS Greenhouse)",
+      "title": "Desarrollador Backend Java Mid",
+      "sector": "Tecnología",
+      "family": "Desarrollo y QA",
+      "level": "Egresado / bachiller",
+      "kind": "Profesional",
+      "mode": "Híbrido",
+      "location": "Lima, Perú",
+      "eligibility": "Perú (modalidad híbrida con asistencia a oficina 2-3 días)",
+      "salary": "No publicado",
+      "salaryNote": "No informado en la convocatoria pública",
+      "duration": "Tiempo completo (40h/semana); contrato a plazo indeterminado",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+      "applyUrl": "https://job-boards.greenhouse.io/encora10/jobs/5251861007",
+      "evidenceUrl": "https://job-boards.greenhouse.io/encora10/jobs/5251861007",
+      "requisition": "5251861007",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-23",
+      "lastVerifiedAt": "2026-11-23T08:46:38-05:00",
+      "publishedAt": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "encora.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://job-boards.greenhouse.io/encora10/jobs/5251861007",
+        "observedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Auditor Editorial R4-10 / Ruta Sistemas",
+        "reason": "Convocatoria oficial verificada activa de Encora en Perú (Desarrollador Backend Java Mid), aprobada formalmente para el catálogo público mediante R4-10-PE-CATALOG-RELEASE-01.",
+        "decidedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5251861007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5251861007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5251861007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5251861007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5251861007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "mode",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5251861007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5251861007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5251861007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5251861007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5251861007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5251861007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5251861007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5251861007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        }
+      ]
+    },
+    {
+      "id": "OP-101",
+      "employer": "Encora",
+      "publisher": "Portal público oficial (ATS Greenhouse)",
+      "title": "Desarrollador Backend Java Semisenior",
+      "sector": "Tecnología",
+      "family": "Desarrollo y QA",
+      "level": "Egresado / bachiller",
+      "kind": "Profesional",
+      "mode": "Híbrido",
+      "location": "Lima, Perú",
+      "eligibility": "Perú (modalidad híbrida con asistencia presencial 2-3 días)",
+      "salary": "No publicado",
+      "salaryNote": "No informado en la convocatoria pública",
+      "duration": "Tiempo completo (40h/semana); contrato a plazo indeterminado",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+      "applyUrl": "https://job-boards.greenhouse.io/encora10/jobs/5263221007",
+      "evidenceUrl": "https://job-boards.greenhouse.io/encora10/jobs/5263221007",
+      "requisition": "5263221007",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-23",
+      "lastVerifiedAt": "2026-11-23T08:46:38-05:00",
+      "publishedAt": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "encora.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://job-boards.greenhouse.io/encora10/jobs/5263221007",
+        "observedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Auditor Editorial R4-10 / Ruta Sistemas",
+        "reason": "Convocatoria oficial verificada activa de Encora en Perú (Desarrollador Backend Java Semisenior), aprobada formalmente para el catálogo público mediante R4-10-PE-CATALOG-RELEASE-01.",
+        "decidedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5263221007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5263221007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5263221007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5263221007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5263221007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "mode",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5263221007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5263221007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5263221007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5263221007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5263221007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5263221007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5263221007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5263221007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        }
+      ]
+    },
+    {
+      "id": "OP-102",
+      "employer": "Encora",
+      "publisher": "Portal público oficial (ATS Greenhouse)",
+      "title": "Desarrollador iOS Semi Senior",
+      "sector": "Tecnología",
+      "family": "Desarrollo y QA",
+      "level": "Egresado / bachiller",
+      "kind": "Profesional",
+      "mode": "Híbrido",
+      "location": "Lima, Perú",
+      "eligibility": "Perú (modalidad híbrida con asistencia presencial 2-3 días)",
+      "salary": "No publicado",
+      "salaryNote": "No informado en la convocatoria pública",
+      "duration": "Tiempo completo (40h/semana); contrato a plazo indeterminado",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+      "applyUrl": "https://job-boards.greenhouse.io/encora10/jobs/5259646007",
+      "evidenceUrl": "https://job-boards.greenhouse.io/encora10/jobs/5259646007",
+      "requisition": "5259646007",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-23",
+      "lastVerifiedAt": "2026-11-23T08:46:38-05:00",
+      "publishedAt": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "encora.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://job-boards.greenhouse.io/encora10/jobs/5259646007",
+        "observedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Auditor Editorial R4-10 / Ruta Sistemas",
+        "reason": "Convocatoria oficial verificada activa de Encora en Perú (Desarrollador iOS Semi Senior), aprobada formalmente para el catálogo público mediante R4-10-PE-CATALOG-RELEASE-01.",
+        "decidedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5259646007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5259646007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5259646007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259646007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5259646007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "mode",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259646007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259646007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259646007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259646007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259646007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259646007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259646007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259646007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        }
+      ]
+    },
+    {
+      "id": "OP-103",
+      "employer": "Encora",
+      "publisher": "Portal público oficial (ATS Greenhouse)",
+      "title": "Desarrollador Java con Azure Semi Senior",
+      "sector": "Tecnología",
+      "family": "Desarrollo y QA",
+      "level": "Egresado / bachiller",
+      "kind": "Profesional",
+      "mode": "Híbrido",
+      "location": "Lima, Perú",
+      "eligibility": "Perú (modalidad híbrida con asistencia presencial 2-3 días)",
+      "salary": "No publicado",
+      "salaryNote": "No informado en la convocatoria pública",
+      "duration": "Tiempo completo (40h/semana); contrato a plazo indeterminado",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+      "applyUrl": "https://job-boards.greenhouse.io/encora10/jobs/5259645007",
+      "evidenceUrl": "https://job-boards.greenhouse.io/encora10/jobs/5259645007",
+      "requisition": "5259645007",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-23",
+      "lastVerifiedAt": "2026-11-23T08:46:38-05:00",
+      "publishedAt": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "encora.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://job-boards.greenhouse.io/encora10/jobs/5259645007",
+        "observedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Auditor Editorial R4-10 / Ruta Sistemas",
+        "reason": "Convocatoria oficial verificada activa de Encora en Perú (Desarrollador Java con Azure Semi Senior), aprobada formalmente para el catálogo público mediante R4-10-PE-CATALOG-RELEASE-01.",
+        "decidedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5259645007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5259645007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5259645007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259645007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5259645007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "mode",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259645007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259645007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259645007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259645007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259645007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259645007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259645007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259645007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        }
+      ]
+    },
+    {
+      "id": "OP-104",
+      "employer": "Encora",
+      "publisher": "Portal público oficial (ATS Greenhouse)",
+      "title": "Mid Data Engineer",
+      "sector": "Tecnología",
+      "family": "Analítica y datos",
+      "level": "Egresado / bachiller",
+      "kind": "Profesional",
+      "mode": "Híbrido",
+      "location": "Lima, Perú",
+      "eligibility": "Perú (modalidad híbrida con asistencia a oficina 2-3 días)",
+      "salary": "No publicado",
+      "salaryNote": "No informado en la convocatoria pública",
+      "duration": "Tiempo completo (40h/semana); contrato a plazo indeterminado",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+      "applyUrl": "https://job-boards.greenhouse.io/encora10/jobs/5248126007",
+      "evidenceUrl": "https://job-boards.greenhouse.io/encora10/jobs/5248126007",
+      "requisition": "5248126007",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-23",
+      "lastVerifiedAt": "2026-11-23T08:46:38-05:00",
+      "publishedAt": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "encora.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://job-boards.greenhouse.io/encora10/jobs/5248126007",
+        "observedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Auditor Editorial R4-10 / Ruta Sistemas",
+        "reason": "Convocatoria oficial verificada activa de Encora en Perú (Mid Data Engineer), aprobada formalmente para el catálogo público mediante R4-10-PE-CATALOG-RELEASE-01.",
+        "decidedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5248126007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5248126007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5248126007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5248126007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5248126007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "mode",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5248126007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5248126007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5248126007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5248126007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5248126007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5248126007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5248126007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5248126007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        }
+      ]
+    },
+    {
+      "id": "OP-105",
+      "employer": "Encora",
+      "publisher": "Portal público oficial (ATS Greenhouse)",
+      "title": "Mid QA Functional Engineer",
+      "sector": "Tecnología",
+      "family": "Desarrollo y QA",
+      "level": "Egresado / bachiller",
+      "kind": "Profesional",
+      "mode": "Híbrido",
+      "location": "Lima, Perú",
+      "eligibility": "Perú (modalidad híbrida)",
+      "salary": "No publicado",
+      "salaryNote": "No informado en la convocatoria pública",
+      "duration": "Tiempo completo (40h/semana); contrato a plazo indeterminado",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+      "applyUrl": "https://job-boards.greenhouse.io/encora10/jobs/5286089007",
+      "evidenceUrl": "https://job-boards.greenhouse.io/encora10/jobs/5286089007",
+      "requisition": "5286089007",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-23",
+      "lastVerifiedAt": "2026-11-23T08:46:38-05:00",
+      "publishedAt": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "encora.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://job-boards.greenhouse.io/encora10/jobs/5286089007",
+        "observedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Auditor Editorial R4-10 / Ruta Sistemas",
+        "reason": "Convocatoria oficial verificada activa de Encora en Perú (Mid QA Functional Engineer), aprobada formalmente para el catálogo público mediante R4-10-PE-CATALOG-RELEASE-01.",
+        "decidedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5286089007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5286089007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5286089007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286089007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5286089007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "mode",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286089007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286089007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286089007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286089007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286089007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286089007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286089007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286089007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        }
+      ]
+    },
+    {
+      "id": "OP-106",
+      "employer": "Encora",
+      "publisher": "Portal público oficial (ATS Greenhouse)",
+      "title": "Mid React Native Developer",
+      "sector": "Tecnología",
+      "family": "Desarrollo y QA",
+      "level": "Egresado / bachiller",
+      "kind": "Profesional",
+      "mode": "Híbrido",
+      "location": "Lima, Perú",
+      "eligibility": "Perú (modalidad híbrida)",
+      "salary": "No publicado",
+      "salaryNote": "No informado en la convocatoria pública",
+      "duration": "Tiempo completo (40h/semana); contrato a plazo indeterminado",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+      "applyUrl": "https://job-boards.greenhouse.io/encora10/jobs/5301871007",
+      "evidenceUrl": "https://job-boards.greenhouse.io/encora10/jobs/5301871007",
+      "requisition": "5301871007",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-23",
+      "lastVerifiedAt": "2026-11-23T08:46:38-05:00",
+      "publishedAt": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "encora.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://job-boards.greenhouse.io/encora10/jobs/5301871007",
+        "observedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Auditor Editorial R4-10 / Ruta Sistemas",
+        "reason": "Convocatoria oficial verificada activa de Encora en Perú (Mid React Native Developer), aprobada formalmente para el catálogo público mediante R4-10-PE-CATALOG-RELEASE-01.",
+        "decidedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5301871007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5301871007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5301871007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5301871007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5301871007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "mode",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5301871007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5301871007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5301871007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5301871007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5301871007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5301871007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5301871007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5301871007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        }
+      ]
+    },
+    {
+      "id": "OP-107",
+      "employer": "Encora",
+      "publisher": "Portal público oficial (ATS Greenhouse)",
+      "title": "QA Engineer",
+      "sector": "Tecnología",
+      "family": "Desarrollo y QA",
+      "level": "Egresado / bachiller",
+      "kind": "Profesional",
+      "mode": "Remoto",
+      "location": "Perú (Remoto nacional)",
+      "eligibility": "Perú (trabajo remoto en territorio peruano)",
+      "salary": "No publicado",
+      "salaryNote": "No informado en la convocatoria pública",
+      "duration": "Tiempo completo (40h/semana); contrato a plazo indeterminado",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+      "applyUrl": "https://job-boards.greenhouse.io/encora10/jobs/5300899007",
+      "evidenceUrl": "https://job-boards.greenhouse.io/encora10/jobs/5300899007",
+      "requisition": "5300899007",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-23",
+      "lastVerifiedAt": "2026-11-23T08:46:38-05:00",
+      "publishedAt": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "encora.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://job-boards.greenhouse.io/encora10/jobs/5300899007",
+        "observedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Auditor Editorial R4-10 / Ruta Sistemas",
+        "reason": "Convocatoria oficial verificada activa de Encora en Perú (QA Engineer), aprobada formalmente para el catálogo público mediante R4-10-PE-CATALOG-RELEASE-01.",
+        "decidedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5300899007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5300899007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5300899007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5300899007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5300899007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "mode",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5300899007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5300899007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5300899007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5300899007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5300899007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5300899007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5300899007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5300899007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        }
+      ]
+    },
+    {
+      "id": "OP-108",
+      "employer": "Encora",
+      "publisher": "Portal público oficial (ATS Greenhouse)",
+      "title": "Mobile Developer (Android & iOS)",
+      "sector": "Tecnología",
+      "family": "Desarrollo y QA",
+      "level": "Egresado / bachiller",
+      "kind": "Profesional",
+      "mode": "Remoto",
+      "location": "Perú (Remoto nacional)",
+      "eligibility": "Perú (trabajo remoto en territorio peruano)",
+      "salary": "No publicado",
+      "salaryNote": "No informado en la convocatoria pública",
+      "duration": "Tiempo completo (40h/semana); contrato a plazo indeterminado",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+      "applyUrl": "https://job-boards.greenhouse.io/encora10/jobs/5298868007",
+      "evidenceUrl": "https://job-boards.greenhouse.io/encora10/jobs/5298868007",
+      "requisition": "5298868007",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-23",
+      "lastVerifiedAt": "2026-11-23T08:46:38-05:00",
+      "publishedAt": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "encora.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://job-boards.greenhouse.io/encora10/jobs/5298868007",
+        "observedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Auditor Editorial R4-10 / Ruta Sistemas",
+        "reason": "Convocatoria oficial verificada activa de Encora en Perú (Mobile Developer (Android & iOS)), aprobada formalmente para el catálogo público mediante R4-10-PE-CATALOG-RELEASE-01.",
+        "decidedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5298868007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5298868007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5298868007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5298868007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5298868007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "mode",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5298868007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5298868007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5298868007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5298868007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5298868007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5298868007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5298868007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5298868007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        }
+      ]
+    },
+    {
+      "id": "OP-109",
+      "employer": "Encora",
+      "publisher": "Portal público oficial (ATS Greenhouse)",
+      "title": "Business Analyst (Automatización de Procesos - Power Platform)",
+      "sector": "Tecnología",
+      "family": "Sistemas empresariales",
+      "level": "Egresado / bachiller",
+      "kind": "Profesional",
+      "mode": "Híbrido",
+      "location": "Lima, Perú",
+      "eligibility": "Perú (modalidad híbrida con asistencia 2-3 veces por semana)",
+      "salary": "No publicado",
+      "salaryNote": "No informado en la convocatoria pública",
+      "duration": "Tiempo completo (40h/semana); contrato a plazo indeterminado",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+      "applyUrl": "https://job-boards.greenhouse.io/encora10/jobs/5283233007",
+      "evidenceUrl": "https://job-boards.greenhouse.io/encora10/jobs/5283233007",
+      "requisition": "5283233007",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-23",
+      "lastVerifiedAt": "2026-11-23T08:46:38-05:00",
+      "publishedAt": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "encora.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://job-boards.greenhouse.io/encora10/jobs/5283233007",
+        "observedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Auditor Editorial R4-10 / Ruta Sistemas",
+        "reason": "Convocatoria oficial verificada activa de Encora en Perú (Business Analyst (Automatización de Procesos - Power Platform)), aprobada formalmente para el catálogo público mediante R4-10-PE-CATALOG-RELEASE-01.",
+        "decidedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5283233007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5283233007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5283233007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5283233007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5283233007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "mode",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5283233007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5283233007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5283233007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5283233007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5283233007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5283233007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5283233007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5283233007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        }
+      ]
+    },
+    {
+      "id": "OP-110",
+      "employer": "Encora",
+      "publisher": "Portal público oficial (ATS Greenhouse)",
+      "title": "Data Governance Analyst",
+      "sector": "Tecnología",
+      "family": "Analítica y datos",
+      "level": "Egresado / bachiller",
+      "kind": "Profesional",
+      "mode": "Híbrido",
+      "location": "Lima, Perú",
+      "eligibility": "Perú (modalidad híbrida con asistencia a oficina 2-3 veces por semana)",
+      "salary": "No publicado",
+      "salaryNote": "No informado en la convocatoria pública",
+      "duration": "Tiempo completo (40h/semana); contrato a plazo indeterminado",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+      "applyUrl": "https://job-boards.greenhouse.io/encora10/jobs/5259734007",
+      "evidenceUrl": "https://job-boards.greenhouse.io/encora10/jobs/5259734007",
+      "requisition": "5259734007",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-23",
+      "lastVerifiedAt": "2026-11-23T08:46:38-05:00",
+      "publishedAt": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "encora.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://job-boards.greenhouse.io/encora10/jobs/5259734007",
+        "observedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Auditor Editorial R4-10 / Ruta Sistemas",
+        "reason": "Convocatoria oficial verificada activa de Encora en Perú (Data Governance Analyst), aprobada formalmente para el catálogo público mediante R4-10-PE-CATALOG-RELEASE-01.",
+        "decidedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5259734007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5259734007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5259734007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259734007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5259734007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "mode",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259734007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259734007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259734007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259734007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259734007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259734007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259734007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5259734007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        }
+      ]
+    },
+    {
+      "id": "OP-111",
+      "employer": "Encora",
+      "publisher": "Portal público oficial (ATS Greenhouse)",
+      "title": "Mid Java Backend Developer",
+      "sector": "Tecnología",
+      "family": "Desarrollo y QA",
+      "level": "Egresado / bachiller",
+      "kind": "Profesional",
+      "mode": "Híbrido",
+      "location": "Lima, Perú",
+      "eligibility": "Perú (modalidad híbrida)",
+      "salary": "No publicado",
+      "salaryNote": "No informado en la convocatoria pública",
+      "duration": "Tiempo completo (40h/semana); contrato a plazo indeterminado",
+      "deadline": null,
+      "sourceKind": "Portal público oficial (ATS Greenhouse)",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+      "applyUrl": "https://job-boards.greenhouse.io/encora10/jobs/5286088007",
+      "evidenceUrl": "https://job-boards.greenhouse.io/encora10/jobs/5286088007",
+      "requisition": "5286088007",
+      "recordKind": "curated",
+      "opportunityStatus": "open",
+      "verificationStatus": "verified",
+      "publicationStatus": "active",
+      "lastCheckedDate": "2026-11-23",
+      "lastVerifiedAt": "2026-11-23T08:46:38-05:00",
+      "publishedAt": null,
+      "employmentEndDate": null,
+      "allowedHosts": [
+        "encora.com",
+        "job-boards.greenhouse.io",
+        "boards-api.greenhouse.io"
+      ],
+      "verificationEvidence": {
+        "publisherRelation": "employer_confirmed",
+        "method": "manual",
+        "result": "application_open",
+        "url": "https://job-boards.greenhouse.io/encora10/jobs/5286088007",
+        "observedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "editorialDecision": {
+        "status": "approved",
+        "reviewer": "Auditor Editorial R4-10 / Ruta Sistemas",
+        "reason": "Convocatoria oficial verificada activa de Encora en Perú (Mid Java Backend Developer), aprobada formalmente para el catálogo público mediante R4-10-PE-CATALOG-RELEASE-01.",
+        "decidedAt": "2026-11-23T08:46:38-05:00"
+      },
+      "fieldEvidence": [
+        {
+          "field": "employer",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5286088007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "publisher",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5286088007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "title",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5286088007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sourceUrl",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "applyUrl",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286088007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "location",
+          "url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs/5286088007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "mode",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286088007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "sector",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286088007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "family",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286088007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "level",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286088007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "kind",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286088007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "eligibility",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286088007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "duration",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286088007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
+        },
+        {
+          "field": "salary",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5286088007",
+          "observedAt": "2026-11-23T08:46:38-05:00"
         }
       ]
     }

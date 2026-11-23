@@ -18,7 +18,7 @@ import sys
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -39,7 +39,13 @@ SEED_PATH = ROOT / "data" / "opportunities.seed.json"
 SNAPSHOT_PATH = ROOT / "data" / "opportunities.json"
 SOURCES_PATH = ROOT / "collector" / "sources.json"
 INBOX_LOCAL_PATH = ROOT / "data" / "candidates" / "inbox.local.json"
-TODAY = date(2026, 11, 22)
+
+
+def lima_today() -> date:
+    return datetime.now(timezone(timedelta(hours=-5), "America/Lima")).date()
+
+
+TODAY = lima_today()
 
 
 def _calc_sha256(path: Path) -> str:
@@ -258,7 +264,7 @@ class TestPeriodicAcquisitionOpsR404(unittest.TestCase):
                 "acquire",
                 "--dry-run",
                 "--fixtures-dir", str(FIXTURES_ATS_DIR),
-                "--as-of", "2026-11-22",
+                "--as-of", TODAY.isoformat(),
                 "--output", str(out_report),
             ])
 
@@ -268,8 +274,8 @@ class TestPeriodicAcquisitionOpsR404(unittest.TestCase):
 
             report_data = json.loads(out_report.read_text(encoding="utf-8"))
             self.assertTrue(report_data.get("dryRun"))
-            self.assertEqual(report_data["metrics"]["sourcesEvaluated"], 5)
-            self.assertEqual(report_data["metrics"]["sourcesSucceeded"], 5)
+            self.assertEqual(report_data["metrics"]["sourcesEvaluated"], 9)
+            self.assertEqual(report_data["metrics"]["sourcesSucceeded"], 9)
 
     def test_cli_acquire_refuses_to_write_to_canonical_paths(self) -> None:
         """CLI acquire raises PermissionError if someone targets seed or snapshot catalog."""

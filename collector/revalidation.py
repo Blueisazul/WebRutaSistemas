@@ -31,6 +31,14 @@ from collector.ats_connectors import (
     transform_greenhouse_payload,
     transform_lever_payload,
 )
+from collector.pe_connectors import (
+    fetch_defensoria_cas,
+    fetch_hiringroom_board,
+    fetch_ositran_convocatorias,
+    transform_defensoria_html,
+    transform_hiringroom_html,
+    transform_ositran_html,
+)
 from collector.dedup import normalize_identifier, normalize_text
 from collector.evidence import (
     DEFAULT_TTL_DAYS,
@@ -411,12 +419,21 @@ def revalidate_candidates(
 
             if fixtures_dir:
                 fixture_file = fixtures_dir / f"{s_id}.json"
+                if not fixture_file.exists():
+                    fixture_file = fixtures_dir / f"{s_id}.html"
                 if fixture_file.exists():
-                    fixture_data = json.loads(fixture_file.read_text(encoding="utf-8"))
                     if connector == "greenhouse-job-board":
+                        fixture_data = json.loads(fixture_file.read_text(encoding="utf-8"))
                         raw_fresh = transform_greenhouse_payload(source, fixture_data, captured_at=revalidated_at_str)
                     elif connector == "lever-postings":
+                        fixture_data = json.loads(fixture_file.read_text(encoding="utf-8"))
                         raw_fresh = transform_lever_payload(source, fixture_data, captured_at=revalidated_at_str)
+                    elif connector == "ositran-portal":
+                        raw_fresh = transform_ositran_html(source, fixture_file.read_text(encoding="utf-8"), captured_at=revalidated_at_str)
+                    elif connector == "defensoria-cas":
+                        raw_fresh = transform_defensoria_html(source, fixture_file.read_text(encoding="utf-8"), captured_at=revalidated_at_str)
+                    elif connector == "hiringroom-board":
+                        raw_fresh = transform_hiringroom_html(source, fixture_file.read_text(encoding="utf-8"), captured_at=revalidated_at_str)
                     fixture_loaded = True
 
             if not fixture_loaded:
@@ -424,6 +441,12 @@ def revalidate_candidates(
                     raw_fresh = fetch_greenhouse_board(source, request_count=0, captured_at=revalidated_at_str)
                 elif connector == "lever-postings":
                     raw_fresh = fetch_lever_board(source, request_count=0, captured_at=revalidated_at_str)
+                elif connector == "ositran-portal":
+                    raw_fresh = fetch_ositran_convocatorias(source, request_count=0, captured_at=revalidated_at_str)
+                elif connector == "defensoria-cas":
+                    raw_fresh = fetch_defensoria_cas(source, request_count=0, captured_at=revalidated_at_str)
+                elif connector == "hiringroom-board":
+                    raw_fresh = fetch_hiringroom_board(source, request_count=0, captured_at=revalidated_at_str)
                 else:
                     # Non-ATS connectors (e.g. manual-review, template) cannot be auto-fetched
                     raise ValueError(f"Conector '{connector}' no admite revalidación automatizada en red")

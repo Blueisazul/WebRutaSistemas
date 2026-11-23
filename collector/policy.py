@@ -11,7 +11,13 @@ ROOT = Path(__file__).resolve().parent
 REGISTRY_PATH = ROOT / "sources.json"
 APPROVED_TERMS = {"approved_public_api", "approved_employer_site"}
 APPROVED_RIGHTS = {"metadata_only_approved", "content_reuse_approved"}
-FETCH_CONNECTORS = {"greenhouse-job-board", "lever-postings"}
+FETCH_CONNECTORS = {
+    "greenhouse-job-board",
+    "lever-postings",
+    "ositran-portal",
+    "defensoria-cas",
+    "hiringroom-board",
+}
 
 
 def load_source_registry() -> dict:

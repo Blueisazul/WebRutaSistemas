@@ -335,6 +335,22 @@ El roadmap existente permanece en la sección 21 y sus bloques posteriores del [
     - Actualización de estado en staging (`data/candidates/inbox.local.json`): 84 candidatos marcados como `approved_for_catalog`.
     - Batería de aseguramiento: 226 pruebas Python y 45 pruebas Playwright E2E (Chromium, Mobile, Narrow) aprobadas al 100%. Paginación adaptativa y preservación de comparador verificadas.
     - Cero dependencias añadidas a producción (npm/pip). Aislamiento estricto verificado en `dist/` (sin fugas de staging ni datos privados).
+  - `R4-09`: Integración de fuentes peruanas: Estado, empresas y oportunidades de Sistemas (`DONE` -> `docs/audits/r4-09-pe-sources-integration.md`). Incorporación operativa de fuentes oficiales peruanas para corregir el sesgo internacional en inglés:
+    - Prospección y verificación en vivo de portales oficiales: OSITRAN (`oportunidadlaboral.ositran.gob.pe`), Defensoría del Pueblo (`defensoria.gob.pe`), UTP HiringRoom Campus (`utp.hiringroomcampus.com`).
+    - Descompresión nativa de documentos PDF sin dependencias externas (aprovechamiento de streams FlateDecode mediante `zlib` de la biblioteca estándar).
+    - Implementación de adaptadores y conectores especializados en `collector/pe_connectors.py` (`ositran-portal`, `defensoria-cas`, `hiringroom-board`).
+    - Actualización de políticas en `collector/sources.json` y `collector/policy.py` aprobando 3 nuevas fuentes (total: 8 fuentes aprobadas).
+    - Ingesta controlada en red viva hacia staging (`data/candidates/inbox.local.json`): 10 nuevos candidatos peruanos verificados en Schema 2 (3 prácticas OSITRAN, 7 CAS Defensoría del Pueblo); total staging: 164 candidatos.
+    - Catálogo canónico (`opportunities.seed.json` de 99 fichas) y distribución `dist/` 100% inalterados criptográficamente. Sin commit, sin push, sin despliegue.
+    - Batería completa aprobada: 232 pruebas Python y 45 pruebas Playwright E2E.
+  - `R4-10`: Publicación de convocatorias peruanas, incorporación de empresas privadas y despliegue en producción (`DONE` -> `docs/audits/r4-10-pe-catalog-release.md`). Autorización y ejecución de publicación de oportunidades peruanas:
+    - Revalidación integral de los 10 candidatos peruanos capturados en R4-09 contra fuentes oficiales (OSITRAN y Defensoría del Pueblo); constatación de actas y resultados finales publicados y actualización a `rejected`/`CLOSED` en staging bajo salvaguardas fail-closed.
+    - Evaluación e integración de empresa tecnológica privada en Perú: Encora Perú (`greenhouse-encora`), configurada en `collector/sources.json` bajo conector nativo `greenhouse-job-board`.
+    - Ingesta a staging (`data/candidates/inbox.local.json`) de 90 candidatos técnicos elegibles en Perú (total acumulado en staging: 254 candidatos).
+    - Promoción controlada de 13 oportunidades verificadas activas al catálogo canónico (`OP-099` a `OP-111`): 1 formativa (Practicante PreProfesional IT Support) y 12 técnicas de nivel medio/semisenior en Lima y Remoto nacional.
+    - Regeneración y validación del snapshot `data/opportunities.json` (catálogo ampliado de 99 a 112 oportunidades; 107 activas + 5 históricas de demostración).
+    - Batería completa aprobada: 232 pruebas Python y 45 pruebas Playwright E2E.
+    - Despliegue en producción a GitHub Pages (`https://blueisazul.github.io/WebRutaSistemas/`).
 - **R5 — Evaluación Explicable:** (`PENDING` / `FUTURE`). Señales explicables de aprendizaje, experiencia técnica, crecimiento y continuidad sin scoring sintético ni ranking arbitrario.
 - **R6 — Personalización y Filtros Avanzados:** (`PENDING` / `FUTURE`). Preferencias locales efímeras, guardado de convocatorias sin backend y alertas locales.
 - **R7 — Trayectoria Profesional:** (`PENDING` / `FUTURE`). Visualización de transiciones laborales y orientación formativa basada en requisitos reales observados.
@@ -382,4 +398,6 @@ A fin de garantizar que el Roadmap Maestro sea la fuente única y verosímil de 
 | `R4-07` | `SUPERSEDED` | `docs/audits/r4-07-editorial-review-and-promotion-readiness.md` | Primera evaluación global preliminar superada por la auditoría R4-07-REV-01. |
 | `R4-07-REV-01` | `DONE` | `docs/audits/r4-07-rev-01-editorial-reconciliation.md` | Reconciliación aritmética 1:1 de 154 candidatos, resolución de contradicciones y reconstrucción de Opciones A-D. |
 | `R4-08` | `DONE` | `docs/audits/r4-08-controlled-promotion-and-production-release.md` | Promoción autorizada de Opción B (84 nuevas vacantes, catálogo ampliado a 99 fichas) y publicación en producción. |
+| `R4-09` | `DONE` | `docs/audits/r4-09-pe-sources-integration.md` | Integración de fuentes peruanas (OSITRAN, Defensoría del Pueblo, UTP HiringRoom), extracción PDF sin dependencias y 10 candidatos ingresados a staging. |
+| `R4-10` | `DONE` | `docs/audits/r4-10-pe-catalog-release.md` | Revalidación de fuentes públicas, integración de Encora Perú (Greenhouse), promoción de 13 oportunidades peruanas (catálogo a 112 fichas) y despliegue en producción. |
 | `R5..R8` | `PENDING` | Definición conceptual en R0 | Fases futuras conservadas sin implementación prematura ni distorsión. |

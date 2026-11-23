@@ -4,7 +4,7 @@ const AxeBuilder = require('@axe-core/playwright').default;
 test.describe('Accessibility Audit (WCAG 2.1 AA) - R4-05B', () => {
   test('catalog view has zero critical or serious axe violations', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#result-count')).toHaveText('94 resultados');
+    await expect(page.locator('#result-count')).toHaveText('107 resultados');
     await expect(page.locator('button.card-button[data-open]').first()).toBeVisible();
 
     const results = await new AxeBuilder({ page })
@@ -17,7 +17,7 @@ test.describe('Accessibility Audit (WCAG 2.1 AA) - R4-05B', () => {
 
   test('job detail dialog has zero critical or serious axe violations', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#result-count')).toHaveText('94 resultados');
+    await expect(page.locator('#result-count')).toHaveText('107 resultados');
 
     // Open first job card detail
     await page.locator('button.card-button[data-open]').first().click();
@@ -36,7 +36,7 @@ test.describe('Accessibility Audit (WCAG 2.1 AA) - R4-05B', () => {
 
   test('comparator dialog has zero critical or serious axe violations', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#result-count')).toHaveText('94 resultados');
+    await expect(page.locator('#result-count')).toHaveText('107 resultados');
 
     // Select first two items for comparison
     await page.locator('[data-compare]').nth(0).click();
@@ -59,7 +59,7 @@ test.describe('Accessibility Audit (WCAG 2.1 AA) - R4-05B', () => {
 
   test('keyboard navigation, focus trap, and Escape key dismissal on dialogs', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#result-count')).toHaveText('94 resultados');
+    await expect(page.locator('#result-count')).toHaveText('107 resultados');
 
     // Focus the first card button via keyboard Tab
     const firstCard = page.locator('button.card-button[data-open]').first();
