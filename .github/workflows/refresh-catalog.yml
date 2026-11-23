@@ -10,6 +10,8 @@ on:
       - "src/**"
       - "package.json"
       - "package-lock.json"
+      - "playwright.config.cjs"
+      - "server.py"
       - "data/**"
       - "scripts/**"
       - "tests/**"
