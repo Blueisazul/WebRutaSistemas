@@ -14,8 +14,15 @@
 Este documento sirve como bitácora y guía operativa para el equipo humano de investigación de Ruta Sistemas encargado de convocar, coordinar, moderar y registrar las sesiones de prueba con usuarios.
 
 > [!IMPORTANT]
-> **Principio de Veracidad Científica y Gobernanza de Datos:**  
+> **Principio de Veracidad Científica y Gobernanza de Datos:**
 > Ninguna sesión se considerará iniciada o ejecutada sin la participación efectiva de una persona real que cumpla los criterios de inclusión y haya otorgado su consentimiento informado. Los datos simulados o ficticios están estrictamente prohibidos en el repositorio.
+>
+> **Evaluaciones Informales del Círculo Cercano y Reconciliación (20-11-2026 y 22-11-2026):**
+> 1. El primer feedback cualitativo general recibido por el propietario tras pruebas informales iniciales se encuentra registrado en [`docs/research/r3-02-owner-circle-feedback-2026-11-20.md`](./r3-02-owner-circle-feedback-2026-11-20.md) bajo el identificador `R3-02-OWNER-FEEDBACK-01` (`COMPLETED_WITH_LIMITED_FEEDBACK`).
+> 2. La segunda ronda de pruebas informales comunicada por el propietario junto a sus compañeros (evaluando la versión con 6 vacantes reales, comparador razonado y estilos Tailwind consolidados) ha sido reconciliada en [`docs/research/r3-02-internal-feedback-01.md`](./r3-02-internal-feedback-01.md) bajo el identificador `R3-02-FIELDWORK-RECONCILIATION-01` / `R3-02-INTERNAL-FEEDBACK-01` (`RECONCILED_WITH_PENDING_FORMAL_GAPS`).
+> 3. El análisis detallado de respuestas estructuradas por escenarios A–E recibido posteriormente se encuentra registrado en [`docs/research/r3-02-internal-feedback-02.md`](./r3-02-internal-feedback-02.md) bajo el identificador `R3-02-INTERNAL-FEEDBACK-02` (`RECONCILED_QUALITATIVE_EVIDENCE`), donde se documenta el hallazgo crítico de heurística `UX-B07` (confusión de modalidad presencial por ubicación en Lima).
+>
+> Estos tres reportes aportan evidencia cualitativa de gran valor formativo para la Alpha privada, pero **no computan** para las cuotas formales de la tabla inferior, manteniéndose en 0 las sesiones formales ejecutadas hasta la realización de las sesiones protocolizadas P01–P08.
 
 ---
 
@@ -79,6 +86,11 @@ Durante la ejecución de los 5 escenarios (A–E) detallados en el protocolo ([`
 | UX-B06 | Baja visibilidad del switch de     | En TAREA D: ¿Encuentra por sí mismo el botón "Incluir         |
 |        | ejemplos demostrativos             | ejemplos demostrativos" o se queda atascado sin saber cómo    |
 |        |                                    | comparar dos vacantes? (Registrar si requirió ayuda).         |
++--------+------------------------------------+---------------------------------------------------------------+
+| UX-B07 | Confusión entre ubicación física y | En TAREA C: Al evaluar una vacante ubicada en "Lima, Perú"    |
+|        | modalidad laboral no informada     | con modalidad no publicada, ¿infiere erróneamente que es      |
+|        |                                    | presencial solo porque no dice remoto, o comprende que la     |
+|        |                                    | modalidad no fue especificada por el empleador?               |
 +--------+------------------------------------+---------------------------------------------------------------+
 ```
 

@@ -1,11 +1,18 @@
 let catalog = [];
 let opportunities = [];
+const PAGE_SIZE = 12;
+let pageSize = PAGE_SIZE;
+let currentPage = 1;
 
 const catalogView = document.querySelector('#catalog-view');
 const opportunityView = document.querySelector('#opportunity-view');
 const list = document.querySelector('#job-list');
 const count = document.querySelector('#result-count');
 const empty = document.querySelector('#empty-state');
+const pagination = document.querySelector('#pagination');
+const prevPageBtn = document.querySelector('#prev-page');
+const nextPageBtn = document.querySelector('#next-page');
+const paginationInfo = document.querySelector('#pagination-info');
 const dialog = document.querySelector('#job-dialog');
 const dialogContent = document.querySelector('#dialog-content');
 const compareDialog = document.querySelector('#compare-dialog');
@@ -197,17 +204,29 @@ function initials(name) {
 
 function statusTag(job) {
   const state = currentStates(job);
-  if (state.publicationStatus === 'active') return '<span class="tag verified">Activa · revisión reciente</span>';
-  if (state.opportunityStatus === 'expired') return '<span class="tag closed">Plazo vencido</span>';
-  if (state.publicationStatus === 'historical') return '<span class="tag closed">Referencia histórica</span>';
-  if (state.verificationStatus === 'stale') return '<span class="tag unverified">Revisión atrasada</span>';
-  return `<span class="tag unverified">${job.recordKind === 'demonstration' ? 'Ficha demostrativa' : 'No confirmada'}</span>`;
+  if (state.publicationStatus === 'active') {
+    return '<span class="tag verified inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">Activa · revisión reciente</span>';
+  }
+  if (state.opportunityStatus === 'expired') {
+    return '<span class="tag closed inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200">Plazo vencido</span>';
+  }
+  if (state.publicationStatus === 'historical') {
+    return '<span class="tag closed inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">Referencia histórica</span>';
+  }
+  if (state.verificationStatus === 'stale') {
+    return '<span class="tag unverified inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">Revisión atrasada</span>';
+  }
+  return `<span class="tag unverified inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-stone-100 text-stone-600 border border-stone-200">${job.recordKind === 'demonstration' ? 'Ficha demostrativa' : 'No confirmada'}</span>`;
 }
 
 function modeTag(job) {
   const mode = job.mode || 'No especificada';
-  const className = mode.toLowerCase().includes('remoto') ? 'remote' : 'mode';
-  return `<span class="tag ${className}">${escapeHTML(mode)}</span>`;
+  const isRemote = mode.toLowerCase().includes('remoto');
+  const className = isRemote ? 'remote' : 'mode';
+  const colorClass = isRemote
+    ? 'bg-iceBlue/15 text-arcticBlue border border-crystalBlue/20'
+    : 'bg-surfaceRaised text-brandDark border border-borderMuted';
+  return `<span class="tag ${className} inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${colorClass}">${escapeHTML(mode)}</span>`;
 }
 
 function formatLocationEligibility(job) {
@@ -513,6 +532,7 @@ function lucideIcon(name, className = 'w-5 h-5') {
   const icons = {
     'badge-check': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}" aria-hidden="true"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m16 9-5.5 5.5L8 12"/></svg>`, building: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>',
     'triangle-alert': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`,
+    monitor: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>',
     pin: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
     wallet: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>',
     file: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>',
@@ -543,6 +563,37 @@ function cleanContractDuration(job) {
     }
   }
   return cleanParts.length > 0 ? cleanParts.join(' · ') : null;
+}
+
+function formatBulletItem(item) {
+  const clean = item.replace(/\.$/, '').trim();
+  if (!clean) return '';
+  if (/^[a-z][a-z0-9]/.test(clean) && !/^[a-z][A-Z]/.test(clean)) {
+    return clean.charAt(0).toUpperCase() + clean.slice(1);
+  }
+  return clean;
+}
+
+function formatStructuredList(text, fallbackText = '') {
+  if (!text || typeof text !== 'string' || !text.trim()) {
+    return fallbackText ? `<p class="text-sm text-stone-700 leading-relaxed">${escapeHTML(fallbackText)}</p>` : '';
+  }
+  const trimmed = text.trim();
+  if (!trimmed.includes(';')) {
+    return `<p class="text-sm text-stone-700 leading-relaxed">${escapeHTML(trimmed)}</p>`;
+  }
+  const items = trimmed
+    .split(';')
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  if (items.length <= 1) {
+    return `<p class="text-sm text-stone-700 leading-relaxed">${escapeHTML(trimmed)}</p>`;
+  }
+
+  return `<ul class="list-disc pl-5 space-y-1.5 text-sm text-stone-700 leading-relaxed">${items
+    .map((item) => `<li>${escapeHTML(formatBulletItem(item))}</li>`)
+    .join('')}</ul>`;
 }
 
 function renderDetailContent(job, { isStandalone = false } = {}) {
@@ -669,7 +720,7 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
       <h4 class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">Tecnologías y herramientas declaradas</h4>
       <div class="flex flex-wrap gap-2">
         ${skillsList.map((skill) => `
-          <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-ice-blue/10 text-crystal-blue border border-ice-blue/30">
+          <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-ice-blue/10 text-arcticBlue border border-ice-blue/30">
             ${escapeHTML(skill)}
           </span>
         `).join('')}
@@ -699,7 +750,7 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
               ${isVerified
       ? lucideIcon('badge-check', 'h-3.5 w-3.5')
       : lucideIcon('triangle-alert', 'h-3.5 w-3.5')}
-              ${isVerified ? '✓ Fuente oficial verificada' : 'Fuente de consulta'}
+              ${isVerified ? 'Fuente oficial verificada' : 'Fuente de consulta'}
             </span>
           </div>
 
@@ -753,9 +804,9 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
               target="_blank"
               rel="noopener noreferrer"
               class="btn-apply-main inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg mt-2
-                    bg-crystalBlue px-3 py-2 text-xs font-semibold mb-2
+                    bg-arcticBlue px-3 py-2 text-xs font-semibold mb-2
                     transition-colors duration-150
-                    hover:bg-arcticBlue
+                    hover:bg-[#125091]
                     focus-visible:outline-2 focus-visible:outline-offset-2
                     focus-visible:outline-arcticBlue"
             >
@@ -800,9 +851,9 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
 
 
     <!-- 2. Resumen (cuadrícula visual con iconos Lucide y omisión de datos no verificados) -->
-    <section class="summary-section rounded-xl bg-white shadow-xs hover:border-stone-300 transition-colors" aria-label="Resumen de condiciones de la oportunidad">
+    <section class="summary-section bg-white rounded-xl shadow-xs hover:border-stone-300 transition-colors" aria-label="Resumen de condiciones de la oportunidad">
       <h3 class="text-xs font-bold uppercase tracking-wider text-stone-500 px-5 pt-4">Resumen</h3>
-      <div class="summary-grid detail-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div class="summary-grid detail-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3.5">
         ${summaryCardsHtml}
       </div>
       <div>
@@ -812,15 +863,15 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
     </section>
 
     <!-- 4. Tareas y Requisitos del puesto -->
-    <section class="bg-white border border-stone-200/80 rounded-xl p-4 shadow-xs">
+    <section class="bg-white hover:border-stone-300 rounded-xl p-4 shadow-xs">
       <div class="mb-6 mt-6">
         <h3 class="text-[14px] font-bold uppercase tracking-wider text-stone-700 mb-2">Qué harías</h3>
-        <p class="text-sm text-stone-700 leading-relaxed ">${escapeHTML(job.tasks || 'La descripción completa se consulta en la fuente original.')}</p>
+        ${formatStructuredList(job.tasks, 'La descripción completa se consulta en la fuente original.')}
       </div>
 
       <div class="detail-section mb-6">
         <h3 class="text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">Requisitos del puesto</h3>
-        <p class="text-sm text-stone-700 leading-relaxed">${escapeHTML(job.requirements || 'Revisar requisitos en la publicación original.')}</p>
+        ${formatStructuredList(job.requirements, 'Revisar requisitos en la publicación original.')}
       </div>
 
       ${knownValue(job.growth) ? `
@@ -833,13 +884,13 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
       ${knownValue(job.benefits) ? `
         <div class="detail-section mb-6">
           <h3 class="text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">Beneficios publicados</h3>
-          <p class="text-sm text-stone-700 leading-relaxed">${escapeHTML(job.benefits)}</p>
+          ${formatStructuredList(job.benefits)}
         </div>
       ` : ''}
     </section>
 
     <!-- Verificación y procedencia -->
-    <section class="verification-section bg-white border border-stone-200/80 rounded-xl p-4 shadow-xs mt-6">
+    <section class="verification-section bg-white hover:border-stone-300 rounded-xl p-4 shadow-xs mt-6">
 
       <!-- Estado de verificación -->
       <div class="evidence-box flex items-start gap-2.5">
@@ -1047,31 +1098,343 @@ function comparisonValue(job, field) {
   return knownValue(job[field]) ? job[field] : 'No informado';
 }
 
+function comparisonRawValue(job, field) {
+  if (field === 'status') {
+    const s = currentStates(job);
+    return `${s.opportunityStatus}-${s.verificationStatus}-${s.publicationStatus}-${job.recordKind}`;
+  }
+  if (field === 'eligibility') {
+    return formatLocationEligibility(job);
+  }
+  if (field === 'salary') {
+    return knownValue(job.salary) ? job.salary.trim() : '';
+  }
+  if (field === 'duration') {
+    return cleanContractDuration(job) || '';
+  }
+  return knownValue(job[field]) ? String(job[field]).trim() : '';
+}
+
+function isComparisonRowDifferent(jobA, jobB, field) {
+  const valA = normalized(comparisonRawValue(jobA, field));
+  const valB = normalized(comparisonRawValue(jobB, field));
+  return valA !== valB;
+}
+
+function renderComparisonCell(job, field) {
+  if (field === 'salary') {
+    if (knownValue(job.salary)) {
+      return `<div class="font-bold text-stone-900">${escapeHTML(job.salary)}</div>${job.salaryNote ? `<p class="text-[11px] text-stone-500 mt-1 leading-snug">${escapeHTML(job.salaryNote)}</p>` : ''}`;
+    }
+    return `<span class="inline-flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600"><span class="h-1.5 w-1.5 rounded-full bg-stone-400" aria-hidden="true"></span>No publicado en convocatoria</span>`;
+  }
+
+  if (field === 'requirements') {
+    if (knownValue(job.requirements)) {
+      return formatStructuredList(job.requirements, 'Revisar en publicación original.');
+    }
+    return `<span class="inline-flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600"><span class="h-1.5 w-1.5 rounded-full bg-stone-400" aria-hidden="true"></span>Revisar en publicación oficial</span>`;
+  }
+
+  if (field === 'tasks') {
+    if (knownValue(job.tasks)) {
+      return formatStructuredList(job.tasks, 'Revisar funciones en la publicación original.');
+    }
+    return `<span class="inline-flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600"><span class="h-1.5 w-1.5 rounded-full bg-stone-400" aria-hidden="true"></span>No especificadas</span>`;
+  }
+
+  if (field === 'skills') {
+    if (knownValue(job.skills)) {
+      const skillList = String(job.skills).split(/[;,·•|]/).map((s) => s.trim()).filter(Boolean);
+      if (skillList.length > 1) {
+        return `<div class="flex flex-wrap gap-1">${skillList.map((s) => `<span class="inline-block rounded bg-sky-50 border border-sky-200/70 px-2 py-0.5 text-[11px] font-medium text-sky-900">${escapeHTML(s)}</span>`).join('')}</div>`;
+      }
+      return `<p class="text-xs text-stone-700 leading-relaxed">${escapeHTML(job.skills)}</p>`;
+    }
+    return `<span class="inline-flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600"><span class="h-1.5 w-1.5 rounded-full bg-stone-400" aria-hidden="true"></span>No declaradas</span>`;
+  }
+
+  if (field === 'mode') {
+    if (knownValue(job.mode)) {
+      const modeColor = job.mode === 'Remoto'
+        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+        : (job.mode === 'Híbrido' ? 'bg-sky-50 text-sky-800 border-sky-200' : 'bg-stone-100 text-stone-800 border-stone-200');
+      return `<span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold border ${modeColor}">${escapeHTML(job.mode)}</span>`;
+    }
+    return `<span class="inline-flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600"><span class="h-1.5 w-1.5 rounded-full bg-stone-400" aria-hidden="true"></span>No informado</span>`;
+  }
+
+  if (field === 'eligibility') {
+    return `<p class="text-xs text-stone-700 leading-relaxed">${escapeHTML(formatLocationEligibility(job))}</p>`;
+  }
+
+  if (field === 'level') {
+    if (knownValue(job.level)) {
+      return `<span class="inline-flex items-center rounded-md bg-stone-100 px-2 py-0.5 text-xs font-semibold text-stone-800">${escapeHTML(job.level)}</span>`;
+    }
+    return `<span class="inline-flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600"><span class="h-1.5 w-1.5 rounded-full bg-stone-400" aria-hidden="true"></span>No informado</span>`;
+  }
+
+  if (field === 'duration') {
+    const cleaned = cleanContractDuration(job);
+    if (cleaned) {
+      return `<p class="text-xs text-stone-700">${escapeHTML(cleaned)}</p>`;
+    }
+    return `<span class="inline-flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600"><span class="h-1.5 w-1.5 rounded-full bg-stone-400" aria-hidden="true"></span>No especificada</span>`;
+  }
+
+  if (field === 'family') {
+    if (knownValue(job.family)) {
+      return `<p class="text-xs font-medium text-stone-700">${escapeHTML(job.family)}</p>`;
+    }
+    return `<span class="inline-flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600"><span class="h-1.5 w-1.5 rounded-full bg-stone-400" aria-hidden="true"></span>No informada</span>`;
+  }
+
+  if (field === 'benefits') {
+    if (knownValue(job.benefits)) {
+      return formatStructuredList(job.benefits);
+    }
+    return `<span class="inline-flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600"><span class="h-1.5 w-1.5 rounded-full bg-stone-400" aria-hidden="true"></span>No publicados</span>`;
+  }
+
+  if (field === 'risk') {
+    if (knownValue(job.risk)) {
+      return `<div class="rounded-lg bg-amber-50/80 border border-amber-200/90 p-2.5 text-xs text-amber-900 leading-relaxed">
+        <div class="flex items-center gap-1.5 font-semibold text-amber-800 mb-1">
+          <svg class="h-3.5 w-3.5 text-amber-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          <span>Condición declarada</span>
+        </div>
+        ${formatStructuredList(job.risk)}
+      </div>`;
+    }
+    return `<span class="inline-flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600"><span class="h-1.5 w-1.5 rounded-full bg-stone-400" aria-hidden="true"></span>Sin advertencias señaladas</span>`;
+  }
+
+  if (field === 'growth') {
+    if (knownValue(job.growth)) {
+      return `<p class="text-xs text-stone-700 leading-relaxed">${escapeHTML(job.growth)}</p>`;
+    }
+    return `<span class="inline-flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600"><span class="h-1.5 w-1.5 rounded-full bg-stone-400" aria-hidden="true"></span>No declarado</span>`;
+  }
+
+  if (field === 'continuity') {
+    if (knownValue(job.continuity)) {
+      return `<p class="text-xs text-stone-700 leading-relaxed">${escapeHTML(job.continuity)}</p>`;
+    }
+    return `<span class="inline-flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600"><span class="h-1.5 w-1.5 rounded-full bg-stone-400" aria-hidden="true"></span>No informada</span>`;
+  }
+
+  if (field === 'status') {
+    const state = currentStates(job);
+    const isAct = state.publicationStatus === 'active' && job.recordKind !== 'demonstration';
+    const isDemo = job.recordKind === 'demonstration';
+    const isHist = state.publicationStatus === 'historical' || state.opportunityStatus === 'expired';
+    if (isAct) {
+      return `<div class="space-y-1">
+        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full">
+          ✓ Activa · Verificada
+        </span>
+        <p class="text-[10px] text-stone-500">Revisión oficial: ${escapeHTML(formatDateTime(job.lastVerifiedAt || job.lastCheckedDate, { shortMonth: true }))}</p>
+      </div>`;
+    }
+    if (isDemo) {
+      return `<span class="inline-flex items-center gap-1 text-[11px] font-medium text-amber-800 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-full">
+        Ficha de demostración
+      </span>`;
+    }
+    return `<span class="inline-flex items-center gap-1 text-[11px] font-medium text-stone-700 bg-stone-100 border border-stone-200 px-2 py-0.5 rounded-full">
+      ${isHist ? 'Cerrada / Histórica' : 'Sin confirmación de vigencia'}
+    </span>`;
+  }
+
+  return knownValue(job[field])
+    ? `<p class="text-xs text-stone-700">${escapeHTML(job[field])}</p>`
+    : `<span class="inline-flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600"><span class="h-1.5 w-1.5 rounded-full bg-stone-400" aria-hidden="true"></span>No informado</span>`;
+}
+
 function renderComparison() {
   const jobs = compareIds.map((id) => catalog.find((job) => job.id === id)).filter(Boolean);
   if (jobs.length !== 2) return;
   const rows = [
-    ['Compensación', 'salary'], ['Beneficios', 'benefits'], ['Modalidad', 'mode'],
-    ['Elegibilidad / ubicación', 'eligibility'], ['Duración', 'duration'], ['Tipo', 'kind'],
-    ['Nivel', 'level'], ['Familia técnica', 'family'], ['Funciones', 'tasks'],
-    ['Tecnologías', 'skills'], ['Desarrollo declarado', 'growth'], ['Continuidad', 'continuity'],
-    ['Riesgos', 'risk'], ['Estado de verificación', 'status'],
+    ['Compensación', 'salary'],
+    ['Requisitos del puesto', 'requirements'],
+    ['Funciones', 'tasks'],
+    ['Tecnologías', 'skills'],
+    ['Modalidad', 'mode'],
+    ['Elegibilidad / ubicación', 'eligibility'],
+    ['Nivel', 'level'],
+    ['Tipo y duración', 'duration'],
+    ['Familia técnica', 'family'],
+    ['Beneficios', 'benefits'],
+    ['Condiciones y advertencias', 'risk'],
+    ['Desarrollo declarado', 'growth'],
+    ['Continuidad', 'continuity'],
+    ['Estado de verificación', 'status'],
   ];
-  compareContent.innerHTML = `<p class="dialog-eyebrow">COMPARACIÓN LOCAL · SIN PUNTUACIÓN</p>
-    <h2 id="compare-dialog-title" class="dialog-title">Dos alternativas, sin ganador universal</h2>
-    <p class="dialog-intro">Observa qué está publicado y qué falta confirmar. La comparación no convierte datos ausentes en condiciones desfavorables.</p>
-    <div class="comparison-table-wrap"><table class="comparison-table"><thead><tr><th scope="col">Dimensión</th>${jobs.map((job) => `<th scope="col"><span>${escapeHTML(job.recordKind === 'demonstration' ? 'Ficha demostrativa · ' : '')}${escapeHTML(job.title)}</span><small>${escapeHTML(job.employer)}</small></th>`).join('')}</tr></thead>
-      <tbody>${rows.map(([label, field]) => `<tr><th scope="row">${escapeHTML(label)}</th>${jobs.map((job) => `<td>${escapeHTML(comparisonValue(job, field))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
-    <p class="comparison-note">Los enlaces y fechas de evidencia se conservan en el detalle de cada ficha. No guardamos preferencias ni enviamos datos a terceros.</p>`;
+
+  compareContent.innerHTML = `
+    <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-stone-200/80 pb-4">
+      <div>
+        <p class="dialog-eyebrow text-xs uppercase font-semibold text-stone-500 tracking-wider">COMPARACIÓN LOCAL · SIN PUNTUACIÓN</p>
+        <h2 id="compare-dialog-title" class="dialog-title text-xl font-bold text-stone-900 tracking-tight mt-0.5">Dos alternativas, sin ganador universal</h2>
+        <p class="dialog-intro text-xs text-stone-600 mt-1 max-w-2xl leading-relaxed">Observa qué está publicado y qué falta confirmar. La comparación no convierte datos ausentes en condiciones desfavorables ni asigna puntajes automáticos.</p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-stone-700 select-none bg-stone-100 hover:bg-stone-200/90 px-3 py-2 rounded-lg transition-colors border border-stone-200 shadow-xs">
+          <input type="checkbox" id="compare-toggle-diff" class="rounded accent-arcticBlue h-4 w-4" />
+          <span>Destacar diferencias</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="comparison-table-wrap overflow-x-auto rounded-xl border border-stone-200 shadow-xs">
+      <table class="comparison-table w-full min-w-[680px] border-collapse text-left text-xs">
+        <thead>
+          <tr>
+            <th scope="col" class="w-[170px] p-3.5 bg-stone-100/80 font-bold uppercase tracking-wider text-stone-700 text-[11px] border-b border-stone-200">
+              Dimensión
+            </th>
+            ${jobs.map((job) => {
+    const state = currentStates(job);
+    const canApply = state.publicationStatus === 'active' && job.recordKind !== 'demonstration';
+    const applyUrl = safeHttpsUrl(job.applyUrl);
+    const isDemo = job.recordKind === 'demonstration';
+    return `
+                <th scope="col" class="w-[calc(50%-85px)] p-4 bg-stone-50/90 border-b border-stone-200 align-top">
+                  <div class="space-y-2">
+                    <div>
+                      <span class="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${isDemo ? 'text-amber-800 bg-amber-100/90 border border-amber-200' : 'text-arcticBlue bg-iceBlue/20 border border-crystalBlue/30'}">
+                        ${isDemo ? 'Ficha demostrativa' : 'Oportunidad verificada'}
+                      </span>
+                      <h4 class="text-sm font-bold text-stone-900 mt-1.5 leading-snug">${escapeHTML(job.title)}</h4>
+                      <p class="text-xs text-stone-600 font-medium mt-0.5">${escapeHTML(job.employer)}${job.sector ? ` · <span class="text-stone-500 font-normal">${escapeHTML(job.sector)}</span>` : ''}</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        class="btn-compare-detail inline-flex items-center gap-1 rounded-lg bg-stone-900 hover:bg-neutral-800 text-white px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer"
+                        data-compare-open="${escapeHTML(job.id)}"
+                      >
+                        Ver detalle ↗
+                      </button>
+                      ${canApply && applyUrl ? `
+                        <a
+                          href="${escapeHTML(applyUrl)}"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="inline-flex items-center gap-1 rounded-lg bg-arcticBlue hover:bg-[#125091] text-white px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arcticBlue"
+                        >
+                          Ir a postulación ↗
+                        </a>
+                      ` : ''}
+                    </div>
+                  </div>
+                </th>
+              `;
+  }).join('')}
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-stone-200">
+          ${rows.map(([label, field]) => {
+    const isDiff = isComparisonRowDifferent(jobs[0], jobs[1], field);
+    return `
+              <tr data-compare-diff="${isDiff}" class="compare-row transition-colors">
+                <th scope="row" class="w-[170px] p-3.5 align-top font-semibold text-stone-700 bg-stone-50/40 border-r border-stone-200/80">
+                  <div class="flex flex-col items-start gap-1">
+                    <span>${escapeHTML(label)}</span>
+                    <span class="diff-badge hidden inline-block text-[10px] font-bold uppercase tracking-wider text-arcticBlue bg-iceBlue/25 border border-crystalBlue/40 px-1.5 py-0.5 rounded">Diferencia</span>
+                  </div>
+                </th>
+                ${jobs.map((job) => `
+                  <td class="p-3.5 align-top text-stone-800 leading-relaxed">
+                    ${renderComparisonCell(job, field)}
+                  </td>
+                `).join('')}
+              </tr>
+            `;
+  }).join('')}
+        </tbody>
+      </table>
+    </div>
+    <p class="comparison-note mt-4 text-[11px] text-stone-500 leading-relaxed">Los enlaces oficiales y fechas de verificación se conservan en el detalle de cada ficha. No guardamos preferencias ni enviamos datos a terceros.</p>
+  `;
+
+  const toggleDiff = compareContent.querySelector('#compare-toggle-diff');
+  if (toggleDiff) {
+    toggleDiff.addEventListener('change', () => {
+      const diffRows = compareContent.querySelectorAll('tr[data-compare-diff="true"]');
+      diffRows.forEach((row) => {
+        const badge = row.querySelector('.diff-badge');
+        if (toggleDiff.checked) {
+          row.classList.add('bg-sky-50/70');
+          if (badge) badge.classList.remove('hidden');
+        } else {
+          row.classList.remove('bg-sky-50/70');
+          if (badge) badge.classList.add('hidden');
+        }
+      });
+    });
+  }
+
   compareDialog.showModal();
 }
 
+function goToPage(page) {
+  const totalPages = Math.ceil(opportunities.length / pageSize) || 1;
+  const targetPage = Math.max(1, Math.min(page, totalPages));
+  if (targetPage !== currentPage) {
+    currentPage = targetPage;
+    render();
+    if (list) {
+      list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.__setCatalogPageSize = (size) => {
+    pageSize = size;
+    render();
+  };
+  window.__goToCatalogPage = goToPage;
+}
+
 function render() {
-  const jobs = opportunities;
-  list.innerHTML = jobs.map(renderCard).join('');
-  list.hidden = jobs.length === 0;
-  empty.hidden = jobs.length > 0;
-  count.textContent = `${jobs.length} ${jobs.length === 1 ? 'resultado' : 'resultados'}`;
+  const activePageSize = typeof pageSize !== 'undefined' ? pageSize : 12;
+  const activeCurrentPage = typeof currentPage !== 'undefined' ? currentPage : 1;
+  const totalJobs = opportunities.length;
+  const totalPages = Math.ceil(totalJobs / activePageSize) || 1;
+  let pageToRender = activeCurrentPage;
+  if (pageToRender > totalPages) {
+    pageToRender = totalPages;
+  }
+  if (pageToRender < 1) {
+    pageToRender = 1;
+  }
+  if (typeof currentPage !== 'undefined') {
+    currentPage = pageToRender;
+  }
+
+  const startIndex = (pageToRender - 1) * activePageSize;
+  const endIndex = Math.min(startIndex + activePageSize, totalJobs);
+  const pagedJobs = opportunities.slice(startIndex, endIndex);
+
+  list.innerHTML = pagedJobs.map(renderCard).join('');
+  list.hidden = totalJobs === 0;
+  empty.hidden = totalJobs > 0;
+  count.textContent = `${totalJobs} ${totalJobs === 1 ? 'resultado' : 'resultados'}`;
+
+  if (typeof pagination !== 'undefined' && pagination && typeof prevPageBtn !== 'undefined' && prevPageBtn && typeof nextPageBtn !== 'undefined' && nextPageBtn && typeof paginationInfo !== 'undefined' && paginationInfo) {
+    paginationInfo.textContent = `Página ${pageToRender} de ${totalPages} · Mostrando ${totalJobs === 0 ? 0 : startIndex + 1}–${endIndex} de ${totalJobs} oportunidades`;
+    if (totalJobs <= activePageSize) {
+      pagination.hidden = true;
+    } else {
+      pagination.hidden = false;
+      prevPageBtn.disabled = pageToRender <= 1;
+      nextPageBtn.disabled = pageToRender >= totalPages;
+    }
+  }
+
   if (typeof comparePanel !== 'undefined' && comparePanel) updateComparePanel();
 }
 
@@ -1130,6 +1493,7 @@ function publicCatalogMetrics(records) {
 }
 
 function updateCatalogView() {
+  currentPage = 1;
   if (catalogLoadError) {
     catalog = [];
     opportunities = [];
@@ -1291,6 +1655,27 @@ compareClear.addEventListener('click', () => {
   updateComparePanel();
   render();
 });
+
+if (compareContent) {
+  compareContent.addEventListener('click', (event) => {
+    const detailBtn = event.target.closest('[data-compare-open]');
+    if (detailBtn) {
+      const targetId = detailBtn.getAttribute('data-compare-open');
+      const targetJob = catalog.find((item) => item.id === targetId);
+      if (targetJob) {
+        compareDialog.close();
+        renderDialog(targetJob);
+      }
+    }
+  });
+}
+
+if (prevPageBtn) {
+  prevPageBtn.addEventListener('click', () => goToPage(currentPage - 1));
+}
+if (nextPageBtn) {
+  nextPageBtn.addEventListener('click', () => goToPage(currentPage + 1));
+}
 
 if (dialog) {
   dialog.addEventListener('close', () => {

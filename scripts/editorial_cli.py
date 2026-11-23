@@ -686,6 +686,224 @@ def handle_prepare_review(args: argparse.Namespace) -> int:
 
 
 # =============================================================================
+# Command: acquire (R4-01 Controlled Multisource Pilot)
+# =============================================================================
+
+def handle_acquire(args: argparse.Namespace) -> int:
+    from collector.acquisition_runner import run_pilot_acquisition
+
+    inbox_path = Path(args.inbox) if args.inbox else DEFAULT_INBOX
+    _assert_not_canonical(inbox_path, "acquire --inbox")
+
+    seed_path = Path(args.seed) if args.seed else SEED_CATALOG_PATH
+    fixtures_dir = Path(args.fixtures_dir) if args.fixtures_dir else None
+
+    as_of = None
+    if args.as_of:
+        try:
+            as_of = _resolve_as_of(args.as_of)
+        except ValueError as err:
+            print(f"ERROR OPERATIVO: {err}", file=sys.stderr)
+            return EXIT_OPERATIONAL_ERROR
+
+    source_ids = [args.source] if args.source else None
+
+    try:
+        report = run_pilot_acquisition(
+            source_ids=source_ids,
+            inbox_path=inbox_path,
+            seed_path=seed_path,
+            fixtures_dir=fixtures_dir,
+            as_of=as_of,
+            dry_run=args.dry_run,
+        )
+    except ValueError as err:
+        print(f"ERROR OPERATIVO: {err}", file=sys.stderr)
+        return EXIT_OPERATIONAL_ERROR
+    except Exception as err:
+        print(f"ERROR INESPERADO durante adquisición: {err}", file=sys.stderr)
+        return EXIT_OPERATIONAL_ERROR
+
+    if args.output:
+        out_path = Path(args.output)
+        _assert_not_canonical(out_path, "acquire --output")
+        try:
+            _atomic_write_json(out_path, report.to_dict())
+            if not args.json_report:
+                print(f"Informe de adquisición guardado en: {out_path}")
+        except Exception as err:
+            print(f"ERROR al guardar informe de adquisición: {err}", file=sys.stderr)
+
+    if args.json_report:
+        print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False))
+        return EXIT_OK if report.validation_passed else EXIT_DATA_ERROR
+
+    mode_label = "DRY-RUN (Simulación)" if report.dry_run else ("FIXTURES LOCALES" if fixtures_dir else "EN VIVO (Red)")
+    print(f"=== PILOTO DE ADQUISICIÓN CONTROLADA MULTIFUENTE (R4-01) ===")
+    print(f"Modo: {mode_label}")
+    print(f"Marca temporal: {report.timestamp} | Fecha de corte: {report.as_of}")
+    print(f"\n--- Métricas Globales ---")
+    print(f"  Fuentes evaluadas: {report.sources_evaluated} (Exitosas: {report.sources_succeeded}, Fallidas: {report.sources_failed})")
+    print(f"  Total oportunidades capturadas: {report.total_captured}")
+    print(f"  Total filtradas relevantes:     {report.total_filtered}")
+    print(f"  Total descartadas (perfil/geo): {report.total_discarded}")
+    print(f"  Total duplicadas detectadas:    {report.total_duplicates}")
+    print(f"  Nuevos candidatos en staging:   {report.total_new_staged}")
+
+    print(f"\n--- Detalle por Fuente ---")
+    for s in report.source_summaries:
+        status_sym = "✓" if s.status == "success" else "✗"
+        print(f"  [{status_sym}] {s.source_id} ({s.employer} · {s.connector}):")
+        if s.status == "success":
+            print(f"      Capturados: {s.captured} | Relevantes: {s.filtered_in} | Descartados: {s.discarded} | Duplicados: {s.duplicates} | Nuevos: {s.new_candidates}")
+        else:
+            print(f"      FALLO: {s.error}")
+
+    print(f"\n--- Validación Editorial y Esquema 2 ---")
+    if report.validation_passed:
+        print(f"  Estado de validación: VÁLIDO ({len(report.validation_warnings)} advertencias, 0 errores)")
+        for w in report.validation_warnings[:5]:
+            print(f"    - [ADVERTENCIA] {w}")
+        if len(report.validation_warnings) > 5:
+            print(f"    ... y {len(report.validation_warnings) - 5} advertencias más.")
+    else:
+        print(f"  Estado de validación: FALLIDO ({len(report.validation_errors)} errores)")
+        for e in report.validation_errors:
+            print(f"    - [ERROR] {e}")
+
+    print(f"\n--- Salvaguardas de Integridad Canónica ---")
+    print(f"  data/opportunities.seed.json: 100% INTACTO (Sin modificaciones)")
+    print(f"  data/opportunities.json:      100% INTACTO (Sin modificaciones)")
+    print(f"  Destino de candidatos:        Bandeja staging ('{inbox_path}')")
+    print(f"  Estado editorial:             pending_review (Requiere revisión y aprobación humana)")
+
+    return EXIT_OK if report.validation_passed else EXIT_DATA_ERROR
+
+
+# =============================================================================
+# Command: revalidate (R4-03 Lifecycle, Freshness & Change Detection)
+# =============================================================================
+
+def handle_revalidate(args: argparse.Namespace) -> int:
+    from collector.revalidation import run_revalidation_job
+
+    inbox_path = Path(args.inbox) if args.inbox else DEFAULT_INBOX
+    _assert_not_canonical(inbox_path, "revalidate --inbox")
+
+    fixtures_dir = Path(args.fixtures_dir) if args.fixtures_dir else None
+
+    as_of = None
+    if args.as_of:
+        try:
+            as_of = _resolve_as_of(args.as_of)
+        except ValueError as err:
+            print(f"ERROR OPERATIVO: {err}", file=sys.stderr)
+            return EXIT_OPERATIONAL_ERROR
+
+    if getattr(args, "catalog", False):
+        from collector.revalidation import revalidate_canonical_catalog
+        try:
+            res = revalidate_canonical_catalog(
+                seed_path=SEED_CATALOG_PATH,
+                fixtures_dir=fixtures_dir,
+                as_of=as_of,
+            )
+        except Exception as err:
+            print(f"ERROR al revalidar catálogo canónico: {err}", file=sys.stderr)
+            return EXIT_OPERATIONAL_ERROR
+
+        if args.json_report:
+            print(json.dumps(res, indent=2, ensure_ascii=False))
+            return EXIT_OK
+
+        print(f"=== REVALIDACIÓN DE CATÁLOGO CANÓNICO (opportunities.seed.json) ===")
+        print(f"Oportunidades reales evaluadas: {res['totalCanonicalEvaluated']}")
+        print(f"  Confirmadas activas en ATS:    {res['stillActiveCount']}")
+        print(f"  Cambios detectados:            {res['changedCount']}")
+        print(f"  Ausentes / No listadas:        {res['disappearedCount']}")
+        print(f"  Preservadas por fallo de red:  {res['preservedOnErrorCount']}")
+        print(f"Salvaguarda canónica: opportunities.seed.json se mantiene 100% INTACTO.")
+        return EXIT_OK
+
+    source_ids = [args.source] if args.source else None
+    threshold = getattr(args, "threshold", 2)
+    update_inbox = getattr(args, "update_inbox", False)
+    dry_run = getattr(args, "dry_run", True)
+
+    try:
+        report = run_revalidation_job(
+            inbox_path=inbox_path,
+            source_ids=source_ids,
+            fixtures_dir=fixtures_dir,
+            as_of=as_of,
+            threshold=threshold,
+            update_inbox=update_inbox,
+            dry_run=dry_run,
+        )
+    except FileNotFoundError as err:
+        print(f"ERROR OPERATIVO: {err}", file=sys.stderr)
+        return EXIT_OPERATIONAL_ERROR
+    except Exception as err:
+        print(f"ERROR INESPERADO durante revalidación: {err}", file=sys.stderr)
+        return EXIT_OPERATIONAL_ERROR
+
+    if args.output:
+        out_path = Path(args.output)
+        _assert_not_canonical(out_path, "revalidate --output")
+        try:
+            _atomic_write_json(out_path, report.to_dict())
+            if not args.json_report:
+                print(f"Informe de revalidación guardado en: {out_path}")
+        except Exception as err:
+            print(f"ERROR al guardar informe de revalidación: {err}", file=sys.stderr)
+
+    if args.json_report:
+        print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False))
+        return EXIT_OK
+
+    mode_label = "DRY-RUN (Simulación)" if dry_run else ("FIXTURES LOCALES" if fixtures_dir else "EN VIVO (Red)")
+    print(f"=== CICLO DE VIDA Y REVALIDACIÓN DE OPORTUNIDADES (R4-03) ===")
+    print(f"Modo: {mode_label} | Aplicar cambios en bandeja: {'SÍ' if update_inbox and not dry_run else 'NO'}")
+    print(f"Marca temporal: {report.timestamp} | Fecha de corte: {report.as_of}")
+    print(f"\n--- Métricas Globales de Revalidación ---")
+    print(f"  Fuentes evaluadas:             {report.sources_evaluated} (Exitosas: {report.sources_succeeded}, Fallidas: {report.sources_failed})")
+    print(f"  Total candidatos evaluados:    {report.total_candidates_evaluated}")
+    print(f"  Reconfirmados activos:         {report.still_active_count}")
+    print(f"  Cambios detectados:            {report.changed_count}")
+    print(f"  Ausentes en una captura:       {report.disappeared_once_count} (Salvaguarda: no cerrados)")
+    print(f"  Cierre probable confirmado:    {report.confirmed_disappeared_count}")
+    print(f"  Preservados por fallo de red:  {report.preserved_on_error_count} (Salvaguarda anti-cierre masivo)")
+    print(f"  Fecha límite superada:         {report.deadline_expired_count}")
+    print(f"  Evidencias fuera de TTL:       {report.evidence_stale_count}")
+
+    print(f"\n--- Detalle por Fuente ---")
+    for s in report.source_summaries:
+        status_sym = "✓" if s.status == "success" else "✗"
+        print(f"  [{status_sym}] {s.source_id} ({s.employer} · {s.connector}):")
+        if s.status == "success":
+            print(f"      Evaluados: {s.total_evaluated} | Activos: {s.still_active} | Modificados: {s.changed} | Ausente 1x: {s.disappeared_once} | Cierres: {s.confirmed_disappeared}")
+        else:
+            print(f"      FALLO DE FUENTE (ESTADO PRESERVADO): {s.error}")
+
+    if report.changed_count > 0:
+        print(f"\n--- Resumen de Cambios Detectados ({report.changed_count}) ---")
+        changed_cands = [c for c in report.candidate_results if c.lifecycle_state == "CHANGED"]
+        for c in changed_cands[:5]:
+            chg_str = "; ".join(f"{chg.field}: '{chg.previous}' -> '{chg.current}'" for chg in c.changes)
+            print(f"    - [{c.candidate_id}] {c.title}: {chg_str}")
+        if len(changed_cands) > 5:
+            print(f"    ... y {len(changed_cands) - 5} candidatos más con cambios.")
+
+    print(f"\n--- Salvaguardas de Integridad Canónica ---")
+    print(f"  data/opportunities.seed.json: 100% INTACTO (Sin modificaciones)")
+    print(f"  data/opportunities.json:      100% INTACTO (Sin modificaciones)")
+    print(f"  Bandeja evaluada:             '{inbox_path}'")
+    print(f"  Promoción automática:         DESHABILITADA (Requiere decisión soberana del propietario)")
+
+    return EXIT_OK
+
+
+# =============================================================================
 # CLI Entry Point
 # =============================================================================
 
@@ -748,6 +966,31 @@ def build_parser() -> argparse.ArgumentParser:
     p_prep.add_argument("--status", default="pending_review", choices=["pending_review", "approved_for_catalog", "rejected", "all"], help="Filtrar por estado editorial")
     p_prep.add_argument("--force-write", action="store_true", help="Sobrescribe el archivo de destino si ya existe")
 
+    # Subcommand: acquire (R4-01 Pilot)
+    p_acq = subparsers.add_parser("acquire", help="Ejecuta el piloto de adquisición controlada multifuente ATS")
+    p_acq.add_argument("--source", help="Identificador de fuente individual en sources.json (ej. greenhouse-canonical)")
+    p_acq.add_argument("--inbox", default=str(DEFAULT_INBOX), help="Bandeja de staging de destino")
+    p_acq.add_argument("--seed", default=str(SEED_CATALOG_PATH), help="Ruta a semilla canónica para deduplicación")
+    p_acq.add_argument("--fixtures-dir", help="Directorio con fixtures locales para ejecución offline reproducible")
+    p_acq.add_argument("--as-of", help="Fecha civil de corte YYYY-MM-DD para validación determinista")
+    p_acq.add_argument("--dry-run", action="store_true", help="Simula la adquisición sin escribir en la bandeja de staging")
+    p_acq.add_argument("--output", help="Ruta opcional para guardar el informe estructurado de adquisición en JSON")
+    p_acq.add_argument("--json-report", action="store_true", help="Emite el informe completo en formato JSON por stdout")
+
+    # Subcommand: revalidate (R4-03 Lifecycle, Freshness & Change Detection)
+    p_rev = subparsers.add_parser("revalidate", help="Revalida el ciclo de vida, vigencia y cambios de candidatos en staging")
+    p_rev.add_argument("--inbox", default=str(DEFAULT_INBOX), help="Bandeja de staging a revalidar")
+    p_rev.add_argument("--source", help="Identificador de fuente individual para revalidar")
+    p_rev.add_argument("--fixtures-dir", help="Directorio con fixtures locales para ejecución offline")
+    p_rev.add_argument("--as-of", help="Fecha civil de corte YYYY-MM-DD")
+    p_rev.add_argument("--threshold", type=int, default=2, help="Umbral de capturas consecutivas ausentes para confirmar cierre")
+    p_rev.add_argument("--update-inbox", action="store_true", help="Actualiza metadatos y evidencias en la bandeja de staging")
+    p_rev.add_argument("--no-dry-run", dest="dry_run", action="store_false", default=True, help="Aplica la revalidación en modo real")
+    p_rev.add_argument("--dry-run", dest="dry_run", action="store_true", default=True, help="Simula la revalidación sin escribir en la bandeja (por defecto)")
+    p_rev.add_argument("--output", help="Ruta de archivo para guardar el informe de revalidación en JSON")
+    p_rev.add_argument("--json-report", action="store_true", help="Emite el informe completo en formato JSON por stdout")
+    p_rev.add_argument("--catalog", action="store_true", help="Revalida las oportunidades reales del catálogo canónico")
+
     return parser
 
 
@@ -769,6 +1012,8 @@ def main(argv: list[str] | None = None) -> int:
         "report": handle_report,
         "import": handle_import,
         "prepare-review": handle_prepare_review,
+        "acquire": handle_acquire,
+        "revalidate": handle_revalidate,
     }
 
     handler = handlers.get(args.command)

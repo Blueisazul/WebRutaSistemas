@@ -1,0 +1,26 @@
+{
+  "jobs": [
+    {
+      "id": 7906563003,
+      "title": "AI Engineering Intern",
+      "company_name": "Sezzle",
+      "absolute_url": "https://job-boards.greenhouse.io/sezzle/jobs/7906563003",
+      "location": {
+        "name": "Peru"
+      },
+      "first_published_at": "2026-11-12T12:00:00Z",
+      "updated_at": "2026-11-20T10:00:00Z"
+    },
+    {
+      "id": 7906563999,
+      "title": "Minneapolis Account Executive",
+      "company_name": "Sezzle",
+      "absolute_url": "https://job-boards.greenhouse.io/sezzle/jobs/7906563999",
+      "location": {
+        "name": "Minneapolis, MN"
+      },
+      "first_published_at": "2026-11-12T12:00:00Z",
+      "updated_at": "2026-11-20T10:00:00Z"
+    }
+  ]
+}

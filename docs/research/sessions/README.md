@@ -21,6 +21,9 @@ Antes de iniciar cada sesión, el equipo de investigación debe revisar:
 - **Guía de Moderación Paso a Paso:** [`../r3-02-moderator-field-guide-2026-11-18.md`](../r3-02-moderator-field-guide-2026-11-18.md)
 - **Cuaderno de Campo y Rastreador:** [`../r3-02-fieldwork-and-recruitment-tracker-2026-11-18.md`](../r3-02-fieldwork-and-recruitment-tracker-2026-11-18.md)
 - **Protocolo de Investigación R3-01:** [`../r3-01-user-research-protocol-2026-11-18.md`](../r3-01-user-research-protocol-2026-11-18.md)
+- **Registro de Evaluación Informal del Círculo Cercano (1ra ronda):** [`../r3-02-owner-circle-feedback-2026-11-20.md`](../r3-02-owner-circle-feedback-2026-11-20.md) *(Feedback cualitativo exploratorio inicial del propietario; estrictamente separado de las sesiones formales P01–P08).*
+- **Registro de Feedback Interno y Reconciliación (2da ronda):** [`../r3-02-internal-feedback-01.md`](../r3-02-internal-feedback-01.md) *(Reconciliación de pruebas de grupo del propietario bajo `R3-02-FIELDWORK-RECONCILIATION-01`).*
+- **Registro y Análisis de Respuestas a Tareas A–E (3ra ronda estructurada):** [`../r3-02-internal-feedback-02.md`](../r3-02-internal-feedback-02.md) *(Análisis estructurado de respuestas Tareas A–E y hallazgo `UX-B07` bajo `R3-02-INTERNAL-FEEDBACK-02`).*
 
 ## Índice de Sesiones
 

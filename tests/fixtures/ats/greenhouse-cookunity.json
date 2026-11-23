@@ -1,0 +1,26 @@
+{
+  "jobs": [
+    {
+      "id": 8039990003,
+      "title": "Supply Chain Analyst",
+      "company_name": "CookUnity",
+      "absolute_url": "https://job-boards.greenhouse.io/cookunity/jobs/8039990003",
+      "location": {
+        "name": "Lima, Perú"
+      },
+      "first_published_at": "2026-10-21T12:00:00Z",
+      "updated_at": "2026-11-17T10:00:00Z"
+    },
+    {
+      "id": 8039990004,
+      "title": "Kitchen Staff Onsite",
+      "company_name": "CookUnity",
+      "absolute_url": "https://job-boards.greenhouse.io/cookunity/jobs/8039990004",
+      "location": {
+        "name": "Brooklyn, New York"
+      },
+      "first_published_at": "2026-10-21T12:00:00Z",
+      "updated_at": "2026-11-17T10:00:00Z"
+    }
+  ]
+}

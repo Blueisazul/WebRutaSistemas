@@ -1,5 +1,4 @@
 @import "tailwindcss" source("../");
-@import "./site.css";
 @source "../index.html";
 @source "../app.js";
 
@@ -28,4 +27,16 @@
   --color-route-100: #e8f0eb;
   --color-route-lime: #d7e8a1;
   --font-sans: "Inter", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  button, select, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media (max-width: 680px) {
+  .mobile-optimized {
+    contain: content;
+  }
 }

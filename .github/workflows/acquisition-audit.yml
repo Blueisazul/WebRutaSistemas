@@ -1,0 +1,71 @@
+name: Periodic Acquisition Audit (R4-04)
+
+on:
+  schedule:
+    # Weekly on Sundays at 12:00 UTC (07:00 AM America/Lima)
+    - cron: "0 12 * * 0"
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "Identificador de fuente opcional para captura individual (ej: greenhouse-canonical). Dejar vacío para todas."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: acquisition-audit
+  cancel-in-progress: true
+
+jobs:
+  audit-acquisition:
+    name: Audit Periodic Candidate Acquisition
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Compile and validate test environment
+        run: |
+          npm ci
+          npm run build:css
+
+      - name: Execute Full Test Suite
+        run: |
+          python -m unittest discover -s tests -v
+          node tests/catalog_ui.test.cjs
+
+      - name: Run Periodic Acquisition in Dry-Run Mode
+        run: |
+          mkdir -p artifacts
+          SOURCE_FLAG=""
+          if [ -n "${{ github.event.inputs.source }}" ]; then
+            SOURCE_FLAG="--source ${{ github.event.inputs.source }}"
+          fi
+          python scripts/editorial_cli.py acquire --dry-run $SOURCE_FLAG --output artifacts/acquisition-report.json
+
+      - name: Upload Acquisition Audit Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: acquisition-audit-reports
+          path: artifacts/
+          retention-days: 14
+
+      - name: Verify Canonical Catalog and Registry Immutability
+        run: |
+          python scripts/validate_catalog.py
+          python scripts/build_catalog.py --check
+          git diff --exit-code data/opportunities.seed.json
+          git diff --exit-code data/opportunities.json
+          git diff --exit-code collector/sources.json

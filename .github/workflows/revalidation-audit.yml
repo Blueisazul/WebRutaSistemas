@@ -1,0 +1,62 @@
+name: Revalidation and Lifecycle Audit (R4-03)
+
+on:
+  schedule:
+    # Daily at 11:00 UTC (06:00 AM America/Lima)
+    - cron: "0 11 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: revalidation-audit
+  cancel-in-progress: true
+
+jobs:
+  audit-lifecycle:
+    name: Audit Candidate Freshness & Lifecycle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Compile and validate test environment
+        run: |
+          npm ci
+          npm run build:css
+
+      - name: Execute Full Test Suite
+        run: |
+          python -m unittest discover -s tests -v
+          node tests/catalog_ui.test.cjs
+
+      - name: Run Lifecycle Revalidation in Dry-Run Mode
+        run: |
+          mkdir -p artifacts
+          python scripts/editorial_cli.py revalidate --dry-run --output artifacts/revalidation-report.json
+          python scripts/editorial_cli.py revalidate --catalog --output artifacts/catalog-audit-report.json
+
+      - name: Upload Revalidation Audit Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: revalidation-audit-reports
+          path: artifacts/
+          retention-days: 14
+
+      - name: Verify Canonical Catalog Immutability
+        run: |
+          python scripts/validate_catalog.py
+          python scripts/build_catalog.py --check
+          git diff --exit-code data/opportunities.seed.json
+          git diff --exit-code data/opportunities.json
