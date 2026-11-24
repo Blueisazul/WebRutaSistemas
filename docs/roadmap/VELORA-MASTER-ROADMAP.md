@@ -60,15 +60,18 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
 #### `TASK-R4-11-01` — Sincronización y Despliegue de GitHub Pages
 - **Prioridad:** `P0` (Bloqueante operativo)
 - **Tipo:** `[REFACTOR/FIX]`
-- **Estado:** `PENDING`
-- **Dependencias:** Ninguna (Commit `43a0cad` ya fusionado en `main`).
+- **Estado:** `DONE` (Completado y verificado en producción el 24-11-2026)
+- **Dependencias:** `TASK-R4-11-03` (Integrado en `main` previamente).
 - **Objetivo:** Lograr paridad exacta del 100% entre GitHub Pages y Vercel (servir las 112 oportunidades en ambos).
-- **Alcance:** Disparar el workflow `.github/workflows/refresh-catalog.yml` mediante `workflow_dispatch` o push vacío verificado; validar que el step `Prepare and validate exact Pages artifact` genere el artefacto con Python 3.12 y despliegue exitosamente a `blueisazul.github.io/WebRutaSistemas/`.
-- **Criterios de Aceptación:**
-  1. `https://blueisazul.github.io/WebRutaSistemas/data/opportunities.json` responde con `total opps: 112` y `schemaVersion: 2`.
-  2. En el navegador se renderizan 107 oportunidades activas y paginación en GitHub Pages.
-- **Riesgo:** Cuotas de runner en GitHub Actions (bajo).
-- **Evidencia requerida:** Inspección HTTP con status 200 y tamaño ~537 KB.
+- **Alcance y Ejecución:**
+  - Integrado PR #1 (`8b87173`) con la lógica corregida de frescura.
+  - Resuelto containment de desbordamiento horizontal en viewport estrecho (`88b244f`).
+  - Workflow de CI/CD `.github/workflows/refresh-catalog.yml` ejecutado exitosamente (Run ID: `45433311932`).
+  - Artefacto Pages generado con Python 3.12 y publicado a `blueisazul.github.io/WebRutaSistemas/`.
+- **Criterios de Aceptación Verificados:**
+  1. `https://blueisazul.github.io/WebRutaSistemas/data/opportunities.json` responde HTTP 200, tamaño 537,807 bytes, `total opps: 112` y `schemaVersion: 2` (paridad exacta con Vercel).
+  2. En el navegador se renderizan 107 oportunidades activas verificadas, 12 tarjetas en la primera página y 0 errores de consola/página.
+- **Evidencia:** Auditada y documentada en `docs/audits/R4-11-RELEASE-VERIFICATION.md`.
 
 #### `TASK-R4-11-02` — Transición Oficial de Identidad Visual y Marca a "Velora"
 - **Prioridad:** `P0` (Estratégico de producto)
@@ -90,7 +93,7 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
 #### `TASK-R4-11-03` — Desacople del TTL de Frescura en Frontend (Protección contra Apagones y Corrección de Aceptación)
 - **Prioridad:** `P0` (Resiliencia y veracidad del catálogo)
 - **Tipo:** `[REFACTOR/FIX]`
-- **Estado:** `DONE` (Corrección de aceptación completada y verificada localmente el 23-11-2026; pendiente de commit, PR e integración en `main`)
+- **Estado:** `DONE` (Fusionado en `main` mediante PR #1 commit `8b87173` y desplegado en producción)
 - **Dependencias:** Ninguna.
 - **Objetivo:** Separar ortogonalmente el estado editorial de publicación, el estado de verificación y la antigüedad de la evidencia, garantizando que ninguna oportunidad cuya evidencia superó el TTL se presente falsamente como activa y verificada, sin provocar la desaparición destructiva de las fichas ni un apagón informativo del catálogo.
 - **Modelo de Tres Dimensiones Implementado:**
@@ -232,5 +235,5 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
 
 ## 5. Siguiente Acción Única Recomendada
 
-**`TASK-R4-11-01` + `TASK-R4-11-02` (Bloque Unificado R4-11):**
-Sincronizar de inmediato el despliegue de GitHub Pages para reflejar las 112 oportunidades ya validadas y formalizar el nombre **Velora** en el código fuente, UI y documentación del repositorio.
+**`TASK-R4-11-02` (Transición Oficial de Identidad Visual y Marca a "Velora"):**
+Una vez asegurada la paridad operativa y resuelto el desacople de frescura en producción (`TASK-R4-11-01` y `TASK-R4-11-03` en DONE), la siguiente acción es unificar la identidad de marca bajo el nombre oficial **Velora** en toda la interfaz de usuario, títulos, meta tags, package.json y documentación pública.
