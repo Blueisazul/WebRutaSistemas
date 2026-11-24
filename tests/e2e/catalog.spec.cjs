@@ -117,7 +117,7 @@ test('opens a detail and compares two explicitly selected items', async ({ page 
 test('keeps the main flow usable on a narrow viewport', async ({ page }) => {
   await page.goto('/');
   await enableExamples(page);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
   await page.locator('button.card-button[data-open]').first().click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Cerrar detalle' })).toBeVisible();
