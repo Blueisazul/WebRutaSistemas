@@ -30,6 +30,9 @@
 }
 
 @layer base {
+  body {
+    overflow-x: hidden;
+  }
   button, select, a {
     -webkit-tap-highlight-color: transparent;
   }
