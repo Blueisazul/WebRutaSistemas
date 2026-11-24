@@ -95,6 +95,152 @@ vm.runInContext(`${source.slice(safeUrlStart, initialsStart)}\n${stateFunction}\
 }));
 assert.equal(stateContext.result.publicationStatus, 'unconfirmed', 'incomplete active snapshot is degraded before rendering');
 
+// --- TASK-R4-11-03: Freshness & TTL decoupling tests ---
+const baseCurated = JSON.parse(fs.readFileSync(path.join(root, 'data/opportunities.json'), 'utf8')).opportunities.find((o) => o.id === 'OP-005');
+
+function runStateWithDate(job, todayStr) {
+  function limaDateString(date) {
+    const target = date ? (date instanceof Date ? date : new Date(date)) : new Date(`${todayStr}T12:00:00Z`);
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Lima', year: 'numeric', month: '2-digit', day: '2-digit',
+    }).formatToParts(target);
+    const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+    return `${values.year}-${values.month}-${values.day}`;
+  }
+  const ctx = vm.createContext({
+    URL, catalogConfig: { verificationTtlDays: 7 }, limaDateString, isTimestamp: (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(v) && !Number.isNaN(new Date(v).valueOf()),
+    result: null, job,
+  });
+  vm.runInContext(`${source.slice(safeUrlStart, initialsStart)}\n${stateFunction}\nresult = currentStates(job);`, ctx);
+  return ctx.result;
+}
+
+// 1. Verificación reciente (2 días atrás)
+const jobRecent = JSON.parse(JSON.stringify(baseCurated));
+jobRecent.lastVerifiedAt = '2026-11-21T10:00:00-05:00';
+jobRecent.verificationEvidence.observedAt = '2026-11-21T10:00:00-05:00';
+jobRecent.fieldEvidence.forEach((e) => { e.observedAt = '2026-11-21T10:00:00-05:00'; });
+const resRecent = runStateWithDate(jobRecent, '2026-11-23');
+assert.equal(resRecent.publicationStatus, 'active', 'recent verification keeps active publication');
+assert.equal(resRecent.verificationStatus, 'verified', 'recent verification keeps verified status');
+
+// 2. Exactamente 7 días (límite del TTL)
+const job7d = JSON.parse(JSON.stringify(baseCurated));
+job7d.lastVerifiedAt = '2026-11-16T10:00:00-05:00';
+job7d.verificationEvidence.observedAt = '2026-11-16T10:00:00-05:00';
+job7d.fieldEvidence.forEach((e) => { e.observedAt = '2026-11-16T10:00:00-05:00'; });
+const res7d = runStateWithDate(job7d, '2026-11-23');
+assert.equal(res7d.publicationStatus, 'active', 'exact 7-day boundary keeps active publication');
+assert.equal(res7d.verificationStatus, 'verified', 'exact 7-day boundary keeps verified status');
+
+// 3. Más de 7 días (8 días) -> deja de aparecer como activo y pasa a revisión (stale / unconfirmed)
+const job8d = JSON.parse(JSON.stringify(baseCurated));
+job8d.lastVerifiedAt = '2026-11-15T10:00:00-05:00';
+job8d.verificationEvidence.observedAt = '2026-11-15T10:00:00-05:00';
+job8d.fieldEvidence.forEach((e) => { e.observedAt = '2026-11-15T10:00:00-05:00'; });
+const res8d = runStateWithDate(job8d, '2026-11-23');
+assert.equal(res8d.publicationStatus, 'unconfirmed', 'stale verification leaves active publication and moves to review');
+assert.equal(res8d.verificationStatus, 'stale', 'stale verification is marked as stale requiring revalidation');
+assert.equal(res8d.opportunityStatus, 'open', 'stale verification preserves open opportunity status (not closed or expired)');
+
+// 4. Fecha de verificación ausente -> pasa a revisión conservadoramente
+const jobNoDate = JSON.parse(JSON.stringify(baseCurated));
+delete jobNoDate.lastVerifiedAt;
+const resNoDate = runStateWithDate(jobNoDate, '2026-11-23');
+assert.equal(resNoDate.publicationStatus, 'unconfirmed', 'missing lastVerifiedAt leaves active publication');
+assert.equal(resNoDate.verificationStatus, 'stale', 'missing lastVerifiedAt is not verified');
+
+// 5. Fecha inválida -> pasa a revisión
+const jobBadDate = JSON.parse(JSON.stringify(baseCurated));
+jobBadDate.lastVerifiedAt = 'not-a-date';
+const resBadDate = runStateWithDate(jobBadDate, '2026-11-23');
+assert.equal(resBadDate.publicationStatus, 'unconfirmed', 'invalid verification date leaves active publication');
+assert.equal(resBadDate.verificationStatus, 'stale', 'invalid verification date is not verified');
+
+// 6. Fecha futura -> pasa a revisión
+const jobFuture = JSON.parse(JSON.stringify(baseCurated));
+jobFuture.lastVerifiedAt = '2030-01-01T10:00:00-05:00';
+const resFuture = runStateWithDate(jobFuture, '2026-11-23');
+assert.equal(resFuture.publicationStatus, 'unconfirmed', 'future verification date leaves active publication');
+assert.equal(resFuture.verificationStatus, 'stale', 'future verification date is not verified');
+
+// 7. Fecha límite vencida -> clasifica como histórica
+const jobExpired = JSON.parse(JSON.stringify(baseCurated));
+jobExpired.deadline = '2026-11-20';
+const resExpired = runStateWithDate(jobExpired, '2026-11-23');
+assert.equal(resExpired.opportunityStatus, 'expired', 'expired deadline sets opportunityStatus to expired');
+assert.equal(resExpired.publicationStatus, 'historical', 'expired deadline sets publicationStatus to historical');
+
+// 8. Cierre confirmado -> clasifica como histórica
+const jobClosed = JSON.parse(JSON.stringify(baseCurated));
+jobClosed.opportunityStatus = 'closed';
+const resClosed = runStateWithDate(jobClosed, '2026-11-23');
+assert.equal(resClosed.opportunityStatus, 'closed', 'closed status remains closed');
+assert.equal(resClosed.publicationStatus, 'historical', 'closed job transitions to historical publication');
+
+// 9. Registro histórico no se reactiva por TTL
+const demoHist = JSON.parse(fs.readFileSync(path.join(root, 'data/opportunities.json'), 'utf8')).opportunities.find((o) => o.id === 'OP-001');
+const resHist = runStateWithDate(demoHist, '2026-11-23');
+assert.equal(resHist.publicationStatus, 'historical', 'historical demonstration is not reactivated by TTL');
+
+// 10. Catálogo completo a +30 días: ninguna activa verificada, todas accesibles en revisión sin apagón ni pérdida
+const fullCat = JSON.parse(fs.readFileSync(path.join(root, 'data/opportunities.json'), 'utf8')).opportunities;
+let activeCountAt30d = 0;
+let staleCountAt30d = 0;
+let historicalCountAt30d = 0;
+for (const opp of fullCat) {
+  if (opp.recordKind === 'demonstration') continue;
+  const s = runStateWithDate(opp, '2026-12-30'); // 37 días después de 2026-11-23
+  if (s.publicationStatus === 'active') activeCountAt30d++;
+  if (s.verificationStatus === 'stale') staleCountAt30d++;
+  if (s.publicationStatus === 'historical') historicalCountAt30d++;
+}
+assert.equal(activeCountAt30d, 0, 'zero stale opportunities remain active in default catalog at +30 days');
+assert.equal(staleCountAt30d, 107, 'all 107 opportunities are preserved and marked stale at +30 days');
+assert.equal(historicalCountAt30d, 0, 'stale opportunities are not falsely marked historical without proof of closure');
+
+// 11. Mezcla de métricas: distingue activas verificadas de las que requieren revalidación
+const mixedMetricsContext = vm.createContext({
+  catalog: [
+    { id: 'ACT-VER', recordKind: 'curated', publicationStatus: 'active', verificationStatus: 'verified', opportunityStatus: 'open' },
+    { id: 'ACT-STALE', recordKind: 'curated', publicationStatus: 'unconfirmed', verificationStatus: 'stale', opportunityStatus: 'open' },
+    { id: 'HIST-1', recordKind: 'curated', publicationStatus: 'historical', verificationStatus: 'stale', opportunityStatus: 'expired' },
+    { id: 'UNCONF-1', recordKind: 'curated', publicationStatus: 'unconfirmed', verificationStatus: 'unverified', opportunityStatus: 'unknown' },
+    { id: 'DEMO-1', recordKind: 'demonstration', publicationStatus: 'historical', verificationStatus: 'stale', opportunityStatus: 'closed' },
+  ],
+  currentStates: (job) => job,
+  result: null,
+});
+vm.runInContext(`${functions}\nresult = publicCatalogMetrics(catalog);`, mixedMetricsContext);
+assert.deepEqual(JSON.parse(JSON.stringify(mixedMetricsContext.result)), {
+  active: 1,
+  expiredOrHistorical: 1,
+  unconfirmed: 2,
+}, 'metrics separate verified active from stale requiring revalidation');
+
+// 12. Comparador: no presenta una oportunidad stale como activa verificada
+const comparisonContext = vm.createContext({
+  currentStates: (job) => job,
+  formatDateTime: (d) => String(d || ''),
+  escapeHTML: (v) => String(v || ''),
+  knownValue: (v) => Boolean(v),
+  result: null,
+});
+const comparisonFunction = source.slice(source.indexOf('function renderComparisonCell('), source.indexOf('\nfunction renderComparison()'));
+vm.runInContext(`${comparisonFunction}\nresult = renderComparisonCell({ id: 'STALE-1', recordKind: 'curated', publicationStatus: 'unconfirmed', verificationStatus: 'stale', opportunityStatus: 'open' }, 'status');`, comparisonContext);
+assert.match(comparisonContext.result, /Pendiente de revalidación/, 'comparator cell displays pending revalidation');
+assert.doesNotMatch(comparisonContext.result, /Activa · Verificada/, 'comparator does not display active verified for stale jobs');
+
+// 13. Detalle: no induce a postulación activa cuando la oportunidad es stale
+const statusTagFunction = source.slice(source.indexOf('function statusTag('), source.indexOf('\nfunction modeTag('));
+const tagContext = vm.createContext({
+  currentStates: (job) => job,
+  result: null,
+});
+vm.runInContext(`${statusTagFunction}\nresult = statusTag({ id: 'STALE-1', recordKind: 'curated', publicationStatus: 'unconfirmed', verificationStatus: 'stale', opportunityStatus: 'open' });`, tagContext);
+assert.match(tagContext.result, /Pendiente de revalidación/, 'statusTag for stale opportunity displays Pendiente de revalidación');
+assert.doesNotMatch(tagContext.result, /Activa/, 'statusTag for stale opportunity does not say Activa');
+
 const evaluationContext = vm.createContext({
   currentStates: () => ({ opportunityStatus: 'open', verificationStatus: 'verified', publicationStatus: 'active' }),
   result: null,
@@ -166,6 +312,7 @@ const failureUI = {
   publicCatalogMetrics: () => ({ active: 0, expiredOrHistorical: 0, unconfirmed: 5 }),
   getVisibleJobs: () => failureUI.catalog,
   renderCard: (job) => job.id,
+  currentStates: (job) => ({ opportunityStatus: 'open', verificationStatus: 'verified', publicationStatus: job.publicationStatus || 'active' }),
 };
 vm.createContext(failureUI);
 vm.runInContext(`${validators}\n${source.slice(renderStart, renderEnd)}\n${source.slice(updateStart, updateEnd)}\n${source.slice(loadStart, loadEnd)}`, failureUI);
