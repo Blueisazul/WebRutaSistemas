@@ -1049,7 +1049,7 @@ function renderOpportunityPage(job, updateHistory = true) {
   opportunityView.hidden = false;
   if (typeof window !== 'undefined') {
     window.scrollTo({ top: 0, behavior: 'instant' });
-    document.title = `${job.title} · ${job.employer} — Ruta Sistemas`;
+    document.title = `${job.title} · ${job.employer} — Velora`;
     if (updateHistory && window.history && window.history.pushState) {
       const currentParam = new URLSearchParams(window.location.search).get('id');
       if (currentParam !== job.id) {
@@ -1079,7 +1079,7 @@ function renderNotFoundPage(requestedId) {
   opportunityView.hidden = false;
   if (typeof window !== 'undefined') {
     window.scrollTo({ top: 0, behavior: 'instant' });
-    document.title = 'Oportunidad no encontrada — Ruta Sistemas';
+    document.title = 'Oportunidad no encontrada — Velora';
   }
 }
 
@@ -1091,7 +1091,7 @@ function closeOpportunityPage(updateHistory = true) {
   catalogView.classList.remove('hidden');
   catalogView.hidden = false;
   if (typeof document !== 'undefined') {
-    document.title = 'Ruta Sistemas';
+    document.title = 'Velora — Oportunidades y Trayectorias en Tecnología';
   }
   if (updateHistory && typeof window !== 'undefined' && window.history && window.history.pushState) {
     const params = new URLSearchParams(window.location.search);
@@ -1704,7 +1704,7 @@ async function loadCatalog() {
     updateCatalogView();
     if (typeof handleRouting === 'function') handleRouting();
   } catch (error) {
-    console.error('[Ruta Sistemas] No se pudo cargar el catálogo:', error);
+    console.error('[Velora] No se pudo cargar el catálogo:', error);
     catalogLoadError = true;
     catalog = [];
     opportunities = [];

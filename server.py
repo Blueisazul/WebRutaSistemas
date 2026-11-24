@@ -1,4 +1,4 @@
-"""Dependency-free, loopback-only Ruta Sistemas demo server."""
+"""Dependency-free, loopback-only Velora demo server."""
 
 from __future__ import annotations
 
@@ -288,7 +288,7 @@ PUBLIC_FILES = {
 
 
 class LocalHandler(BaseHTTPRequestHandler):
-    server_version = "RutaLocal/1"
+    server_version = "VeloraLocal/1"
 
     def log_message(self, _format: str, *_args: object) -> None:
         # Do not put search terms or request URLs into persistent logs.
@@ -352,7 +352,7 @@ def main() -> None:
         connection.close()
 
     server = ThreadingHTTPServer(("127.0.0.1", PORT), LocalHandler)
-    print(f"Ruta Sistemas está disponible solo en esta computadora: http://127.0.0.1:{PORT}")
+    print(f"Velora está disponible solo en esta computadora: http://127.0.0.1:{PORT}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

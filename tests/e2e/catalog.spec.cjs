@@ -19,7 +19,7 @@ test('loads the catalog and displays active verified opportunities with empty st
   const problems = trackRuntimeProblems(page);
   await page.goto('/');
 
-  await expect(page).toHaveTitle('Ruta Sistemas');
+  await expect(page).toHaveTitle('Velora — Oportunidades y Trayectorias en Tecnología');
   await expect(page.locator('#result-count')).toHaveText('107 resultados');
   await expect(page.locator('#job-list')).toBeVisible();
   await expect(page.locator('button.card-button[data-open]')).toHaveCount(12);
@@ -127,7 +127,7 @@ test('navigates directly to standalone opportunity view via URL and returns to c
   const problems = trackRuntimeProblems(page);
   await page.goto('/?id=OP-005');
 
-  await expect(page).toHaveTitle(/Supply Chain Analyst · CookUnity — Ruta Sistemas/);
+  await expect(page).toHaveTitle(/Supply Chain Analyst · CookUnity — Velora/);
   await expect(page.locator('#opportunity-view')).toBeVisible();
   await expect(page.locator('#catalog-view')).toBeHidden();
   await expect(page.locator('#opportunity-view')).toContainText('Supply Chain Analyst');
@@ -140,7 +140,7 @@ test('navigates directly to standalone opportunity view via URL and returns to c
   await page.locator('[data-action="back-to-catalog"]').first().click();
   await expect(page.locator('#catalog-view')).toBeVisible();
   await expect(page.locator('#opportunity-view')).toBeHidden();
-  await expect(page).toHaveTitle('Ruta Sistemas');
+  await expect(page).toHaveTitle('Velora — Oportunidades y Trayectorias en Tecnología');
 
   // Not found scenario
   await page.goto('/?id=OP-999');
