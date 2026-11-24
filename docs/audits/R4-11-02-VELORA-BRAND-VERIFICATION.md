@@ -141,3 +141,35 @@ Someter la rama `feature/r4-11-02-velora-brand-identity` a revisión del propiet
 2. Abrir Pull Request hacia `main`.
 3. Fusionar el Pull Request para permitir que el workflow de GitHub Actions despliegue automáticamente la nueva identidad a producción.
 4. Concluida la Fase R4-11, proceder con la **Fase R5 — Cobertura Nacional de Fuentes**.
+
+---
+
+## 11. Auditoría de Integración Técnica Pre-PR (Fase R4-11)
+
+**Fecha de integración:** 24 de noviembre de 2026  
+**Auditor / Ingeniero:** Senior Software Engineer, Technical Auditor & Software Delivery Architect  
+**Rama base:** `origin/main` (`ebda153`)  
+**Rama de trabajo:** `feature/r4-11-02-velora-brand-identity`  
+**Commit base evaluado:** `9695588da8c4f1fbce92df55c580811e3b4cc24c`  
+
+### 11.1. Inspección de Diferencias (Diff Audit contra origin/main)
+- **Archivos modificados:** 15 archivos en código, configuración, estilos y pruebas.
+- **Volumen de cambios:** +800 inserciones, -131 eliminaciones.
+- **Integridad del catálogo (`data/`):** 0 modificaciones. `data/opportunities.seed.json` y `data/opportunities.json` se conservan 100% idénticos a `origin/main` (SHA-256 intacto).
+- **Integridad de CI/CD (`.github/`):** 0 modificaciones.
+- **Integridad del subsistema recolector (`collector/`):** 0 modificaciones.
+- **Dependencias externas:** 0 dependencias añadidas o actualizadas. Solo se actualizó el nombre `"name": "velora"` en `package.json` y `package-lock.json`.
+
+### 11.2. Resultados Certificados de la Suite de Validación
+1. **Compilación de estilos:** `npm run build:css` (Tailwind CLI v4.3.3) completado en 133ms.
+2. **Chequeo de sintaxis JavaScript:** `node --check app.js` sin errores.
+3. **Escenarios de contrato y catálogo:** `node tests/catalog_ui.test.cjs` (14 escenarios pasados).
+4. **Validación unitaria Python:** `python -m unittest discover -s tests -v` (232 pruebas aprobadas al 100%).
+5. **Verificación de paridad de catálogo:** `python scripts/build_catalog.py --check` (112 registros coincidentes entre semilla y snapshot publicado).
+6. **Validación estructural Schema 2:** `python scripts/validate_catalog.py` (112 registros conformes).
+7. **Validación de bandeja de candidatos:** `python scripts/validate_candidates.py data/candidates/inbox.example.json` (0 errores).
+8. **Generación de artefacto Pages:** `python scripts/pages_artifact.py --output dist` (artefacto de 5 archivos verificado).
+9. **Suite E2E Playwright y Accesibilidad Axe-core:** `npx playwright test` (45 pruebas aprobadas en chromium, mobile y narrow, 0 violaciones WCAG 2.1 AA).
+
+### 11.3. Veredicto de Integración
+La rama `feature/r4-11-02-velora-brand-identity` está formalmente certificada y lista para publicación remota y apertura de Pull Request hacia `main`. De acuerdo con la gobernanza del proyecto, no se ha ejecutado ninguna operación de merge a `main` ni despliegue manual a producción.

@@ -94,7 +94,7 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
   2. Todas las pruebas unitarias (232 Python + 14 JS) y 45 pruebas E2E de Playwright aprueban al 100%.
   3. Cero violaciones de accesibilidad (WCAG 2.1 AA verificado con Axe-core).
   4. Ninguna dependencia externa nueva incorporada; esquema de catálogo Schema v2 intacto.
-- **Pendiente para Despliegue:** Autorización del propietario para publicar la rama `feature/r4-11-02-velora-brand-identity`, abrir Pull Request hacia `main` y desplegar a producción.
+- **Estado de Integración:** PR abierto hacia `main` desde la rama `feature/r4-11-02-velora-brand-identity`. Pendiente de revisión y autorización de merge del propietario para despliegue automático a producción.
 
 #### `TASK-R4-11-03` — Desacople del TTL de Frescura en Frontend (Protección contra Apagones y Corrección de Aceptación)
 - **Prioridad:** `P0` (Resiliencia y veracidad del catálogo)
@@ -241,5 +241,5 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
 
 ## 5. Siguiente Acción Única Recomendada
 
-**Revisión y Publicación de `TASK-R4-11-02` hacia `main`:**
-Con la transición de marca a **Velora** implementada y validada al 100% en la rama local `feature/r4-11-02-velora-brand-identity` (232 pruebas unitarias, 14 pruebas de contrato y 45 pruebas Playwright E2E/Axe aprobadas), la siguiente acción operativa es someter la rama a revisión del propietario para su posterior push a remoto, apertura de Pull Request y fusión en `main`. Una vez desplegado, se iniciará la **Fase R5** (Cobertura Nacional: Sector Público y Ecosistema Privado Peruano).
+**Revisión y Merge de PR para `TASK-R4-11-02` hacia `main`:**
+Con la transición de marca a **Velora** implementada, auditada e integrada en Pull Request hacia `main` (232 pruebas unitarias, 14 pruebas de contrato y 45 pruebas Playwright E2E/Axe aprobadas), la siguiente acción operativa es la revisión y aprobación de merge por parte del propietario. Una vez fusionado en `main`, el pipeline de GitHub Actions desplegará la identidad a GitHub Pages, completando la Fase R4-11 y habilitando el inicio de la **Fase R5** (Cobertura Nacional: Sector Público y Ecosistema Privado Peruano).
