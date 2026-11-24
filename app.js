@@ -133,55 +133,117 @@ function currentStates(job) {
   };
   const today = limaDateString();
   const ttlDays = Number.isInteger(catalogConfig.verificationTtlDays) ? catalogConfig.verificationTtlDays : 7;
-  if (job.deadline && job.deadline < today && !['closed', 'expired'].includes(states.opportunityStatus)) states.opportunityStatus = 'expired';
-  if (states.verificationStatus === 'verified') {
-    const checked = job.lastVerifiedAt ? new Date(job.lastVerifiedAt) : null;
-    const checkedDate = checked && !Number.isNaN(checked.valueOf()) ? limaDateString(checked) : '';
-    const dayNumber = (isoDate) => Date.parse(`${isoDate}T00:00:00Z`);
-    const ageDays = checkedDate ? (dayNumber(today) - dayNumber(checkedDate)) / 86400000 : Infinity;
-    if (ageDays < 0 || ageDays > ttlDays) states.verificationStatus = 'stale';
+  const dayNumber = (isoDate) => Date.parse(`${isoDate}T00:00:00Z`);
+
+  // 1. Tratamiento estricto de cierre y fecha límite vencida
+  if (job.deadline && job.deadline < today && !['closed', 'expired'].includes(states.opportunityStatus)) {
+    states.opportunityStatus = 'expired';
   }
+
+  // 2. Cálculo determinista de fechas y antigüedad
+  const checked = job.lastVerifiedAt && isTimestamp(job.lastVerifiedAt) ? new Date(job.lastVerifiedAt) : null;
+  const checkedDate = checked && !Number.isNaN(checked.valueOf()) ? limaDateString(checked) : '';
+  const ageDays = checkedDate ? (dayNumber(today) - dayNumber(checkedDate)) / 86400000 : Infinity;
+
   const evidence = job.verificationEvidence;
-  const observed = evidence?.observedAt ? new Date(evidence.observedAt) : null;
+  const observed = evidence?.observedAt && isTimestamp(evidence.observedAt) ? new Date(evidence.observedAt) : null;
   const observedDate = observed && !Number.isNaN(observed.valueOf()) ? limaDateString(observed) : '';
-  const lowerBound = limaDateString(new Date(Date.now() - ttlDays * 86400000));
+  const lowerBound = limaDateString(new Date(dayNumber(today) - ttlDays * 86400000));
+
   const safeHosts = new Set(job.allowedHosts || []);
   const permitted = (value) => {
     const safeUrl = safeHttpsUrl(value);
     const host = safeUrl ? new URL(safeUrl).hostname.toLowerCase() : '';
-    return host && safeHosts.has(host);
+    return Boolean(host && safeHosts.has(host));
   };
-  const evidenceComplete = evidence
-    && evidence.publisherRelation === 'employer_confirmed'
-    && evidence.method === 'manual'
-    && evidence.result === 'application_open'
-    && observedDate >= lowerBound && observedDate <= today
-    && permitted(job.sourceUrl) && permitted(job.applyUrl) && permitted(evidence.url);
+
   const decision = job.editorialDecision;
   const approvedEditorially = decision?.status === 'approved'
     && Boolean(decision.reviewer && decision.reason)
     && decision.decidedAt && !Number.isNaN(new Date(decision.decidedAt).valueOf())
     && limaDateString(new Date(decision.decidedAt)) <= today;
+
   const fieldEvidence = Array.isArray(job.fieldEvidence) ? job.fieldEvidence : [];
   const evidenceByField = new Map(fieldEvidence.map((entry) => [entry.field, entry]));
   const requiredEvidence = ['employer', 'publisher', 'title', 'sourceUrl', 'applyUrl'];
-  const optionalFacts = ['publishedAt', 'deadline', 'location', 'mode', 'salary', 'benefits', 'contractType', 'duration', 'requirements', 'skills', 'training', 'tasks', 'eligibility', 'sector', 'family', 'level', 'kind', 'growth', 'continuity', 'risk'];
-  const claimedFields = [...requiredEvidence, ...optionalFacts.filter((field) => job[field] !== null && job[field] !== undefined && job[field] !== '')];
-  const fieldEvidenceComplete = Boolean(job.employer && job.publisher && job.title && job.sourceUrl && job.applyUrl)
+  const optionalFacts = [
+    'publishedAt', 'deadline', 'location', 'mode', 'salary', 'benefits',
+    'contractType', 'duration', 'requirements', 'skills', 'training', 'tasks',
+    'eligibility', 'sector', 'family', 'level', 'kind', 'growth', 'continuity', 'risk',
+  ];
+  const claimedFields = [
+    ...requiredEvidence,
+    ...optionalFacts.filter((field) => job[field] !== null && job[field] !== undefined && job[field] !== ''),
+  ];
+
+  // 3. Integridad estructural y de procedencia (requisito invariable de publicación activa)
+  const structureValid = Boolean(
+    job.recordKind !== 'demonstration'
+    && job.employer && String(job.employer).trim()
+    && job.publisher && String(job.publisher).trim()
+    && job.title && String(job.title).trim()
+    && permitted(job.sourceUrl)
+    && permitted(job.applyUrl)
+    && evidence
+    && evidence.publisherRelation === 'employer_confirmed'
+    && evidence.method === 'manual'
+    && evidence.result === 'application_open'
+    && permitted(evidence.url)
+    && observedDate && observedDate <= today
+    && approvedEditorially
     && claimedFields.every((field) => {
       const entry = evidenceByField.get(field);
-      const observed = entry?.observedAt ? new Date(entry.observedAt) : null;
-      const observedDate = observed && !Number.isNaN(observed.valueOf()) ? limaDateString(observed) : '';
-      return permitted(entry?.url) && observedDate >= lowerBound && observedDate <= today;
+      const obs = entry?.observedAt && isTimestamp(entry.observedAt) ? new Date(entry.observedAt) : null;
+      const obsDate = obs && !Number.isNaN(obs.valueOf()) ? limaDateString(obs) : '';
+      return Boolean(permitted(entry?.url) && obsDate && obsDate <= today);
+    })
+  );
+
+  // 4. Frescura temporal (dentro del TTL editorial de verificación)
+  const withinTtl = ageDays >= 0 && ageDays <= ttlDays
+    && observedDate >= lowerBound && observedDate <= today
+    && claimedFields.every((field) => {
+      const entry = evidenceByField.get(field);
+      const obs = entry?.observedAt && isTimestamp(entry.observedAt) ? new Date(entry.observedAt) : null;
+      const obsDate = obs && !Number.isNaN(obs.valueOf()) ? limaDateString(obs) : '';
+      return Boolean(obsDate && obsDate >= lowerBound && obsDate <= today);
     });
-  const verifiedNow = states.opportunityStatus === 'open'
-    && states.verificationStatus === 'verified'
-    && job.recordKind !== 'demonstration'
-    && evidenceComplete
-    && approvedEditorially
-    && fieldEvidenceComplete
-    && (!job.deadline || job.deadline >= today);
-  if (states.publicationStatus === 'active' && !verifiedNow) states.publicationStatus = 'unconfirmed';
+
+  // 5. Determinación de estados resultantes respetando las dimensiones del modelo
+  if (job.recordKind === 'demonstration') {
+    states.publicationStatus = 'unconfirmed';
+    states.verificationStatus = 'unverified';
+    if (job.opportunityStatus === 'closed' || states.opportunityStatus === 'expired') {
+      states.publicationStatus = 'historical';
+    }
+  } else if (states.opportunityStatus === 'expired' || states.opportunityStatus === 'closed' || job.publicationStatus === 'historical') {
+    states.publicationStatus = 'historical';
+    if (structureValid && withinTtl) {
+      states.verificationStatus = 'verified';
+    } else if (structureValid && !withinTtl) {
+      states.verificationStatus = 'stale';
+    }
+  } else if (job.publicationStatus === 'active') {
+    if (structureValid && withinTtl) {
+      states.publicationStatus = 'active';
+      states.verificationStatus = 'verified';
+    } else if (structureValid && !withinTtl) {
+      // Supera el TTL o evidencia no vigente: deja de presentarse como activa y pasa a revisión
+      states.publicationStatus = 'unconfirmed';
+      states.verificationStatus = 'stale';
+    } else {
+      // Inconsistencia estructural: tratamiento fail-closed
+      states.publicationStatus = 'unconfirmed';
+      states.verificationStatus = 'unverified';
+    }
+  } else {
+    if (structureValid) {
+      states.verificationStatus = withinTtl ? 'verified' : 'stale';
+    } else {
+      states.verificationStatus = 'unverified';
+    }
+  }
+
   return states;
 }
 
@@ -204,17 +266,20 @@ function initials(name) {
 
 function statusTag(job) {
   const state = currentStates(job);
-  if (state.publicationStatus === 'active') {
-    return '<span class="tag verified inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">Activa · revisión reciente</span>';
-  }
   if (state.opportunityStatus === 'expired') {
     return '<span class="tag closed inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200">Plazo vencido</span>';
   }
-  if (state.publicationStatus === 'historical') {
+  if (state.publicationStatus === 'historical' || state.opportunityStatus === 'closed') {
     return '<span class="tag closed inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">Referencia histórica</span>';
   }
+  if (state.publicationStatus === 'active') {
+    if (state.verificationStatus === 'verified') {
+      return '<span class="tag verified inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">Activa · revisión reciente</span>';
+    }
+    return '<span class="tag unverified inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-stone-100 text-stone-600 border border-stone-200">Activa · sin verificar</span>';
+  }
   if (state.verificationStatus === 'stale') {
-    return '<span class="tag unverified inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">Revisión atrasada</span>';
+    return '<span class="tag stale inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200">Pendiente de revalidación</span>';
   }
   return `<span class="tag unverified inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-stone-100 text-stone-600 border border-stone-200">${job.recordKind === 'demonstration' ? 'Ficha demostrativa' : 'No confirmada'}</span>`;
 }
@@ -268,9 +333,11 @@ function renderCard(job) {
   const typeLabel = job.recordKind === 'demonstration' ? 'Ficha de demostración' : (job.kind === 'Profesional' ? job.level : job.kind);
   const fitStatus = state.publicationStatus === 'active'
     ? 'Oportunidad activa · Verificada'
-    : (state.publicationStatus === 'historical' || state.opportunityStatus === 'expired')
-      ? 'No disponible para postular'
-      : 'Vigencia no confirmada';
+    : state.verificationStatus === 'stale'
+      ? 'Pendiente de revalidación'
+      : (state.publicationStatus === 'historical' || state.opportunityStatus === 'expired')
+        ? 'No disponible para postular'
+        : 'Vigencia no confirmada';
   return `<article class="job-card group grid grid-cols-1 gap-4 rounded-xl border border-borderMuted bg-white p-4 transition-colors duration-150 hover:border-crystalBlue/50 sm:p-5 lg:grid-cols-[minmax(0,1fr)_170px_190px] lg:items-center lg:gap-5"
   data-id="${id}" >
     <!-- IZQUIERDA: Información del empleo -->
@@ -600,14 +667,19 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
   const state = currentStates(job);
   const sourceUrl = safeHttpsUrl(job.sourceUrl);
   const applyUrl = safeHttpsUrl(job.applyUrl);
-  const canApply = state.publicationStatus === 'active' && job.recordKind !== 'demonstration';
-  const statusText = canApply
-    ? `La fuente del empleador se revisó el ${formatDateTime(job.lastVerifiedAt)}; esta comprobación no garantiza disponibilidad posterior.`
-    : state.opportunityStatus === 'expired'
-      ? 'La fecha límite de postulación ya pasó. Se conserva como referencia y no se habilita el enlace para postular.'
-      : state.publicationStatus === 'historical'
-        ? 'Registro histórico conservado para referencia. No está disponible para postular.'
-        : `${job.recordKind === 'demonstration' ? 'Ficha de demostración. ' : ''}No tiene evidencia vigente suficiente para presentarla como postulable. Última verificación: ${formatDateTime(job.lastVerifiedAt)}; última consulta registrada: ${formatDateTime(job.lastCheckedDate)}. No se afirma que siga publicada.`;
+  const canApply = state.publicationStatus === 'active' && job.recordKind !== 'demonstration' && state.opportunityStatus !== 'expired';
+  const isStale = state.verificationStatus === 'stale';
+  const statusText = job.recordKind === 'demonstration'
+    ? `Ficha de demostración. No tiene evidencia vigente suficiente para presentarla como postulable. Última verificación: ${formatDateTime(job.lastVerifiedAt)}; última consulta registrada: ${formatDateTime(job.lastCheckedDate)}. No se afirma que siga publicada.`
+    : canApply
+      ? `La fuente del empleador se revisó el ${formatDateTime(job.lastVerifiedAt)}; esta comprobación no garantiza disponibilidad posterior.`
+      : state.opportunityStatus === 'expired'
+        ? 'La fecha límite de postulación ya pasó. Se conserva como referencia y no se habilita el enlace para postular.'
+        : state.publicationStatus === 'historical'
+          ? 'Registro histórico conservado para referencia. No está disponible para postular.'
+          : isStale
+            ? `Convocatoria registrada con verificación previa (${formatDateTime(job.lastVerifiedAt || job.lastCheckedDate)}) que superó el período de frescura de ${catalogConfig.verificationTtlDays || 7} días. Pendiente de revalidar vigencia con la fuente oficial antes de habilitar postulación.`
+            : `No tiene evidencia vigente suficiente para presentarla como postulable. Última verificación: ${formatDateTime(job.lastVerifiedAt)}; última consulta registrada: ${formatDateTime(job.lastCheckedDate)}. No se afirma que siga publicada.`;
   const fieldEvidence = Array.isArray(job.fieldEvidence) ? job.fieldEvidence : [];
   const evidenceLabels = { employer: 'Empleador', publisher: 'Difusor', title: 'Puesto', applyUrl: 'Canal de postulación', deadline: 'Fecha límite', salary: 'Remuneración', mode: 'Modalidad', location: 'Ubicación', requirements: 'Requisitos', benefits: 'Beneficios', skills: 'Tecnologías', training: 'Formación', contractType: 'Tipo de contrato', duration: 'Duración', sector: 'Sector', family: 'Familia profesional', level: 'Nivel', kind: 'Tipo de oportunidad', growth: 'Experiencia para el siguiente paso', continuity: 'Continuidad', risk: 'Riesgos' };
   const fieldEvidenceHtml = fieldEvidence.filter((item) => evidenceLabels[item.field] && safeHttpsUrl(item.url)).map((item) => `<li><a href="${escapeHTML(safeHttpsUrl(item.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(evidenceLabels[item.field])} · evidencia ↗</a> <span>${escapeHTML(formatDateTime(item.observedAt))}</span></li>`).join('');
@@ -695,7 +767,7 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
   summaryCards.push({
     icon: 'shield',
     label: 'Última verificación o consulta',
-    value: escapeHTML(verifiedDateFormatted),
+    value: escapeHTML(verifiedDateFormatted) + (isStale ? ' · Requiere revalidar' : ''),
   });
 
   const summaryCardsHtml = summaryCards.map((card) => `
@@ -746,11 +818,11 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
 
           <div class="flex items-center gap-2">
             <span class="inline-flex items-center gap-1.5 text-xs font-semibold
-              ${isVerified ? 'text-crystal-blue' : 'text-crystal-blue'}">
+              ${isVerified ? 'text-crystal-blue' : (isStale ? 'text-amber-300' : 'text-crystal-blue')}">
               ${isVerified
       ? lucideIcon('badge-check', 'h-3.5 w-3.5')
       : lucideIcon('triangle-alert', 'h-3.5 w-3.5')}
-              ${isVerified ? 'Fuente oficial verificada' : 'Fuente de consulta'}
+              ${isVerified ? 'Fuente oficial verificada' : (isStale ? 'Verificación pendiente de revalidar' : 'Fuente de consulta')}
             </span>
           </div>
 
@@ -768,7 +840,9 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
           <p class="mt-1 text-xs leading-relaxed text-white">
             ${isVerified
       ? 'Publicación oficial verificada directamente en el portal del empleador o difusor'
-      : 'Convocatoria registrada pendiente de comprobación directa'}
+      : (isStale
+        ? 'Convocatoria con verificación previa que superó el período de frescura (requiere comprobar fuente)'
+        : 'Convocatoria registrada pendiente de comprobación directa')}
             · Consulta:
             <strong class="font-medium text-white">
               ${escapeHTML(verifiedDateFormatted)}
@@ -804,9 +878,8 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
               target="_blank"
               rel="noopener noreferrer"
               class="btn-apply-main inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg mt-2
-                    bg-arcticBlue px-3 py-2 text-xs font-semibold mb-2
+                    bg-arcticBlue hover:bg-[#125091] px-3 py-2 text-xs font-semibold mb-2
                     transition-colors duration-150
-                    hover:bg-[#125091]
                     focus-visible:outline-2 focus-visible:outline-offset-2
                     focus-visible:outline-arcticBlue"
             >
@@ -1087,7 +1160,7 @@ function comparisonValue(job, field) {
   if (field === 'status') {
     const state = currentStates(job);
     const oppStatusMap = { open: 'Abierta', closed: 'Cerrada', expired: 'Expirada' };
-    const verStatusMap = { verified: 'Verificada', stale: 'Atrasada', unconfirmed: 'Sin verificar' };
+    const verStatusMap = { verified: 'Verificada', stale: 'Requiere revalidación', unconfirmed: 'Sin verificar' };
     const pubStatusMap = { active: 'Activa', historical: 'Histórica', unconfirmed: 'Sin verificar' };
     const opp = oppStatusMap[state.opportunityStatus] || state.opportunityStatus;
     const ver = verStatusMap[state.verificationStatus] || state.verificationStatus;
@@ -1237,6 +1310,14 @@ function renderComparisonCell(job, field) {
         <p class="text-[10px] text-stone-500">Revisión oficial: ${escapeHTML(formatDateTime(job.lastVerifiedAt || job.lastCheckedDate, { shortMonth: true }))}</p>
       </div>`;
     }
+    if (state.verificationStatus === 'stale') {
+      return `<div class="space-y-1">
+        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-full">
+          ⏳ Pendiente de revalidación
+        </span>
+        <p class="text-[10px] text-stone-500">Última revisión: ${escapeHTML(formatDateTime(job.lastVerifiedAt || job.lastCheckedDate, { shortMonth: true }))}</p>
+      </div>`;
+    }
     if (isDemo) {
       return `<span class="inline-flex items-center gap-1 text-[11px] font-medium text-amber-800 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-full">
         Ficha de demostración
@@ -1303,8 +1384,8 @@ function renderComparison() {
                 <th scope="col" class="w-[calc(50%-85px)] p-4 bg-stone-50/90 border-b border-stone-200 align-top">
                   <div class="space-y-2">
                     <div>
-                      <span class="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${isDemo ? 'text-amber-800 bg-amber-100/90 border border-amber-200' : 'text-arcticBlue bg-iceBlue/20 border border-crystalBlue/30'}">
-                        ${isDemo ? 'Ficha demostrativa' : 'Oportunidad verificada'}
+                      <span class="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${isDemo ? 'text-amber-800 bg-amber-100/90 border border-amber-200' : (state.verificationStatus === 'stale' ? 'text-amber-800 bg-amber-50 border border-amber-200' : (canApply ? 'text-arcticBlue bg-iceBlue/20 border border-crystalBlue/30' : 'text-stone-700 bg-stone-100 border border-stone-200'))}">
+                        ${isDemo ? 'Ficha demostrativa' : (state.verificationStatus === 'stale' ? 'Pendiente de revalidación' : (canApply ? 'Oportunidad verificada' : 'No confirmada'))}
                       </span>
                       <h4 class="text-sm font-bold text-stone-900 mt-1.5 leading-snug">${escapeHTML(job.title)}</h4>
                       <p class="text-xs text-stone-600 font-medium mt-0.5">${escapeHTML(job.employer)}${job.sector ? ` · <span class="text-stone-500 font-normal">${escapeHTML(job.sector)}</span>` : ''}</p>
@@ -1476,7 +1557,13 @@ function getVisibleJobs() {
     ].join(' '));
     return tokens.every((token) => searchable.includes(token));
   }).sort((a, b) => {
-    const rank = (job) => currentStates(job).publicationStatus === 'active' ? 0 : currentStates(job).publicationStatus === 'historical' ? 2 : 1;
+    const rank = (job) => {
+      const s = currentStates(job);
+      if (s.publicationStatus === 'active') {
+        return s.verificationStatus === 'verified' ? 0 : 1;
+      }
+      return s.publicationStatus === 'historical' ? 3 : 2;
+    };
     return rank(a) - rank(b) || a.employer.localeCompare(b.employer, 'es') || a.title.localeCompare(b.title, 'es');
   });
 }
@@ -1485,9 +1572,17 @@ function publicCatalogMetrics(records) {
   const metrics = { active: 0, expiredOrHistorical: 0, unconfirmed: 0 };
   records.filter((job) => job.recordKind !== 'demonstration').forEach((job) => {
     const state = currentStates(job);
-    if (state.publicationStatus === 'active') metrics.active += 1;
-    else if (['expired', 'closed'].includes(state.opportunityStatus) || state.publicationStatus === 'historical') metrics.expiredOrHistorical += 1;
-    else metrics.unconfirmed += 1;
+    if (['expired', 'closed'].includes(state.opportunityStatus) || state.publicationStatus === 'historical') {
+      metrics.expiredOrHistorical += 1;
+    } else if (state.publicationStatus === 'active') {
+      if (state.verificationStatus === 'stale') {
+        metrics.unconfirmed += 1;
+      } else {
+        metrics.active += 1;
+      }
+    } else {
+      metrics.unconfirmed += 1;
+    }
   });
   return metrics;
 }
@@ -1530,7 +1625,10 @@ function updateCatalogView() {
     empty.querySelector('p').textContent = 'Prueba quitar algún filtro o modificar los términos de búsqueda.';
   } else if (showNoVerifiedOpportunities) {
     empty.querySelector('h3').textContent = 'No hay oportunidades verificadas disponibles';
-    empty.querySelector('p').textContent = 'Las oportunidades se incorporan después de revisar la publicación original y el canal de postulación. Puedes activar “Incluir ejemplos demostrativos” para explorar ejemplos que no son vacantes reales.';
+    const unconfirmedCount = catalog.filter((j) => j.recordKind !== 'demonstration' && (typeof currentStates === 'function' ? currentStates(j).publicationStatus === 'unconfirmed' : j.publicationStatus === 'unconfirmed')).length;
+    empty.querySelector('p').textContent = unconfirmedCount > 0
+      ? `Actualmente no hay oportunidades con verificación reciente (últimos ${catalogConfig.verificationTtlDays || 7} días). Hay ${unconfirmedCount} convocatorias en revisión que puedes consultar activando “Incluir no confirmadas”.`
+      : 'Las oportunidades se incorporan después de revisar la publicación original y el canal de postulación. Puedes activar “Incluir ejemplos demostrativos” para explorar ejemplos que no son vacantes reales.';
   } else {
     empty.querySelector('h3').textContent = 'No encontramos coincidencias';
     empty.querySelector('p').textContent = 'Prueba quitar algún filtro. Los ejemplos demostrativos nunca representan vacantes reales ni habilitan la postulación.';
