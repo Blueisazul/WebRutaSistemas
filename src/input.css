@@ -30,7 +30,7 @@
 }
 
 @layer base {
-  body {
+  html, body {
     overflow-x: hidden;
   }
   button, select, a {
