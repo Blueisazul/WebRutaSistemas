@@ -1,5 +1,5 @@
 {
-  "name": "web-ruta-sistemas",
+  "name": "velora",
   "private": true,
   "scripts": {
     "build:css": "tailwindcss -i src/input.css -o styles.css --minify",

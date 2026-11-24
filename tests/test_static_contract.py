@@ -73,14 +73,15 @@ class StaticContractTests(unittest.TestCase):
         self.assertIn("if (!isValidCatalogPayload(result)) throw new Error", app)
         self.assertIn("No se pudo cargar el catálogo", app)
         self.assertIn("No se pudo cargar el catálogo. Reintenta", app)
-        self.assertIn("console.error('[Ruta Sistemas] No se pudo cargar el catálogo:', error)", app)
+        self.assertIn("console.error('[Velora] No se pudo cargar el catálogo:', error)", app)
         self.assertIn("fetch('./data/opportunities.json'", app)
 
     def test_active_identity_and_local_canvas_contract_are_aligned(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
         server = (ROOT / "server.py").read_text(encoding="utf-8")
         canvas = (ROOT / "canvas.js").read_text(encoding="utf-8")
-        self.assertIn("<title>Ruta Sistemas</title>", html)
+        self.assertIn("<title>Velora — Oportunidades y Trayectorias en Tecnología</title>", html)
+        self.assertNotIn(">Ruta Sistemas", html)
         self.assertNotIn(">Aurel", html)
         self.assertIn('"/canvas.js": ("canvas.js", "text/javascript; charset=utf-8")', server)
         self.assertIn("prefers-reduced-motion", canvas)

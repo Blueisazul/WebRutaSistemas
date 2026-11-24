@@ -76,19 +76,25 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
 #### `TASK-R4-11-02` — Transición Oficial de Identidad Visual y Marca a "Velora"
 - **Prioridad:** `P0` (Estratégico de producto)
 - **Tipo:** `[DESARROLLO_PROPIO - Justificado]`
-- **Estado:** `PENDING`
-- **Dependencias:** Aprobación del propietario en `VELORA-OPEN-DECISIONS.md`.
-- **Objetivo:** Unificar la marca del producto bajo el nombre oficial **Velora** en toda la interfaz y metadatos.
-- **Alcance:**
-  - Actualizar `<title>Velora — Oportunidades y Trayectorias en Tecnología</title>` en `index.html`.
-  - Actualizar logotipo y texto de cabecera en `index.html`: sustituir "Ruta Sistemas" por "Velora".
-  - Actualizar textos del hero y metadatos OpenGraph.
-  - Actualizar `package.json` (`name: "velora"`).
-  - Actualizar `README.md` público reflejando la identidad de Velora, la escala real de 112 oportunidades y la arquitectura actual.
-- **Criterios de Aceptación:**
-  1. La interfaz web muestra consistentemente "Velora".
-  2. Todas las pruebas unitarias y E2E de Playwright actualizadas aprueban sin fallas de selectores.
-- **Riesgo:** Ruptura de tests de integración que buscan el string literal "Ruta Sistemas" (requiere actualizar aserciones).
+- **Estado:** `COMPLETADO CON LIMITACIONES` (Implementado y validado al 100% en rama `feature/r4-11-02-velora-brand-identity`; pendiente de push, PR y merge a `main` según autorización)
+- **Dependencias:** `TASK-R4-11-01` y `TASK-R4-11-03` (ambas DONE). Decisión 1 de `VELORA-OPEN-DECISIONS.md` aprobada por el propietario.
+- **Objetivo:** Unificar la marca del producto bajo el nombre oficial **Velora** en toda la interfaz, metadatos, configuración y documentación.
+- **Alcance y Ejecución:**
+  - Actualizado `<title>Velora — Oportunidades y Trayectorias en Tecnología</title>` en `index.html`.
+  - Actualizado logotipo y texto de cabecera en `index.html`: sustituido "Ruta Sistemas" por "Velora" conservando el distintivo tipográfico y accesibilidad WCAG 2.1 AA.
+  - Actualizados textos del Hero (`<span>Oportunidades y trayectorias en tecnología</span>`) y pie de página.
+  - Incorporados metadatos OpenGraph (`og:title`, `og:site_name`, `og:description`) y Twitter Cards.
+  - Actualizado `app.js` (títulos en vista standalone, 404, retorno a catálogo y consola).
+  - Actualizados `canvas.js` y `server.py` con la nueva identidad.
+  - Actualizado `package.json` y `package-lock.json` (`name: "velora"`).
+  - Reescrito completamente `README.md` público reflejando la escala real de 112 oportunidades, Schema 2, modelo de frescura desacoplado y guías operativas.
+  - Actualizadas aserciones en `tests/test_static_contract.py` y `tests/e2e/catalog.spec.cjs`.
+- **Criterios de Aceptación Cumplidos:**
+  1. La interfaz web muestra consistentemente "Velora" en cabecera, hero, footer y títulos de pestaña.
+  2. Todas las pruebas unitarias (232 Python + 14 JS) y 45 pruebas E2E de Playwright aprueban al 100%.
+  3. Cero violaciones de accesibilidad (WCAG 2.1 AA verificado con Axe-core).
+  4. Ninguna dependencia externa nueva incorporada; esquema de catálogo Schema v2 intacto.
+- **Pendiente para Despliegue:** Autorización del propietario para publicar la rama `feature/r4-11-02-velora-brand-identity`, abrir Pull Request hacia `main` y desplegar a producción.
 
 #### `TASK-R4-11-03` — Desacople del TTL de Frescura en Frontend (Protección contra Apagones y Corrección de Aceptación)
 - **Prioridad:** `P0` (Resiliencia y veracidad del catálogo)
@@ -235,5 +241,5 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
 
 ## 5. Siguiente Acción Única Recomendada
 
-**`TASK-R4-11-02` (Transición Oficial de Identidad Visual y Marca a "Velora"):**
-Una vez asegurada la paridad operativa y resuelto el desacople de frescura en producción (`TASK-R4-11-01` y `TASK-R4-11-03` en DONE), la siguiente acción es unificar la identidad de marca bajo el nombre oficial **Velora** en toda la interfaz de usuario, títulos, meta tags, package.json y documentación pública.
+**Revisión y Publicación de `TASK-R4-11-02` hacia `main`:**
+Con la transición de marca a **Velora** implementada y validada al 100% en la rama local `feature/r4-11-02-velora-brand-identity` (232 pruebas unitarias, 14 pruebas de contrato y 45 pruebas Playwright E2E/Axe aprobadas), la siguiente acción operativa es someter la rama a revisión del propietario para su posterior push a remoto, apertura de Pull Request y fusión en `main`. Una vez desplegado, se iniciará la **Fase R5** (Cobertura Nacional: Sector Público y Ecosistema Privado Peruano).

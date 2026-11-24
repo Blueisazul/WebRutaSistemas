@@ -2,7 +2,7 @@
 const canvas = document.getElementById("canvas");
 
 if (!canvas) {
-    console.warn("[Ruta Sistemas] Se omitió la animación: no se encontró canvas#canvas.");
+    console.warn("[Velora] Se omitió la animación: no se encontró canvas#canvas.");
 } else {
 
 const gl = canvas.getContext("webgl2", { alpha: true, antialias: true });
@@ -10,7 +10,7 @@ const gl = canvas.getContext("webgl2", { alpha: true, antialias: true });
 if (!gl) {
     canvas.hidden = true;
     document.documentElement.classList.add("canvas-unavailable");
-    console.warn("[Ruta Sistemas] WebGL2 no está disponible; se usa el fondo estático.");
+    console.warn("[Velora] WebGL2 no está disponible; se usa el fondo estático.");
 } else {
 
 // ============================================================================
