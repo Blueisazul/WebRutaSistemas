@@ -76,7 +76,7 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
 #### `TASK-R4-11-02` — Transición Oficial de Identidad Visual y Marca a "Velora"
 - **Prioridad:** `P0` (Estratégico de producto)
 - **Tipo:** `[DESARROLLO_PROPIO - Justificado]`
-- **Estado:** `COMPLETADO CON LIMITACIONES` (Implementado y validado al 100% en rama `feature/r4-11-02-velora-brand-identity`; pendiente de push, PR y merge a `main` según autorización)
+- **Estado:** `DONE` (Integrado en `main` mediante squash merge en PR #2 commit `54bab29`, verificado en CI run `45461949978` y desplegado en producción en GitHub Pages y Vercel)
 - **Dependencias:** `TASK-R4-11-01` y `TASK-R4-11-03` (ambas DONE). Decisión 1 de `VELORA-OPEN-DECISIONS.md` aprobada por el propietario.
 - **Objetivo:** Unificar la marca del producto bajo el nombre oficial **Velora** en toda la interfaz, metadatos, configuración y documentación.
 - **Alcance y Ejecución:**
@@ -89,12 +89,14 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
   - Actualizado `package.json` y `package-lock.json` (`name: "velora"`).
   - Reescrito completamente `README.md` público reflejando la escala real de 112 oportunidades, Schema 2, modelo de frescura desacoplado y guías operativas.
   - Actualizadas aserciones en `tests/test_static_contract.py` y `tests/e2e/catalog.spec.cjs`.
-- **Criterios de Aceptación Cumplidos:**
-  1. La interfaz web muestra consistentemente "Velora" en cabecera, hero, footer y títulos de pestaña.
-  2. Todas las pruebas unitarias (232 Python + 14 JS) y 45 pruebas E2E de Playwright aprueban al 100%.
-  3. Cero violaciones de accesibilidad (WCAG 2.1 AA verificado con Axe-core).
-  4. Ninguna dependencia externa nueva incorporada; esquema de catálogo Schema v2 intacto.
-- **Estado de Integración:** PR abierto hacia `main` desde la rama `feature/r4-11-02-velora-brand-identity`. Pendiente de revisión y autorización de merge del propietario para despliegue automático a producción.
+- **Criterios de Aceptación Cumplidos y Verificados en Producción:**
+  1. La interfaz web muestra consistentemente "Velora" en cabecera, hero, footer y títulos de pestaña en GitHub Pages y Vercel Production.
+  2. Todas las pruebas unitarias (232 Python + 14 JS) y 45 pruebas E2E de Playwright aprobaron tanto localmente como en el pipeline de GitHub Actions (`validate` step).
+  3. Despliegue automático exitoso vía GitHub Actions run `45461949978` (jobs `validate` y `publish` exitosos).
+  4. Cero violaciones de accesibilidad (WCAG 2.1 AA verificado con Axe-core).
+  5. Ninguna dependencia externa nueva incorporada; esquema de catálogo Schema v2 intacto.
+  6. Catálogo verificado en producción: 112 registros exactos, paridad byte a byte e igualdad de hash SHA-256 (`417b3847942b76dca5eb8750583656626517302637310ddc2759a3d656f62ed8`) entre GitHub Pages y Vercel.
+- **Evidencia Documental:** `docs/audits/R4-11-02-VELORA-BRAND-VERIFICATION.md` y `docs/audits/R4-11-02-PR-FINAL-REVIEW.md`.
 
 #### `TASK-R4-11-03` — Desacople del TTL de Frescura en Frontend (Protección contra Apagones y Corrección de Aceptación)
 - **Prioridad:** `P0` (Resiliencia y veracidad del catálogo)
@@ -241,5 +243,8 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
 
 ## 5. Siguiente Acción Única Recomendada
 
-**Revisión y Merge de PR para `TASK-R4-11-02` hacia `main`:**
-Con la transición de marca a **Velora** implementada, auditada e integrada en Pull Request hacia `main` (232 pruebas unitarias, 14 pruebas de contrato y 45 pruebas Playwright E2E/Axe aprobadas), la siguiente acción operativa es la revisión y aprobación de merge por parte del propietario. Una vez fusionado en `main`, el pipeline de GitHub Actions desplegará la identidad a GitHub Pages, completando la Fase R4-11 y habilitando el inicio de la **Fase R5** (Cobertura Nacional: Sector Público y Ecosistema Privado Peruano).
+**Inicio de la Fase R5 — Cobertura Nacional de Fuentes (`TASK-R5-01`):**
+Con la Fase R4-11 (Consolidación Operativa y Despliegue) culminada exitosamente al 100% tras el despliegue verificado de la identidad **Velora** en GitHub Pages y Vercel Production, la siguiente acción técnica inmediata es iniciar la implementación de:
+- **`TASK-R5-01` — Conector de Convocatorias Estatales Gob.pe (`gobpe-convocatorias`)**
+  - **Prioridad:** `P1`
+  - **Objetivo:** Adquisición controlada de vacantes tecnológicas del Estado peruano (CAS / Formativo), reutilizando los extractores y validadores del subsistema `collector/` hacia la bandeja de staging `inbox.json`, respetando el principio de fail-closed y salvaguardando la integridad del catálogo canónico.
