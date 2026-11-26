@@ -76,6 +76,101 @@ assert.deepEqual(runView({ examples: true, mode: 'Remoto' }), ['DEMO-1'], 'mode 
 assert.deepEqual(runView({ unconfirmed: true }), ['REAL-1', 'PENDING-1'], 'unconfirmed non-demo entries require their own opt-in');
 assert.deepEqual(runView({ history: true }), ['REAL-1', 'OLD-1'], 'historical non-demo entries require the history opt-in');
 
+// --- TASK-R7-01: Labor Regime Taxonomy & UI tests ---
+assert.match(html, /<select[^>]*id="regime-filter"/, 'regime-filter select element exists in HTML');
+for (const regimeKey of [
+  'PRE_PROFESSIONAL_INTERNSHIP',
+  'PROFESSIONAL_INTERNSHIP',
+  'CAS',
+  'LABOR_REGIME_728',
+  'CIVIL_SERVICES',
+  'OTHER',
+  'UNSPECIFIED',
+]) {
+  assert.match(html, new RegExp(`value="${regimeKey}"`), `regime option ${regimeKey} is present in index.html`);
+}
+
+function runRegimeView({ regime = '', query = '' } = {}) {
+  const catalog = [
+    { id: 'JOB-CAS', recordKind: 'curated', publicationStatus: 'active', employer: 'RENIEC', title: 'Especialista en BD CAS', mode: 'Presencial' },
+    { id: 'JOB-PRE', recordKind: 'curated', publicationStatus: 'active', employer: 'BCP', title: 'Practicante Preprofesional de Sistemas', mode: 'Híbrido', kind: 'Prácticas' },
+    { id: 'JOB-PRO', recordKind: 'curated', publicationStatus: 'active', employer: 'BBVA', title: 'Practicante Profesional de Datos', mode: 'Remoto', kind: 'Prácticas' },
+    { id: 'JOB-728', recordKind: 'curated', publicationStatus: 'active', employer: 'Interbank', title: 'Ingeniero Cloud', contractType: 'D. Leg. 728', mode: 'Híbrido' },
+    { id: 'JOB-CIVIL', recordKind: 'curated', publicationStatus: 'active', employer: 'Gobierno Regional', title: 'Consultor TI por Locación de Servicios', mode: 'Presencial' },
+    { id: 'JOB-OTHER', recordKind: 'curated', publicationStatus: 'active', employer: 'Remote Inc', title: 'Fullstack Contractor B2B', mode: 'Remoto' },
+    { id: 'JOB-UNSPEC', recordKind: 'curated', publicationStatus: 'active', employer: 'Startup Inc', title: 'Developer', mode: 'Remoto' },
+  ];
+  const filters = {
+    query: { value: query }, location: { value: '' }, mode: { value: '' }, kind: { value: '' },
+    family: { value: '' }, sector: { value: '' }, level: { value: '' }, salary: { value: '' },
+    risk: { value: '' }, regime: { value: regime }, history: { checked: false },
+  };
+  const toggles = {
+    '#include-unconfirmed': { checked: false },
+    '#include-demonstrations': { checked: false },
+  };
+  const context = vm.createContext({
+    catalog, filters,
+    document: { querySelector: (selector) => toggles[selector] },
+    result: null,
+    currentStates: () => ({ opportunityStatus: 'open', publicationStatus: 'active', verificationStatus: 'verified' }),
+  });
+  vm.runInContext(`${functions}\nresult = getVisibleJobs();`, context);
+  return Array.from(context.result, (job) => job.id);
+}
+
+assert.deepEqual(runRegimeView({ regime: 'CAS' }), ['JOB-CAS'], 'regime filter correctly filters CAS opportunities');
+assert.deepEqual(runRegimeView({ regime: 'PRE_PROFESSIONAL_INTERNSHIP' }), ['JOB-PRE'], 'regime filter correctly filters Pre-professional internships');
+assert.deepEqual(runRegimeView({ regime: 'PROFESSIONAL_INTERNSHIP' }), ['JOB-PRO'], 'regime filter correctly filters Professional internships');
+assert.deepEqual(runRegimeView({ regime: 'LABOR_REGIME_728' }), ['JOB-728'], 'regime filter correctly filters 728 opportunities');
+assert.deepEqual(runRegimeView({ regime: 'CIVIL_SERVICES' }), ['JOB-CIVIL'], 'regime filter correctly filters civil services opportunities');
+assert.deepEqual(runRegimeView({ regime: 'OTHER' }), ['JOB-OTHER'], 'regime filter correctly filters OTHER opportunities');
+assert.deepEqual(runRegimeView({ regime: 'UNSPECIFIED' }), ['JOB-UNSPEC'], 'regime filter correctly filters unspecified opportunities');
+assert.equal(runRegimeView({ regime: '' }).length, 7, 'all 7 opportunities visible when no regime filter is active');
+
+const regimeTagContext = vm.createContext({
+  escapeHTML: (str) => String(str || ''),
+  result: null,
+});
+vm.runInContext(`${functions}\nresult = regimeTag({ id: 'JOB-CAS', requisition: 'CAS N° 045-2026', title: 'Analista de Sistemas' });`, regimeTagContext);
+assert.match(regimeTagContext.result, /CAS/, 'regime tag renders CAS short label');
+assert.match(regimeTagContext.result, /Decreto Legislativo N° 1057/, 'regime tag includes legal framework tooltip');
+
+vm.runInContext(`result = regimeTag({ id: 'JOB-PRE', kind: 'Prácticas', title: 'Practicante Pre Profesional' });`, regimeTagContext);
+assert.match(regimeTagContext.result, /Prácticas Pre/, 'regime tag renders Prácticas Pre');
+assert.match(regimeTagContext.result, /Ley N° 28518/, 'regime tag includes Ley 28518 tooltip');
+
+vm.runInContext(`result = regimeTag({ id: 'JOB-728', contractType: 'D. Leg. 728' });`, regimeTagContext);
+assert.match(regimeTagContext.result, /Planilla 728/, 'regime tag renders Planilla 728');
+
+const detailContext = vm.createContext({
+  safeHttpsUrl: (url) => url,
+  escapeHTML: (str) => String(str || ''),
+  formatDateTime: (dt) => dt,
+  formatLocationEligibility: () => 'Lima, Perú',
+  knownValue: (v) => Boolean(v),
+  cleanContractDuration: () => 'Full-time',
+  formatStructuredList: () => '',
+  statusTag: () => '<span>Status</span>',
+  currentStates: () => ({ opportunityStatus: 'open', verificationStatus: 'verified', publicationStatus: 'active' }),
+  catalogConfig: { verificationTtlDays: 7 },
+  lucideIcon: (name) => `<svg>${name}</svg>`,
+  isCivilDate: () => true,
+  result: null,
+});
+const detailStart = source.indexOf('function renderDetailContent(job,');
+const detailEnd = source.indexOf('\nfunction renderOpportunityPage(', detailStart);
+vm.runInContext(`${functions}\n${source.slice(detailStart, detailEnd)}\nresult = renderDetailContent({ id: 'OP-CAS-1', employer: 'SUNAT', title: 'Especialista CAS', requisition: 'CAS 01-2026', sourceUrl: 'https://sunat.gob.pe', applyUrl: 'https://sunat.gob.pe/apply' });`, detailContext);
+assert.match(detailContext.result, /Régimen y modalidad/, 'detail renders regime summary card');
+assert.match(detailContext.result, /Contratación Administrativa de Servicios \(CAS\)/, 'detail renders full CAS label');
+assert.match(detailContext.result, /Régimen Contractual y Marco Normativo/, 'detail renders dedicated legal section');
+assert.match(detailContext.result, /Decreto Legislativo N° 1057/, 'detail cites D. Leg. 1057');
+assert.match(detailContext.result, /Naturaleza jurídica/, 'detail explains legal nature');
+assert.match(detailContext.result, /Jornada y tiempo de trabajo/, 'detail explains working hours');
+assert.match(detailContext.result, /Subvención \/ Remuneración/, 'detail explains compensation');
+assert.match(detailContext.result, /Garantías y derechos principales/, 'detail explains key rights');
+assert.match(detailContext.result, /Cautelas y consideraciones/, 'detail explains cautions');
+
 const metricContext = vm.createContext({
   catalog: [
     { id: 'REAL-1', recordKind: 'curated', publicationStatus: 'active', employer: 'A', title: 'Active' },
@@ -224,12 +319,88 @@ const comparisonContext = vm.createContext({
   formatDateTime: (d) => String(d || ''),
   escapeHTML: (v) => String(v || ''),
   knownValue: (v) => Boolean(v),
+  getJobLaborRegime: (job) => job.laborRegime || 'UNSPECIFIED',
+  REGIME_DEFINITIONS: {
+    UNSPECIFIED: { label: 'Modalidad no especificada', legalFramework: 'N/A', badgeClass: '' },
+    CAS: { label: 'Contratación Administrativa de Servicios (CAS)', legalFramework: 'Decreto Legislativo N° 1057', badgeClass: '' },
+  },
   result: null,
 });
 const comparisonFunction = source.slice(source.indexOf('function renderComparisonCell('), source.indexOf('\nfunction renderComparison()'));
 vm.runInContext(`${comparisonFunction}\nresult = renderComparisonCell({ id: 'STALE-1', recordKind: 'curated', publicationStatus: 'unconfirmed', verificationStatus: 'stale', opportunityStatus: 'open' }, 'status');`, comparisonContext);
 assert.match(comparisonContext.result, /Pendiente de revalidación/, 'comparator cell displays pending revalidation');
 assert.doesNotMatch(comparisonContext.result, /Activa · Verificada/, 'comparator does not display active verified for stale jobs');
+
+vm.runInContext(`result = renderComparisonCell({ id: 'CAS-1', laborRegime: 'CAS' }, 'regime');`, comparisonContext);
+assert.match(comparisonContext.result, /Contratación Administrativa de Servicios \(CAS\)/, 'comparator cell renders labor regime');
+assert.match(comparisonContext.result, /Decreto Legislativo N° 1057/, 'comparator cell renders regime legal framework');
+
+// --- TASK-R7-02: Skills Extraction & Opportunity Comparison Tests ---
+const skillsContext = vm.createContext({
+  escapeHTML: (v) => String(v || ''),
+  result: null,
+});
+
+// Test alias normalization
+vm.runInContext(`${functions}\nresult = extractOpportunitySkills({
+  title: 'Ingeniero Cloud',
+  skills: 'Postgres · Amazon Web Services · Microsoft Azure · TS · K8s · Golang',
+});`, skillsContext);
+assert.ok(skillsContext.result.PostgreSQL, 'Postgres normalizes to PostgreSQL');
+assert.ok(skillsContext.result.AWS, 'Amazon Web Services normalizes to AWS');
+assert.ok(skillsContext.result.Azure, 'Microsoft Azure normalizes to Azure');
+assert.ok(skillsContext.result.TypeScript, 'TS normalizes to TypeScript');
+assert.ok(skillsContext.result.Kubernetes, 'K8s normalizes to Kubernetes');
+assert.ok(skillsContext.result.Go, 'Golang normalizes to Go');
+
+// Test false-positive prevention
+vm.runInContext(`result = extractOpportunitySkills({
+  title: 'Analista de Sistemas',
+  requirements: 'Conocimientos generales; comunicación asertiva; capacidad de análisis; administración de redes sociales',
+});`, skillsContext);
+assert.equal(skillsContext.result.C, undefined, 'Conocimientos/Comunicación does not trigger C language');
+assert.equal(skillsContext.result.Redes, undefined, 'Redes sociales does not trigger Redes');
+
+// Test C and C++ detection
+vm.runInContext(`result = extractOpportunitySkills({
+  title: 'Firmware Dev',
+  requirements: 'Programación en C y C++; depuración de controladores',
+});`, skillsContext);
+assert.ok(skillsContext.result.C, 'C language is detected');
+assert.ok(skillsContext.result['C++'], 'C++ is detected');
+
+// Test priority classification
+vm.runInContext(`result = extractOpportunitySkills({
+  title: 'Backend Dev',
+  requirements: 'Experiencia obligatoria en Python; deseable conocimiento en Kubernetes',
+  tasks: 'Desplegar servicios en Docker',
+});`, skillsContext);
+assert.equal(skillsContext.result.Python.priority, 'REQUIRED', 'Python is REQUIRED');
+assert.equal(skillsContext.result.Kubernetes.priority, 'PREFERRED', 'Kubernetes is PREFERRED');
+assert.equal(skillsContext.result.Docker.priority, 'MENTIONED', 'Docker in tasks is MENTIONED');
+
+// Test comparison between two opportunities
+vm.runInContext(`result = compareOpportunitySkills({
+  id: 'JOB-A', employer: 'Empresa A', skills: 'Python · AWS · Docker', requirements: 'Python obligatorio; deseable Docker',
+}, {
+  id: 'JOB-B', employer: 'Empresa B', skills: 'Python · Java · Docker', requirements: 'Java y Python obligatorios',
+});`, skillsContext);
+assert.equal(skillsContext.result.shared_skills.length, 2, '2 shared skills: Python and Docker');
+assert.equal(skillsContext.result.exclusive_a.length, 1, '1 exclusive skill in A: AWS');
+assert.equal(skillsContext.result.exclusive_a[0].canonical, 'AWS');
+assert.equal(skillsContext.result.exclusive_b.length, 1, '1 exclusive skill in B: Java');
+assert.equal(skillsContext.result.exclusive_b[0].canonical, 'Java');
+
+// Test comparison rendering HTML
+vm.runInContext(`result = renderSkillsComparison({
+  id: 'JOB-A', employer: 'TechCorp', skills: 'Python · Docker',
+}, {
+  id: 'JOB-B', employer: 'FinCorp',
+});`, skillsContext);
+assert.match(skillsContext.result, /Contraste de Requisitos Técnicos y Competencias/, 'renders section heading');
+assert.match(skillsContext.result, /Coincidentes/, 'renders shared section');
+assert.match(skillsContext.result, /Exclusivas: TechCorp/, 'renders exclusive section for A');
+assert.match(skillsContext.result, /FinCorp.*no incluye un listado estructurado/, 'renders missing information warning for B');
 
 // 13. Detalle: no induce a postulación activa cuando la oportunidad es stale
 const statusTagFunction = source.slice(source.indexOf('function statusTag('), source.indexOf('\nfunction modeTag('));

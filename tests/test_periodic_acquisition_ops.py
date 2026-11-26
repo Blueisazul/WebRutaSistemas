@@ -289,8 +289,8 @@ class TestPeriodicAcquisitionOpsR404(unittest.TestCase):
 
             report_data = json.loads(out_report.read_text(encoding="utf-8"))
             self.assertTrue(report_data.get("dryRun"))
-            self.assertEqual(report_data["metrics"]["sourcesEvaluated"], 9)
-            self.assertEqual(report_data["metrics"]["sourcesSucceeded"], 9)
+            self.assertEqual(report_data["metrics"]["sourcesEvaluated"], 14)
+            self.assertEqual(report_data["metrics"]["sourcesSucceeded"], 14)
 
     def test_cli_acquire_refuses_to_write_to_canonical_paths(self) -> None:
         """CLI acquire raises PermissionError if someone targets seed or snapshot catalog."""

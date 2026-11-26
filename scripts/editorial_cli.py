@@ -801,28 +801,66 @@ def handle_revalidate(args: argparse.Namespace) -> int:
             return EXIT_OPERATIONAL_ERROR
 
     if getattr(args, "catalog", False):
-        from collector.revalidation import revalidate_canonical_catalog
+        from collector.revalidation import DEFAULT_STATE_PATH, revalidate_canonical_catalog
+        state_path = Path(getattr(args, "state_file", str(DEFAULT_STATE_PATH))) if getattr(args, "state_file", None) else DEFAULT_STATE_PATH
+        dry_run = getattr(args, "dry_run", True)
+        threshold = getattr(args, "threshold", 2)
+        source_ids = [args.source] if getattr(args, "source", None) else None
+
         try:
             res = revalidate_canonical_catalog(
                 seed_path=SEED_CATALOG_PATH,
+                snapshot_path=SNAPSHOT_CATALOG_PATH,
+                state_path=state_path,
                 fixtures_dir=fixtures_dir,
                 as_of=as_of,
+                threshold=threshold,
+                apply_updates=(not dry_run),
+                source_ids=source_ids,
             )
         except Exception as err:
             print(f"ERROR al revalidar catálogo canónico: {err}", file=sys.stderr)
             return EXIT_OPERATIONAL_ERROR
 
+        if args.output:
+            out_path = Path(args.output)
+            _assert_not_canonical(out_path, "revalidate --output")
+            try:
+                _atomic_write_json(out_path, res)
+                if not args.json_report:
+                    print(f"Informe de revalidación guardado en: {out_path}")
+            except Exception as err:
+                print(f"ERROR al guardar informe de revalidación: {err}", file=sys.stderr)
+
         if args.json_report:
             print(json.dumps(res, indent=2, ensure_ascii=False))
             return EXIT_OK
 
-        print(f"=== REVALIDACIÓN DE CATÁLOGO CANÓNICO (opportunities.seed.json) ===")
-        print(f"Oportunidades reales evaluadas: {res['totalCanonicalEvaluated']}")
-        print(f"  Confirmadas activas en ATS:    {res['stillActiveCount']}")
-        print(f"  Cambios detectados:            {res['changedCount']}")
-        print(f"  Ausentes / No listadas:        {res['disappearedCount']}")
-        print(f"  Preservadas por fallo de red:  {res['preservedOnErrorCount']}")
-        print(f"Salvaguarda canónica: opportunities.seed.json se mantiene 100% INTACTO.")
+        mode_label = "DRY-RUN (Simulación)" if res.get("dryRun", True) else "APLICACIÓN REAL (Actualización canónica)"
+        print(f"=== REVALIDACIÓN Y CICLO DE VIDA DE CATÁLOGO CANÓNICO (R6-02) ===")
+        print(f"Modo: {mode_label} | Fecha de corte: {res.get('asOf')} | Umbral ausencias: {threshold}")
+        print(f"Inicio: {res.get('timestampStart')} | Fin: {res.get('timestampEnd')}")
+        print(f"\n--- Métricas Globales de Revalidación Canónica ---")
+        print(f"  Fuentes evaluadas:             {res.get('sourcesEvaluated')} (Exitosas: {res.get('sourcesSucceeded')}, Fallidas: {res.get('sourcesFailed')})")
+        print(f"  Oportunidades evaluadas:       {res.get('totalCanonicalEvaluated')}")
+        print(f"  Confirmadas activas en ATS:    {res.get('openConfirmedCount')}")
+        print(f"  Primeras ausencias detectadas: {res.get('firstAbsenceCount')} (Salvaguarda: no cerradas)")
+        print(f"  Segundas ausencias (cierre):   {res.get('secondAbsenceCount')}")
+        print(f"  Cierres explícitos:            {res.get('explicitClosedCount')}")
+        print(f"  Preservadas por fallo de red:  {res.get('temporaryErrorCount')} (Salvaguarda anti-cierre)")
+        print(f"  Fuentes no compatibles:        {res.get('sourceUnsupportedCount')}")
+        print(f"  Pasaron a estado histórico:    {res.get('becameHistoricalCount')}")
+        print(f"  No pudieron verificarse:       {res.get('unverifiableCount')}")
+        print(f"  Validación del catálogo:       {res.get('catalogValidationResult')}")
+
+        print(f"\n--- Salvaguardas de Integridad Canónica ---")
+        if res.get("dryRun", True):
+            print(f"  opportunities.seed.json: 100% INTACTO (Modo dry-run activo)")
+            print(f"  opportunities.json:      100% INTACTO (Modo dry-run activo)")
+        else:
+            print(f"  opportunities.seed.json: Actualizado y validado con Schema 2")
+            print(f"  opportunities.json:      Snapshot regenerado con build_catalog.py")
+        print(f"  Archivo de estado:       '{res.get('statePath')}'")
         return EXIT_OK
 
     source_ids = [args.source] if args.source else None
@@ -899,6 +937,87 @@ def handle_revalidate(args: argparse.Namespace) -> int:
     print(f"  data/opportunities.json:      100% INTACTO (Sin modificaciones)")
     print(f"  Bandeja evaluada:             '{inbox_path}'")
     print(f"  Promoción automática:         DESHABILITADA (Requiere decisión soberana del propietario)")
+
+    return EXIT_OK
+
+
+def handle_autopublish(args: argparse.Namespace) -> int:
+    """Evaluates candidates in staging against 6 mandatory rules and promotes them if approved."""
+    from collector.autopublish import run_autopublication
+
+    try:
+        as_of = _resolve_as_of(args.as_of)
+    except ValueError as err:
+        print(f"ERROR: {err}", file=sys.stderr)
+        return EXIT_OPERATIONAL_ERROR
+
+    inbox_path = Path(args.inbox)
+    seed_path = Path(args.seed)
+    snapshot_path = Path(args.snapshot)
+    sources_path = Path(args.sources)
+
+    dry_run = getattr(args, "dry_run", True)
+    max_promote = getattr(args, "max_promote", None)
+
+    try:
+        report = run_autopublication(
+            inbox_path=inbox_path,
+            seed_path=seed_path,
+            snapshot_path=snapshot_path,
+            sources_path=sources_path,
+            as_of_date=as_of,
+            dry_run=dry_run,
+            max_promote=max_promote,
+        )
+    except FileNotFoundError as err:
+        print(f"ERROR OPERATIVO: {err}", file=sys.stderr)
+        return EXIT_OPERATIONAL_ERROR
+    except Exception as err:
+        print(f"ERROR INESPERADO durante autopublicación: {err}", file=sys.stderr)
+        return EXIT_OPERATIONAL_ERROR
+
+    if args.output:
+        out_path = Path(args.output)
+        _assert_not_canonical(out_path, "autopublish --output")
+        try:
+            _atomic_write_json(out_path, report.to_dict())
+            if not args.json_report:
+                print(f"Informe de autopublicación guardado en: {out_path}")
+        except Exception as err:
+            print(f"ERROR al guardar informe de autopublicación: {err}", file=sys.stderr)
+
+    if args.json_report:
+        print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False))
+        return EXIT_OK
+
+    mode_label = "DRY-RUN (Simulación)" if report.dry_run else "APLICACIÓN REAL (Promoción canónica)"
+    print(f"=== MOTOR DE AUTOPUBLICACIÓN BASADO EN REGLAS (TASK-R6-01) ===")
+    print(f"Modo: {mode_label} | Fecha de corte: {report.as_of}")
+    print(f"Marca temporal: {report.generated_at}")
+    print(f"\n--- Métricas de Evaluación ---")
+    print(f"  Candidatos evaluados:       {report.total_evaluated}")
+    print(f"  Aprobados para publicación: {report.eligible_count}")
+    print(f"  Retenidos en revisión:      {report.retained_count}")
+    print(f"  Oportunidades promovidas:   {report.promoted_count}")
+
+    if report.promoted_opportunity_ids:
+        print(f"  IDs canónicos asignados:    {', '.join(report.promoted_opportunity_ids)}")
+
+    print(f"\n--- Detalle por Candidato ---")
+    for ev in report.evaluations:
+        status_sym = "✓ [APTO]" if ev.decision == "eligible_for_publication" else "✗ [RETENIDO]"
+        print(f"  {status_sym} {ev.candidate_id}: {ev.employer} — {ev.title}")
+        if ev.decision != "eligible_for_publication":
+            for rule_id, rev in ev.rules.items():
+                if not rev.passed:
+                    print(f"      - {rule_id}: {rev.reason}")
+
+    print(f"\n--- Salvaguardas y Estado Canónico ---")
+    if report.dry_run:
+        print(f"  Catálogo canónico: 100% INTACTO (Modo dry-run activo)")
+    else:
+        print(f"  Catálogo canónico: Actualizado ({report.promoted_count} nuevas oportunidades integradas con Schema 2)")
+    print(f"  Bandeja de staging: '{inbox_path}'")
 
     return EXIT_OK
 
@@ -990,6 +1109,21 @@ def build_parser() -> argparse.ArgumentParser:
     p_rev.add_argument("--output", help="Ruta de archivo para guardar el informe de revalidación en JSON")
     p_rev.add_argument("--json-report", action="store_true", help="Emite el informe completo en formato JSON por stdout")
     p_rev.add_argument("--catalog", action="store_true", help="Revalida las oportunidades reales del catálogo canónico")
+    p_rev.add_argument("--state-file", help="Ruta al archivo de estado persistente de revalidaciones")
+    p_rev.add_argument("--apply", dest="dry_run", action="store_false", default=True, help="Aplica los cambios en el catálogo o bandeja (por defecto se ejecuta en dry-run)")
+
+    # Subcommand: autopublish (TASK-R6-01 Deterministic Rules-Based Autopublication Engine)
+    p_pub = subparsers.add_parser("autopublish", help="Evalúa y autopublica candidatos al catálogo canónico según las 6 reglas aprobadas")
+    p_pub.add_argument("--inbox", default=str(DEFAULT_INBOX), help="Bandeja de staging a evaluar")
+    p_pub.add_argument("--seed", default=str(SEED_CATALOG_PATH), help="Ruta a semilla canónica")
+    p_pub.add_argument("--snapshot", default=str(SNAPSHOT_CATALOG_PATH), help="Ruta a snapshot público canónico")
+    p_pub.add_argument("--sources", default=str(SOURCES_REGISTRY_PATH), help="Ruta a registro de fuentes")
+    p_pub.add_argument("--as-of", help="Fecha civil de corte YYYY-MM-DD")
+    p_pub.add_argument("--apply", dest="dry_run", action="store_false", default=True, help="Aplica la promoción al catálogo canónico (por defecto se ejecuta en dry-run)")
+    p_pub.add_argument("--dry-run", dest="dry_run", action="store_true", default=True, help="Modo simulación sin escribir en catálogo ni bandeja (por defecto)")
+    p_pub.add_argument("--max-promote", type=int, default=None, help="Límite máximo de candidatos a promover en esta ejecución")
+    p_pub.add_argument("--output", help="Ruta de archivo para guardar el informe de autopublicación en JSON")
+    p_pub.add_argument("--json-report", action="store_true", help="Emite el informe completo en formato JSON por stdout")
 
     return parser
 
@@ -1014,6 +1148,7 @@ def main(argv: list[str] | None = None) -> int:
         "prepare-review": handle_prepare_review,
         "acquire": handle_acquire,
         "revalidate": handle_revalidate,
+        "autopublish": handle_autopublish,
     }
 
     handler = handlers.get(args.command)

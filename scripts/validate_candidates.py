@@ -20,7 +20,8 @@ DEFAULT_TTL_DAYS = 7
 REVIEW_STATES = {"pending_review", "approved_for_catalog", "rejected"}
 PROPOSED_FIELDS = {
     "title", "employer", "publisher", "externalReference", "applyUrl", "publishedAt", "deadline",
-    "location", "mode", "opportunityType", "salary", "benefits", "requirements",
+    "location", "mode", "opportunityType", "salary", "benefits", "requirements", "contractType",
+    "laborRegime", "laborRegimeCertainty",
 }
 
 

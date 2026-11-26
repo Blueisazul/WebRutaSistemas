@@ -7,7 +7,7 @@ import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from catalog_quality import load_json, validate_payload
+from catalog_quality import load_json, parse_timestamp, validate_payload
 from build_catalog import OUTPUT_PATH, SEED_PATH
 
 
@@ -21,11 +21,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--as-of", help="fecha civil Lima YYYY-MM-DD para validación reproducible")
     args = parser.parse_args(argv)
     try:
-        today = date.fromisoformat(args.as_of) if args.as_of else lima_today()
         seed = load_json(SEED_PATH)
         snapshot = load_json(OUTPUT_PATH)
         if not isinstance(seed, dict) or not isinstance(snapshot, dict):
             raise ValueError("fuente y snapshot deben ser objetos JSON")
+        lima_tz = timezone(timedelta(hours=-5), "America/Lima")
+        if args.as_of:
+            today = date.fromisoformat(args.as_of)
+        elif isinstance(snapshot, dict) and snapshot.get("generatedAt"):
+            parsed_gen = parse_timestamp(snapshot["generatedAt"], "generatedAt")
+            today = parsed_gen.astimezone(lima_tz).date() if parsed_gen else lima_today()
+        else:
+            today = lima_today()
         seed_check = {**seed, "generatedAt": snapshot.get("generatedAt")}
         if seed_check != snapshot:
             print("ERROR: snapshot distinto de la fuente canónica (excepto generatedAt)", file=sys.stderr)

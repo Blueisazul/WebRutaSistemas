@@ -34,6 +34,8 @@
   - **Opción B (Flujo Editorial Estricto):** Mantener la aprobación humana manual mediante `editorialDecision` para cada vacante antes de su promoción a producción.
 - **Impacto:**  
   La Opción A escala el catálogo nacional a cientos de vacantes sin cuellos de botella humanos, manteniendo el principio *fail-closed*.
+- **Estado de la Decisión:** **APROBADA POR EL PROPIETARIO (Opción A) — IMPLEMENTADA Y CERTIFICADA (25 de noviembre de 2026)**.  
+  El propietario autorizó formalmente la Opción A: autopublicación determinista basada en reglas objetivas bajo el principio de *fail-closed*. Se implementó el motor de autopublicación en `collector/autopublish.py`, integrado en `scripts/editorial_cli.py autopublish` y validado exhaustivamente mediante 18 escenarios de prueba automatizados (`tests/test_autopublish.py`). Las 6 reglas obligatorias se evalúan de forma independiente y concurrente; cualquier incumplimiento retiene al candidato en `pending_review` sin alterar el catálogo canónico.
 
 ---
 
@@ -71,3 +73,42 @@
   - **Opción B:** Ocultarlas inmediatamente del catálogo una vez concluida la postulación, mostrándolas solo si el usuario activa un filtro explícito de histórico.
 - **Impacto:**  
   Enriquece la utilidad informativa del catálogo para el estudiante sin inducir a postulaciones extemporáneas.
+
+---
+
+## Decisión 6: Autorización y Términos de Acceso Automatizado a Portales Institucionales de Gob.pe (INDECOPI y Otras Entidades)
+
+- **Contexto:**  
+  En la ejecución de `TASK-R5-01`, el conector `gobpe-convocatorias` interactúa con `oportunidadeslaborales.indecopi.gob.pe`, `www.gob.pe` y `cdn.www.gob.pe`. Si bien las directivas `robots.txt` permiten el rastreo público de publicaciones y documentos, la directiva del proyecto prohíbe interpretar `robots.txt` como una autorización legal o contractual formal de scraping, extracción recurrente o reutilización automatizada.
+- **Alternativas:**
+  - **Opción A (Recomendada - Consulta Periódica de Bajo Impacto con Atribución Oficial):** Autorizar la extracción automatizada regular con límites estrictos de tasa (máximo 10 peticiones por ejecución, demoras mínimas de 2 segundos, metadatos y enlaces directos a la fuente original de Gob.pe sin republicar el contenido íntegro de las bases), fundamentado en la naturaleza pública y legal de las convocatorias del Estado peruano (Ley de Transparencia y Acceso a la Información Pública).
+  - **Opción B (Adquisición Asistida / Semi-Automática):** Mantener el conector únicamente para ejecuciones locales bajo demanda operadas por el equipo editorial, sin programar ejecuciones en pipelines automáticos de CI/CD.
+  - **Opción C (Vía Institucional Exclusiva):** Suspender la extracción automatizada de entidades de Gob.pe hasta obtener convenios o pronunciamientos formales de datos abiertos institucionales.
+- **Impacto:**  
+  Brinda certeza jurídica y operativa a la fase R5 de cobertura nacional de fuentes públicas.
+
+---
+
+## Decisión 7: Modelo de Gobernanza y Uso de Plataformas Secundarias (Practicas.pe y Convocatorias de Trabajo) como Radares de Descubrimiento
+
+- **Contexto:**  
+  La investigación técnica de `TASK-R5-04-01` constató que Practicas.pe y Convocatorias de Trabajo (operadas por IDEADS) contienen enlaces directos hacia bases oficiales de decenas de instituciones públicas que Velora no monitorea directamente (SMV, SEDAPAL, UGELs, FONDEPES, JUNTOS, etc.). No obstante, los términos de uso de IDEADS establecen derechos sobre sus portales y eximen responsabilidad, instando a los usuarios a consultar las fuentes primarias.
+- **Alternativas:**
+  - **Opción A (Modelo B - Descubrimiento Asistido - Recomendada):** Autorizar el uso de estas plataformas **exclusivamente como radares de alerta temprana**. El sistema solo extrae el código del proceso y el hipervínculo a la fuente oficial primaria (`gob.pe`, intranets estatales, bases PDF). Se prohíbe terminantemente copiar descripciones o textos de IDEADS, y ninguna oportunidad se publica en Velora sin haber verificado vigencia y requisitos directamente en la fuente oficial.
+  - **Opción B (Modelo A - Radar Automatizado Directo):** Construir conectores de ingesta directa que publiquen oportunidades a partir de los datos sintetizados por IDEADS, asumiendo el riesgo de desactualización y posibles objeciones sobre derechos de autor de sus resúmenes.
+  - **Opción C (Modelo C - Descarte Total):** Prohibir cualquier interacción con agregadores secundarios y depender únicamente de conectores punto a punto desarrollados para cada institución estatal o ATS privado.
+- **Impacto:**  
+  La Opción A multiplica la cobertura nacional de convocatorias públicas del Estado de forma segura y ética, preservando el principio de fail-closed y veracidad absoluta de Velora.
+
+---
+
+## Decisión 8: Adopción del Ecosistema Multitenant HiringRoom para Cobertura Corporativa Privada en Perú
+
+- **Contexto:**  
+  La auditoría de canales ATS en el Perú (`TASK-R5-03`) evidenció que las principales consultoras de tecnología, proveedores de infraestructura y firmas de banca TI que contratan en el país (Stefanini IT Solutions Perú, Canvia, MyApps Soluciones, Efitec Corporation) utilizan la plataforma multitenant **HiringRoom** (`*.hiringroom.com`) en lugar de portales globales como Greenhouse o Lever. Asimismo, empresas que utilizan portales SPA reactivos (Belcorp con Rankmi/Pandapé) o intermediarios cerrados (BCP/Yape con Krowdy) no ofrecen endpoints públicos desatendidos sin navegador headless.
+- **Alternativas:**
+  - **Opción A (Recomendada - Generalización del Conector `hiringroom-board`):** Consolidar el conector nativo `hiringroom-board` en `collector/pe_connectors.py` como la vía estándar de adquisición para el ecosistema corporativo privado peruano. Operar bajo límites estrictos de tasa (`minDelayMs: 1500`, 10 a 15 peticiones por corrida), extraer metadatos factuales indispensables (`metadata_only_approved`) y clasificar fuentes en `pending_review` bajo el principio de *fail-closed* si requieren clientes reactivos complejos.
+  - **Opción B (Dependencia Exclusiva de ATS Globales):** Restringir la adquisición privada únicamente a Greenhouse y Lever, limitando severamente la cobertura de oportunidades locales peruanas a empresas multinacionales con presencia en Lima.
+  - **Opción C (Desarrollo de Raspadores Específicos por Empresa):** Construir un scraper personalizado para cada portal corporativo privado, incrementando drásticamente el costo de mantenimiento técnico.
+- **Impacto:**  
+  La Opción A maximiza la captura de oportunidades locales reales con mínimo código adicional, cero librerías externas y pleno respeto de las directivas de acceso ético.

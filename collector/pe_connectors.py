@@ -12,6 +12,7 @@ Produces Candidate Schema 2 compliant records with full field evidence.
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import re
 import ssl
@@ -398,8 +399,160 @@ def fetch_defensoria_cas(
 
 
 # =============================================================================
-# 3. UTP HiringRoom Campus Adapter (HTML + Schema.org JobPosting)
+# 3. HiringRoom Multi-Tenant Adapter (HTML, OpenGraph & Schema.org JobPosting)
 # =============================================================================
+
+def _clean_hiringroom_title(raw_title: str) -> str:
+    """Cleans common prefixes and employer suffixes from HiringRoom vacancy titles."""
+    t = raw_title.strip()
+    t = re.sub(r"^Oportunidad\s+de\s+Empleo:\s*", "", t, flags=re.I)
+    t = re.sub(r"^Nuevas\s+oportunidades\s+de\s+empleo:\s*", "", t, flags=re.I)
+    t = re.sub(r"\s+en\s+[A-Z0-9\s.,&-]+$", "", t, flags=re.I)
+    t = re.sub(r"^[\s🚀🔥*•\-]+", "", t).strip()
+    t = re.sub(r"[\s🚀🔥*•\-]+$", "", t).strip()
+    return re.sub(r"\s+", " ", t).strip()
+
+
+def _parse_hiringroom_vacancy_html(
+    source: dict,
+    html_content: str,
+    *,
+    detail_url: str,
+    captured_at: str | None = None,
+) -> dict | None:
+    """Parses a HiringRoom vacancy detail page when JSON-LD is absent, extracting OpenGraph and DOM metadata."""
+    if not html_content or not isinstance(html_content, str):
+        return None
+
+    # Title extraction: og:title -> <title>
+    og_title_m = re.search(r'<meta[^>]*property=[\'"]og:title[\'"][^>]*content=[\'"]([^\'"]+)[\'"]', html_content, re.I)
+    if og_title_m:
+        raw_title = html.unescape(og_title_m.group(1))
+    else:
+        title_tag_m = re.search(r"<title>(.*?)</title>", html_content, re.I | re.DOTALL)
+        raw_title = html.unescape(title_tag_m.group(1)) if title_tag_m else ""
+
+    clean_title = _clean_hiringroom_title(raw_title)
+    if not clean_title or clean_title.lower() in ("base general", "oportunidad de empleo", "empleo", "n/a"):
+        # Not a concrete position
+        return None
+
+    source_id = str(source.get("id", "hiringroom-board"))
+    employer = str(source.get("employer") or "Empresa Confidencial")
+    publisher = str(source.get("publisher") or f"Portal de Empleo {employer} (HiringRoom)")
+    captured_at_str = captured_at or _current_timestamp()
+
+    # Description extraction: og:description -> clean text
+    desc_m = re.search(r'<meta[^>]*property=[\'"]og:description[\'"][^>]*content=[\'"]([^\'"]+)[\'"]', html_content, re.I)
+    if desc_m:
+        raw_desc = html.unescape(desc_m.group(1))
+        clean_desc = re.sub(r"<[^>]+>", " ", raw_desc)
+        clean_desc = re.sub(r"\s+", " ", clean_desc).strip()
+    else:
+        clean_desc = ""
+
+    # Location extraction: <span class="hr-Location-pin"></span> or hero container
+    loc_m = re.search(r'hr-Location-pin[^>]*></span>\s*([^<\r\n]+)', html_content, re.I)
+    if not loc_m:
+        loc_m = re.search(r'title=[\'"]([^\'"]*(?:Lima|Peru|Per[úu])[^\'"]*)[\'"]', html_content, re.I)
+
+    raw_loc = loc_m.group(1).strip() if loc_m else ""
+    if any(k in raw_loc.lower() for k in ("peru", "perú", "lima")):
+        loc_l = raw_loc.lower()
+        if "san isidro" in loc_l:
+            location = "San Isidro, Lima, Perú"
+        elif "surquillo" in loc_l:
+            location = "Surquillo, Lima, Perú"
+        elif "miraflores" in loc_l:
+            location = "Miraflores, Lima, Perú"
+        elif "cercado" in loc_l:
+            location = "Lima, Perú"
+        elif "arequipa" in loc_l:
+            location = "Arequipa, Perú"
+        elif "trujillo" in loc_l or "libertad" in loc_l:
+            location = "La Libertad, Perú"
+        else:
+            location = "Lima, Perú"
+    else:
+        location = raw_loc if raw_loc else "Lima, Perú"
+
+    # Modality extraction
+    if re.search(r'\b(remoto|remote)\b', clean_title, re.I):
+        mode = "Remoto"
+    elif re.search(r'\b(h[íi]brido|hybrid)\b', clean_title, re.I):
+        mode = "Híbrido"
+    elif re.search(r'\b(presencial|on-site|onsite)\b', clean_title, re.I):
+        mode = "Presencial"
+    elif re.search(r'\b(h[íi]brido|hybrid)\b', html_content, re.I):
+        mode = "Híbrido"
+    else:
+        # Check specific dynamic modality span: <span class="... hr-Remote/hr-Company/hrc-black"></span>[Text]
+        mod_span_m = re.search(r'class="[^"]*(?:hr-Remote|hr-Company|hrc-black)[^"]*"[^>]*>\s*</span>\s*([a-zA-ZáéíóúÁÉÍÓÚ]+)', html_content, re.I)
+        if mod_span_m:
+            span_val = mod_span_m.group(1).strip().lower()
+            if "remot" in span_val:
+                mode = "Remoto"
+            elif "hibrid" in span_val or "híbrid" in span_val:
+                mode = "Híbrido"
+            elif "presenc" in span_val or "company" in span_val:
+                mode = "Presencial"
+            else:
+                mode = "No informado"
+        else:
+            # Check class directly in span
+            if re.search(r'class="[^"]*\bhr-Remote\b[^"]*"', html_content):
+                mode = "Remoto"
+            elif re.search(r'class="[^"]*\bhr-Company\b[^"]*"', html_content):
+                mode = "Presencial"
+            else:
+                mode = "No informado"
+
+    # Opportunity type
+    lower_comb = f"{clean_title} {clean_desc}".lower()
+    if any(k in lower_comb for k in ("prácticas", "practicas", "practicante", "intern")):
+        opp_type = "Prácticas"
+    else:
+        opp_type = "Empleo"
+
+    # Vacancy URL and ID extraction
+    og_url_m = re.search(r'<meta[^>]*property=[\'"]og:url[\'"][^>]*content=[\'"]([^\'"]+)[\'"]', html_content, re.I)
+    effective_detail_url = og_url_m.group(1).strip() if og_url_m else detail_url
+
+    v_match = re.search(r"/jobs/get_vacancy/([a-f0-9]{24})", effective_detail_url)
+    if not v_match:
+        v_match = re.search(r"/jobs/get_vacancy/([a-f0-9]{24})", html_content)
+
+    if v_match:
+        vacancy_id = v_match.group(1)
+        if not effective_detail_url or "/jobs/get_vacancy/" not in effective_detail_url:
+            effective_detail_url = urljoin(effective_detail_url or "https://hiringroom.com/", f"/jobs/get_vacancy/{vacancy_id}")
+    else:
+        vacancy_id = hashlib.sha1(effective_detail_url.encode("utf-8")).hexdigest()[:16]
+
+    candidate_id = f"CAND-{source_id}-{vacancy_id}"
+    ext_ref = f"{source_id.upper()}-{vacancy_id}"
+
+    proposed = _empty_proposed()
+    proposed["title"] = clean_title
+    proposed["employer"] = employer
+    proposed["publisher"] = publisher
+    proposed["externalReference"] = ext_ref
+    proposed["applyUrl"] = effective_detail_url
+    proposed["location"] = location
+    proposed["mode"] = mode
+    proposed["opportunityType"] = opp_type
+    proposed["requirements"] = clean_desc[:500] if clean_desc else f"Oportunidad laboral en {employer} publicada en HiringRoom."
+
+    cand_record = _build_candidate_record(
+        candidate_id=candidate_id,
+        source_id=source_id,
+        source_url=effective_detail_url,
+        captured_at=captured_at_str,
+        proposed=proposed,
+    )
+    cand_record["editorialReview"]["decisionNote"] = f"Vacante publicada en portal HiringRoom de {employer}."
+    return cand_record
+
 
 def transform_hiringroom_html(
     source: dict,
@@ -409,10 +562,10 @@ def transform_hiringroom_html(
     captured_at: str | None = None,
     detail_fetcher: callable | None = None,
 ) -> list[dict]:
-    """Transforms UTP HiringRoom Campus portal HTML into Candidate Schema 2 records."""
-    source_id = str(source.get("id", "utp-hiringroom-campus"))
+    """Transforms HiringRoom portal HTML into Candidate Schema 2 records."""
+    source_id = str(source.get("id", "hiringroom-board"))
     captured_at_str = captured_at or _current_timestamp()
-    effective_url = source_url or source.get("officialUrl") or "https://utp.hiringroomcampus.com/"
+    effective_url = source_url or source.get("officialUrl") or "https://hiringroom.com/"
 
     candidates: list[dict] = []
 
@@ -426,13 +579,32 @@ def transform_hiringroom_html(
     if direct_candidates:
         candidates.extend(direct_candidates)
 
-    # 2. Find job links
-    job_hrefs = re.findall(r"href=[\'\"](https://utp\.hiringroomcampus\.com/jobs/[a-zA-Z0-9_-]+)[\'\"]", html_content)
-    unique_hrefs = sorted(list(set(job_hrefs)))
+    # 2. If no direct candidates from JSON-LD, try parsing as single vacancy detail page
+    if not candidates:
+        single_cand = _parse_hiringroom_vacancy_html(
+            source,
+            html_content,
+            detail_url=effective_url,
+            captured_at=captured_at_str,
+        )
+        if single_cand:
+            candidates.append(single_cand)
+
+    # 3. Find job links on board pages
+    v_ids = re.findall(r"/jobs/get_vacancy/([a-f0-9]{24})", html_content)
+    raw_hrefs = [f"/jobs/get_vacancy/{vid}" for vid in v_ids]
+    if not raw_hrefs:
+        raw_hrefs = re.findall(r"href=[\'\"]([^'\"<>]*?/jobs/[a-zA-Z0-9_-]+)[\'\"]", html_content)
+
+    job_urls: list[str] = []
+    for h in raw_hrefs:
+        full = urljoin(effective_url, h)
+        if full not in job_urls and full != effective_url:
+            job_urls.append(full)
 
     # If detail_fetcher is provided, fetch job detail pages
-    for href in unique_hrefs:
-        if detail_fetcher:
+    if detail_fetcher:
+        for href in job_urls:
             try:
                 detail_html = detail_fetcher(href)
                 cands = extract_candidates_from_html(
@@ -441,6 +613,15 @@ def transform_hiringroom_html(
                     source_url=href,
                     captured_at=captured_at_str,
                 )
+                if not cands:
+                    cand = _parse_hiringroom_vacancy_html(
+                        source,
+                        detail_html,
+                        detail_url=href,
+                        captured_at=captured_at_str,
+                    )
+                    if cand:
+                        cands = [cand]
                 candidates.extend(cands)
             except Exception:
                 continue
@@ -454,29 +635,282 @@ def fetch_hiringroom_board(
     request_count: int = 0,
     captured_at: str | None = None,
 ) -> list[dict]:
-    """Fetches UTP HiringRoom Campus board and parses job detail pages."""
-    official_url = source.get("officialUrl") or "https://utp.hiringroomcampus.com/"
-    html = _fetch_html(official_url)
+    """Fetches HiringRoom board and parses job detail pages."""
+    official_url = source.get("officialUrl") or "https://hiringroom.com/"
+    html_content = _fetch_html(official_url, timeout=15)
+    captured_at_str = captured_at or _current_timestamp()
 
-    # Use _fetch_html as detail_fetcher (limited to first 5 jobs to stay within budget)
-    def detail_fetcher(url: str) -> str:
-        return _fetch_html(url, timeout=10)
+    max_reqs = int(source.get("maxRequestsPerRun") or 10)
 
-    # Find unique job links
-    job_hrefs = sorted(list(set(re.findall(r"href=[\'\"](https://utp\.hiringroomcampus\.com/jobs/[a-zA-Z0-9_-]+)[\'\"]", html))))[:5]
-    
+    # Find unique vacancy links
+    v_ids = sorted(list(set(re.findall(r"/jobs/get_vacancy/([a-f0-9]{24})", html_content))))
+    if v_ids:
+        job_urls = [urljoin(official_url, f"/jobs/get_vacancy/{vid}") for vid in v_ids][:max_reqs]
+    else:
+        raw_hrefs = sorted(list(set(re.findall(r"href=[\'\"]([^'\"<>]*?/jobs/[a-zA-Z0-9_-]+)[\'\"]", html_content))))
+        job_urls = [urljoin(official_url, h) for h in raw_hrefs if urljoin(official_url, h) != official_url][:max_reqs]
+
     candidates: list[dict] = []
-    for href in job_hrefs:
+    for href in job_urls:
         try:
-            detail_html = detail_fetcher(href)
+            detail_html = _fetch_html(href, timeout=10)
             cands = extract_candidates_from_html(
                 source,
                 detail_html,
                 source_url=href,
-                captured_at=captured_at,
+                captured_at=captured_at_str,
             )
+            if not cands:
+                cand = _parse_hiringroom_vacancy_html(
+                    source,
+                    detail_html,
+                    detail_url=href,
+                    captured_at=captured_at_str,
+                )
+                if cand:
+                    cands = [cand]
             candidates.extend(cands)
         except Exception:
             continue
 
     return candidates
+
+
+# =============================================================================
+# 4. Gob.pe Convocatorias Adapter (INDECOPI & Peruvian State Entities)
+# =============================================================================
+
+def transform_gobpe_indecopi_html(
+    source: dict,
+    html_content: str,
+    *,
+    source_url: str | None = None,
+    captured_at: str | None = None,
+    detail_fetcher: callable | None = None,
+    pdf_fetcher: callable | None = None,
+    include_closed: bool = True,
+    opp_type_override: str | None = None,
+) -> list[dict]:
+    """Transforms Gob.pe / INDECOPI convocatorias table into Candidate Schema 2 records."""
+    source_id = str(source.get("id", "gobpe-indecopi-convocatorias"))
+    employer = str(source.get("employer") or "INDECOPI")
+    publisher = str(source.get("publisher") or "Instituto Nacional de Defensa de la Competencia y de la Protección de la Propiedad Intelectual (INDECOPI)")
+    effective_url = source_url or source.get("officialUrl") or "https://oportunidadeslaborales.indecopi.gob.pe/convocatorias-cas/"
+    captured_at_str = captured_at or _current_timestamp()
+
+    # Extract table rows
+    rows = re.findall(r"<tr[^>]*>(.*?)</tr>", html_content, re.DOTALL | re.IGNORECASE)
+    candidates: list[dict] = []
+
+    for r in rows:
+        cells = re.findall(r"<td[^>]*>(.*?)</td>", r, re.DOTALL | re.IGNORECASE)
+        if len(cells) < 6:
+            continue
+
+        clean_cells = [re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", c)).strip() for c in cells]
+        proceso = clean_cells[0]
+        if not re.search(r"\d{2,4}-\d{4}", proceso):
+            continue
+
+        puesto = clean_cells[1]
+        vacantes = clean_cells[2]
+        unidad = clean_cells[3]
+        gobpe_links = re.findall(r"href=[\'\"]([^\'\"]+)[\'\"]", cells[4], re.IGNORECASE)
+        gobpe_pub_url = urljoin(effective_url, gobpe_links[0]) if gobpe_links else effective_url
+        estado = clean_cells[5]
+        postulacion = clean_cells[6] if len(clean_cells) > 6 else ""
+
+        is_closed = any(k in estado.lower() or k in postulacion.lower() for k in ("finalizada", "concluida", "cancelada", "desierta", "concluidas"))
+        if is_closed and not include_closed:
+            continue
+
+        # Opportunity type determination
+        if opp_type_override:
+            opp_type = opp_type_override
+        elif any(k in f"{puesto} {effective_url} {proceso}".lower() for k in ("prac", "práctica", "practicante")):
+            opp_type = "Prácticas"
+        else:
+            opp_type = "Contratación Administrativa de Servicios (CAS)"
+
+        # Title formatting: include unidad if informative and not in puesto
+        if unidad and unidad.upper() not in puesto.upper():
+            title = f"{puesto} ({unidad})"
+        else:
+            title = puesto
+        title = re.sub(r"\s+", " ", title).strip()
+
+        # Location mapping (detect regional offices or default to Lima)
+        u_lower = unidad.lower()
+        if "arequipa" in u_lower:
+            location = "Arequipa, Perú"
+        elif "cajamarca" in u_lower:
+            location = "Cajamarca, Perú"
+        elif "chimbote" in u_lower:
+            location = "Chimbote, Perú"
+        elif "pasco" in u_lower:
+            location = "Pasco, Perú"
+        elif "san martin" in u_lower or "tarapoto" in u_lower:
+            location = "San Martín, Perú"
+        elif "cusco" in u_lower:
+            location = "Cusco, Perú"
+        elif "piura" in u_lower:
+            location = "Piura, Perú"
+        elif "lambayeque" in u_lower or "chiclayo" in u_lower:
+            location = "Lambayeque, Perú"
+        elif "huancayo" in u_lower or "junin" in u_lower or "junín" in u_lower:
+            location = "Junín, Perú"
+        elif "la libertad" in u_lower or "trujillo" in u_lower:
+            location = "La Libertad, Perú"
+        else:
+            location = "Lima, Perú"
+
+        type_slug = "prac" if opp_type == "Prácticas" else "cas"
+        proceso_slug = re.sub(r"[^a-zA-Z0-9]+", "-", proceso).strip("-").lower()
+        candidate_id = f"CAND-{source_id}-{type_slug}-{proceso_slug}"
+        ext_ref = f"INDECOPI-{type_slug.upper()}-{proceso}"
+
+        proposed = _empty_proposed()
+        proposed["title"] = title
+        proposed["employer"] = employer
+        proposed["publisher"] = publisher
+        proposed["externalReference"] = ext_ref
+        proposed["applyUrl"] = "https://oportunidadeslaborales.indecopi.gob.pe/"
+        proposed["location"] = location
+        proposed["mode"] = "No informado"
+        proposed["opportunityType"] = opp_type
+        proposed["requirements"] = f"Bases oficiales publicadas en Gob.pe para {puesto} en {unidad}."
+
+        # Parse deadline date from postulation string (e.g. "Podrás postular el 4/12/2026")
+        d_match = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", postulacion)
+        if d_match:
+            d_day, d_month, d_year = d_match.groups()
+            proposed["deadline"] = f"{d_year}-{int(d_month):02d}-{int(d_day):02d}"
+            proposed["publishedAt"] = f"{d_year}-01-15"
+        else:
+            y_m = re.search(r"-(\d{4})", proceso)
+            if y_m:
+                proposed["publishedAt"] = f"{y_m.group(1)}-01-15"
+
+        # Optional detail page / PDF bases inspection
+        bases_pdf_url = None
+        if detail_fetcher and gobpe_pub_url.startswith("https://www.gob.pe/"):
+            try:
+                detail_html = detail_fetcher(gobpe_pub_url)
+                if detail_html:
+                    pdf_links = re.findall(r"href=[\'\"]([^\'\"]+\.pdf[^\'\"]*)[\'\"]", detail_html, re.IGNORECASE)
+                    for pl in pdf_links:
+                        full_pl = urljoin(gobpe_pub_url, pl)
+                        if "cdn.www.gob.pe" in full_pl and ("informacion" in full_pl.lower() or "perfil" in full_pl.lower() or "base" in full_pl.lower()):
+                            bases_pdf_url = full_pl
+                            break
+                        elif not bases_pdf_url and "cdn.www.gob.pe" in full_pl:
+                            bases_pdf_url = full_pl
+            except Exception:
+                pass
+
+        if bases_pdf_url and pdf_fetcher:
+            try:
+                pdf_text = pdf_fetcher(bases_pdf_url)
+                if pdf_text:
+                    # Look for salary/subvención
+                    sal_m = re.search(r"(?:remuneraci[oó]n|subvenci[oó]n|pago)[^0-9]*?(S/\.?\s*[0-9,]+(?:\.[0-9]{2})?)", pdf_text, re.IGNORECASE)
+                    if not sal_m:
+                        sal_m = re.search(r"(S/\.?\s*[0-9,]+(?:\.[0-9]{2})?)", pdf_text)
+                    if sal_m:
+                        proposed["salary"] = re.sub(r"\s+", "", sal_m.group(1))
+
+                    # Look for degree/education
+                    acad_m = re.search(r"(?:formaci[oó]n acad[eé]mica|grado acad[eé]mico|perfil)[^:]*?:\s*([^\n\r.]+)", pdf_text, re.IGNORECASE)
+                    if acad_m:
+                        proposed["requirements"] = acad_m.group(1).strip()
+            except Exception:
+                pass
+
+        cand_record = _build_candidate_record(
+            candidate_id=candidate_id,
+            source_id=source_id,
+            source_url=bases_pdf_url or gobpe_pub_url,
+            captured_at=captured_at_str,
+            proposed=proposed,
+        )
+
+        note_parts = [f"Proceso {proceso}"]
+        if estado:
+            note_parts.append(f"estado: {estado}")
+        if postulacion:
+            note_parts.append(postulacion)
+        cand_record["editorialReview"]["decisionNote"] = " | ".join(note_parts)
+
+        candidates.append(cand_record)
+
+    return candidates
+
+
+def fetch_gobpe_convocatorias(
+    source: dict,
+    *,
+    request_count: int = 0,
+    captured_at: str | None = None,
+    include_closed: bool = True,
+    max_details: int = 5,
+) -> list[dict]:
+    """Fetches official convocatorias published by INDECOPI on Gob.pe."""
+    official_url = source.get("officialUrl") or "https://oportunidadeslaborales.indecopi.gob.pe/convocatorias-cas/"
+    practicas_url = source.get("practicasUrl") or "https://oportunidadeslaborales.indecopi.gob.pe/convocatorias-practicantes/"
+
+    candidates: list[dict] = []
+    details_fetched = 0
+
+    def detail_fetcher(url: str) -> str:
+        nonlocal details_fetched
+        if details_fetched >= max_details:
+            return ""
+        details_fetched += 1
+        return _fetch_html(url, timeout=10)
+
+    def pdf_fetcher(url: str) -> str:
+        try:
+            req = Request(url, headers={"User-Agent": "Mozilla/5.0"}, method="GET")
+            opener = PermissiveHttpsOpener.get_opener()
+            with opener.open(req, timeout=10) as resp:
+                pdf_bytes = resp.read(MAX_RESPONSE_BYTES)
+                return extract_text_from_pdf_bytes(pdf_bytes)
+        except Exception:
+            return ""
+
+    # 1. Fetch CAS page
+    try:
+        html_cas = _fetch_html(official_url, timeout=15)
+        cands_cas = transform_gobpe_indecopi_html(
+            source,
+            html_cas,
+            source_url=official_url,
+            captured_at=captured_at,
+            detail_fetcher=detail_fetcher,
+            pdf_fetcher=pdf_fetcher,
+            include_closed=include_closed,
+            opp_type_override="Contratación Administrativa de Servicios (CAS)",
+        )
+        candidates.extend(cands_cas)
+    except Exception:
+        pass
+
+    # 2. Fetch Prácticas page
+    try:
+        html_prac = _fetch_html(practicas_url, timeout=15)
+        cands_prac = transform_gobpe_indecopi_html(
+            source,
+            html_prac,
+            source_url=practicas_url,
+            captured_at=captured_at,
+            detail_fetcher=detail_fetcher,
+            pdf_fetcher=pdf_fetcher,
+            include_closed=include_closed,
+            opp_type_override="Prácticas",
+        )
+        candidates.extend(cands_prac)
+    except Exception:
+        pass
+
+    return candidates
+

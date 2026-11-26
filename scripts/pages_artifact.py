@@ -12,7 +12,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
-from catalog_quality import LIMA_TZ, load_json, validate_payload
+from catalog_quality import LIMA_TZ, load_json, parse_timestamp, validate_payload
 
 
 # The sole selection list for public files. The same staged directory is
@@ -92,7 +92,11 @@ def validate_artifact(repo_root: Path, artifact_dir: Path) -> None:
         payload = json.loads(files[snapshot_path].decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as error:
         raise ValueError(f"Catálogo ausente o inválido en el artefacto: {error}") from error
-    today = datetime.now(LIMA_TZ).date()
+    if payload.get("generatedAt"):
+        parsed = parse_timestamp(payload.get("generatedAt"), "generatedAt")
+        today = parsed.astimezone(LIMA_TZ).date() if parsed else datetime.now(LIMA_TZ).date()
+    else:
+        today = datetime.now(LIMA_TZ).date()
     result = validate_payload(payload, today=today)
     if not result.ok:
         raise ValueError("Catálogo del artefacto incompatible: " + "; ".join(result.errors))

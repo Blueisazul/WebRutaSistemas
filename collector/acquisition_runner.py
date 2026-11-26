@@ -28,9 +28,11 @@ from collector.ats_connectors import (
 )
 from collector.pe_connectors import (
     fetch_defensoria_cas,
+    fetch_gobpe_convocatorias,
     fetch_hiringroom_board,
     fetch_ositran_convocatorias,
     transform_defensoria_html,
+    transform_gobpe_indecopi_html,
     transform_hiringroom_html,
     transform_ositran_html,
 )
@@ -309,6 +311,7 @@ def run_pilot_acquisition(
                 "ositran-portal",
                 "defensoria-cas",
                 "hiringroom-board",
+                "gobpe-convocatorias",
             )
         ]
 
@@ -359,6 +362,8 @@ def run_pilot_acquisition(
                         fixture_file = fixtures_dir / "defensoria_sample.html"
                     elif connector == "hiringroom-board":
                         fixture_file = fixtures_dir / "hiringroom_sample.html"
+                    elif connector == "gobpe-convocatorias":
+                        fixture_file = fixtures_dir / "gobpe-indecopi-convocatorias.html"
 
                 if fixture_file.exists():
                     if connector == "greenhouse-job-board":
@@ -396,6 +401,13 @@ def run_pilot_acquisition(
                             html_text,
                             captured_at=captured_at_str,
                         )
+                    elif connector == "gobpe-convocatorias":
+                        html_text = fixture_file.read_text(encoding="utf-8")
+                        raw_candidates = transform_gobpe_indecopi_html(
+                            source,
+                            html_text,
+                            captured_at=captured_at_str,
+                        )
                     fixture_loaded = True
 
             # If no fixture loaded, execute real fetch
@@ -426,6 +438,12 @@ def run_pilot_acquisition(
                     )
                 elif connector == "hiringroom-board":
                     raw_candidates = fetch_hiringroom_board(
+                        source,
+                        request_count=0,
+                        captured_at=captured_at_str,
+                    )
+                elif connector == "gobpe-convocatorias":
+                    raw_candidates = fetch_gobpe_convocatorias(
                         source,
                         request_count=0,
                         captured_at=captured_at_str,

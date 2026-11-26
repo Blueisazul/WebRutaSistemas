@@ -31,6 +31,7 @@ const filters = {
   level: document.querySelector('#level'),
   salary: document.querySelector('#salary-filter'),
   risk: document.querySelector('#risk-filter'),
+  regime: document.querySelector('#regime-filter'),
   history: document.querySelector('#include-history'),
 };
 let toastTimer;
@@ -377,6 +378,7 @@ function renderCard(job) {
         <!-- Etiquetas -->
         <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
           ${modeTag(job)}
+          ${regimeTag(job)}
 
           <span class="inline-flex items-center rounded-md bg-surfaceRaised px-2 py-1 text-[10px] font-medium text-brandDark">
             ${escapeHTML(familyLabel)}
@@ -597,7 +599,9 @@ function renderEmployerAssessment(job) {
 
 function lucideIcon(name, className = 'w-5 h-5') {
   const icons = {
-    'badge-check': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}" aria-hidden="true"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m16 9-5.5 5.5L8 12"/></svg>`, building: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>',
+    'badge-check': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}" aria-hidden="true"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m16 9-5.5 5.5L8 12"/></svg>`,
+    building: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>',
+    briefcase: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
     'triangle-alert': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`,
     monitor: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>',
     pin: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="' + className + '" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
@@ -747,6 +751,14 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
       value: escapeHTML(contractDuration),
     });
   }
+
+  const regimeKey = getJobLaborRegime(job);
+  const regimeDef = REGIME_DEFINITIONS[regimeKey] || REGIME_DEFINITIONS.UNSPECIFIED;
+  summaryCards.push({
+    icon: 'briefcase',
+    label: 'Régimen y modalidad',
+    value: escapeHTML(regimeDef.label) + (job.laborRegimeCertainty === 'EXPLICIT_EVIDENCE' ? ' (Explícito)' : ''),
+  });
 
   if (job.deadline && isCivilDate(job.deadline)) {
     summaryCards.push({
@@ -960,6 +972,46 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
           ${formatStructuredList(job.benefits)}
         </div>
       ` : ''}
+    </section>
+
+    <!-- 5. Marco Normativo y Régimen Laboral -->
+    <section class="labor-regime-section bg-white hover:border-stone-300 rounded-xl p-4 shadow-xs mt-6" aria-label="Régimen contractual y marco normativo">
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border ${regimeDef.badgeClass}">
+          ${escapeHTML(regimeDef.label)}
+        </span>
+        <span class="text-xs text-stone-500 font-medium">· ${escapeHTML(regimeDef.legalFramework)}</span>
+      </div>
+
+      <h3 class="text-xs font-bold uppercase tracking-wider text-stone-700 mb-3">Régimen Contractual y Marco Normativo</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-stone-700">
+        <div class="rounded-lg bg-stone-50 p-3 border border-stone-200">
+          <p class="font-semibold text-stone-900 mb-1">Naturaleza jurídica:</p>
+          <p class="leading-relaxed text-stone-600">${escapeHTML(regimeDef.nature)}</p>
+        </div>
+        <div class="rounded-lg bg-stone-50 p-3 border border-stone-200">
+          <p class="font-semibold text-stone-900 mb-1">Jornada y tiempo de trabajo:</p>
+          <p class="leading-relaxed text-stone-600">${escapeHTML(regimeDef.maxWorkingHours)}</p>
+        </div>
+        <div class="rounded-lg bg-stone-50 p-3 border border-stone-200">
+          <p class="font-semibold text-stone-900 mb-1">Subvención / Remuneración:</p>
+          <p class="leading-relaxed text-stone-600">${escapeHTML(regimeDef.compensation)}</p>
+        </div>
+        <div class="rounded-lg bg-stone-50 p-3 border border-stone-200">
+          <p class="font-semibold text-stone-900 mb-1">Garantías y derechos principales:</p>
+          <p class="leading-relaxed text-stone-600">${escapeHTML(regimeDef.keyRights)}</p>
+        </div>
+      </div>
+
+      <div class="mt-3 rounded-lg bg-amber-50/80 p-3 border border-amber-200 text-xs text-amber-900">
+        <p class="font-semibold mb-0.5">Cautelas y consideraciones:</p>
+        <p class="leading-relaxed">${escapeHTML(regimeDef.cautions)}</p>
+      </div>
+
+      <p class="mt-3 text-[11px] text-stone-500 italic">
+        Nota orientativa: Información resumida para orientación profesional y formativa con base en la normativa peruana aplicable. No constituye asesoría legal individual ni sustituye las bases específicas de la convocatoria.
+      </p>
     </section>
 
     <!-- Verificación y procedencia -->
@@ -1179,6 +1231,10 @@ function comparisonRawValue(job, field) {
   if (field === 'eligibility') {
     return formatLocationEligibility(job);
   }
+  if (field === 'regime') {
+    return getJobLaborRegime(job);
+  }
+
   if (field === 'salary') {
     return knownValue(job.salary) ? job.salary.trim() : '';
   }
@@ -1195,6 +1251,15 @@ function isComparisonRowDifferent(jobA, jobB, field) {
 }
 
 function renderComparisonCell(job, field) {
+  if (field === 'regime') {
+    const regimeKey = getJobLaborRegime(job);
+    const defn = REGIME_DEFINITIONS[regimeKey] || REGIME_DEFINITIONS.UNSPECIFIED;
+    return `<div>
+      <span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold border ${defn.badgeClass}">${escapeHTML(defn.label)}</span>
+      <p class="text-[11px] text-stone-500 mt-1">${escapeHTML(defn.legalFramework)}</p>
+    </div>`;
+  }
+
   if (field === 'salary') {
     if (knownValue(job.salary)) {
       return `<div class="font-bold text-stone-900">${escapeHTML(job.salary)}</div>${job.salaryNote ? `<p class="text-[11px] text-stone-500 mt-1 leading-snug">${escapeHTML(job.salaryNote)}</p>` : ''}`;
@@ -1337,6 +1402,7 @@ function renderComparison() {
   const jobs = compareIds.map((id) => catalog.find((job) => job.id === id)).filter(Boolean);
   if (jobs.length !== 2) return;
   const rows = [
+    ['Régimen contractual', 'regime'],
     ['Compensación', 'salary'],
     ['Requisitos del puesto', 'requirements'],
     ['Funciones', 'tasks'],
@@ -1367,6 +1433,8 @@ function renderComparison() {
         </label>
       </div>
     </div>
+
+    ${renderSkillsComparison(jobs[0], jobs[1])}
 
     <div class="comparison-table-wrap overflow-x-auto rounded-xl border border-stone-200 shadow-xs">
       <table class="comparison-table w-full min-w-[680px] border-collapse text-left text-xs">
@@ -1523,6 +1591,484 @@ function normalized(value) {
   return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
 }
 
+const REGIME_DEFINITIONS = {
+  PRE_PROFESSIONAL_INTERNSHIP: {
+    id: 'PRE_PROFESSIONAL_INTERNSHIP',
+    label: 'Prácticas preprofesionales',
+    shortLabel: 'Prácticas Pre',
+    badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    nature: 'Modalidad formativa laboral para estudiantes de educación superior',
+    legalFramework: 'Ley N° 28518 (Ley sobre Modalidades Formativas Laborales)',
+    maxWorkingHours: 'Máximo 6 horas diarias o 30 horas semanales',
+    compensation: 'Subvención económica mensual no menor a 1 RMV (con jornada máxima)',
+    keyRights: 'Convenio formativo institucional, seguro médico cubierto al 100% por la empresa, descanso de 15 días subvencionado tras 12 meses, media subvención adicional cada 6 meses.',
+    cautions: 'No constituye contrato de trabajo bajo subordinación común. No genera CTS ni gratificaciones de ley.',
+  },
+  PROFESSIONAL_INTERNSHIP: {
+    id: 'PROFESSIONAL_INTERNSHIP',
+    label: 'Prácticas profesionales',
+    shortLabel: 'Prácticas Pro',
+    badgeClass: 'bg-teal-50 text-teal-800 border-teal-200',
+    nature: 'Modalidad formativa laboral para egresados o bachilleres',
+    legalFramework: 'Ley N° 28518 y Ley N° 31396 (reconocimiento obligatorio como experiencia laboral)',
+    maxWorkingHours: 'Máximo 8 horas diarias o 48 horas semanales',
+    compensation: 'Subvención mensual no menor a 1 RMV',
+    keyRights: 'Reconocimiento legal como experiencia laboral, seguro médico integral, descanso de 15 días tras 12 meses, media subvención adicional cada 6 meses.',
+    cautions: 'Modalidad formativa con duración habitual máxima de 12 meses (o según estatuto institucional / Ley 31396).',
+  },
+  CAS: {
+    id: 'CAS',
+    label: 'Contratación Administrativa de Servicios (CAS)',
+    shortLabel: 'CAS',
+    badgeClass: 'bg-amber-50 text-amber-900 border-amber-300',
+    nature: 'Régimen especial de contratación laboral privativo del Estado peruano',
+    legalFramework: 'Decreto Legislativo N° 1057, Ley N° 29849 y Ley N° 31131 (SERVIR)',
+    maxWorkingHours: 'Máximo 8 horas diarias o 48 horas semanales',
+    compensation: 'Retribución mensual fijada en las bases del concurso público (mínimo legal RMV)',
+    keyRights: '30 días de vacaciones remuneradas, ESSALUD, aguinaldos de Fiestas Patrias y Navidad según Ley de Presupuesto, licencias de ley.',
+    cautions: 'Régimen exclusivo del sector público. El acceso formal requiere concurso público de méritos con cronograma estricto.',
+  },
+  LABOR_REGIME_728: {
+    id: 'LABOR_REGIME_728',
+    label: 'Régimen Laboral Privado (D. Leg. 728)',
+    shortLabel: 'Planilla 728',
+    badgeClass: 'bg-blue-50 text-blue-800 border-blue-200',
+    nature: 'Contrato de trabajo subordinado del régimen general de la actividad privada',
+    legalFramework: 'TUO del D. Leg. N° 728 (D.S. N° 003-97-TR) y Ley N° 27735',
+    maxWorkingHours: 'Máximo 8 horas diarias o 48 horas semanales',
+    compensation: 'Remuneración mensual pactada en contrato (mínimo legal RMV)',
+    keyRights: 'Gratificaciones legales completas (julio y diciembre), Compensación por Tiempo de Servicios (CTS), 30 días de vacaciones, ESSALUD (9%), Seguro de Vida Ley.',
+    cautions: 'Sujeto a período de prueba legal. Puede ser a plazo indeterminado o sujeto a modalidad (plazo fijo con causa objetiva).',
+  },
+  CIVIL_SERVICES: {
+    id: 'CIVIL_SERVICES',
+    label: 'Locación de Servicios (Honorarios)',
+    shortLabel: 'Locación / Honorarios',
+    badgeClass: 'bg-purple-50 text-purple-800 border-purple-200',
+    nature: 'Contratación de naturaleza civil autónoma sin subordinación',
+    legalFramework: 'Código Civil del Perú (artículos 1764 y siguientes)',
+    maxWorkingHours: 'Sin jornada laboral obligatoria ni control de asistencia (prestación autónoma por producto/servicio)',
+    compensation: 'Retribución civil acordada sujeta a emisión de Recibo por Honorarios (Renta de 4ta Categoría)',
+    keyRights: 'Autonomía en la ejecución del servicio y entrega de productos pactados.',
+    cautions: 'NO constituye vínculo laboral: no otorga gratificaciones, CTS, vacaciones ni beneficios laborales. La imposición de subordinación u horario desnaturaliza la relación.',
+  },
+  OTHER: {
+    id: 'OTHER',
+    label: 'Otras modalidades contractuales',
+    shortLabel: 'Otra modalidad',
+    badgeClass: 'bg-stone-100 text-stone-800 border-stone-300',
+    nature: 'Contratación comercial, internacional (B2B / Contractor) u otro régimen especial',
+    legalFramework: 'Acuerdo privado entre las partes / marco contractual aplicable',
+    maxWorkingHours: 'Según lo estipulado en el contrato entre partes',
+    compensation: 'Tarifa acordada (facturación por servicios o divisa internacional)',
+    keyRights: 'Condiciones definidas estrictamente en el acuerdo entre partes.',
+    cautions: 'No está amparado por los beneficios del régimen laboral peruano salvo pacto en contrario.',
+  },
+  UNSPECIFIED: {
+    id: 'UNSPECIFIED',
+    label: 'Modalidad no especificada',
+    shortLabel: 'Por confirmar régimen',
+    badgeClass: 'bg-stone-50 text-stone-600 border-stone-200',
+    nature: 'Modalidad contractual no detallada expresamente en la publicación',
+    legalFramework: 'Sujeto a verificación en las bases del proceso o contrato oficial',
+    maxWorkingHours: 'No declarado en la publicación',
+    compensation: 'Según oferta o bases del concurso',
+    keyRights: 'Verificar en las bases del proceso o documentación formal antes de postular.',
+    cautions: 'Velora no presume un régimen laboral sin evidencia documental explícita.',
+  },
+};
+
+function getJobLaborRegime(job) {
+  if (job && job.laborRegime && REGIME_DEFINITIONS[job.laborRegime]) {
+    return job.laborRegime;
+  }
+  const text = normalized([
+    job?.contractType,
+    job?.requisition,
+    job?.title,
+    job?.kind,
+    job?.level,
+    job?.duration,
+    job?.tasks,
+    job?.requirements,
+  ].join(' '));
+
+  if (/\bcas\b|\b1057\b|contratacion administrativa de servicios|contrato administrativo de servicios|convocatoria cas|proceso cas/.test(text)) {
+    return 'CAS';
+  }
+  if (/practica\s+pre\s*profesional|practicas\s+pre\s*profesionales|practicante\s+pre|pre\s*profesional/.test(text)) {
+    return 'PRE_PROFESSIONAL_INTERNSHIP';
+  }
+  if (/practica\s+profesional|practicas\s+profesionales|practicante\s+profesional/.test(text)) {
+    return 'PROFESSIONAL_INTERNSHIP';
+  }
+  if (/practica|practicante|intern\b/.test(text)) {
+    if (/estudiante|ciclo/.test(text)) return 'PRE_PROFESSIONAL_INTERNSHIP';
+    if (/egresad|bachiller/.test(text)) return 'PROFESSIONAL_INTERNSHIP';
+    if (job?.kind === 'Prácticas') return 'PRE_PROFESSIONAL_INTERNSHIP';
+  }
+  if (/\b728\b|d\.?\s*leg\.?\s*728|actividad privada|planilla completa|cts semestral/.test(text)) {
+    return 'LABOR_REGIME_728';
+  }
+  if (/locacion de servicios|locador|recibo por honorarios|recibos por honorarios|cuarta categoria|orden de servicio|articulo 1764/.test(text)) {
+    return 'CIVIL_SERVICES';
+  }
+  if (/b2b|contractor|contrato mercantil|prestacion independiente internacional|\b276\b|servicio civil|30057/.test(text)) {
+    return 'OTHER';
+  }
+  return 'UNSPECIFIED';
+}
+
+function regimeTag(job) {
+  const regimeKey = getJobLaborRegime(job);
+  const defn = REGIME_DEFINITIONS[regimeKey] || REGIME_DEFINITIONS.UNSPECIFIED;
+  return `<span class="inline-flex items-center rounded-md px-2 py-1 text-[10px] font-semibold border ${defn.badgeClass}" title="${escapeHTML(defn.label)} · ${escapeHTML(defn.legalFramework)}">${escapeHTML(defn.shortLabel)}</span>`;
+}
+
+// --- TASK-R7-02: Skills & Competencies Taxonomy and Comparison Engine ---
+const SKILL_TAXONOMY = {
+  Python: { canonical: 'Python', category: 'Lenguajes de programación', patterns: [/\bpython(?:3)?\b/i] },
+  Java: { canonical: 'Java', category: 'Lenguajes de programación', patterns: [/\bjava\b(?!\s*script)/i] },
+  JavaScript: { canonical: 'JavaScript', category: 'Lenguajes de programación', patterns: [/\bjavascript\b/i, /\bjs\b(?!\s*(?:on|to))/i] },
+  TypeScript: { canonical: 'TypeScript', category: 'Lenguajes de programación', patterns: [/\btypescript\b/i, /\bts\b(?!\s*(?:on|to))/i] },
+  'C#': { canonical: 'C#', category: 'Lenguajes de programación', patterns: [/\bc#(?!\w)/i, /\bc\s*sharp\b/i] },
+  'C++': { canonical: 'C++', category: 'Lenguajes de programación', patterns: [/\bc\+\+(?!\w)/i] },
+  C: {
+    canonical: 'C',
+    category: 'Lenguajes de programación',
+    patterns: [
+      /\blenguaje\s+c\b/i,
+      /\bprogramaci[oó]n\s+en\s+c\b/i,
+      /\bc\s*\/c\+\+\b/i,
+      /\bc\s*,\s*c\+\+\b/i,
+      /\bc\s+y\s+c\+\+\b/i,
+      /\bc(?:\s+y\/o|\/)\s*rust\b/i,
+      /\blinux\s+kernel\s*·\s*c\b/i,
+    ],
+  },
+  Rust: { canonical: 'Rust', category: 'Lenguajes de programación', patterns: [/\brust\b/i] },
+  Go: {
+    canonical: 'Go',
+    category: 'Lenguajes de programación',
+    patterns: [
+      /\bgolang\b/i,
+      /\blenguaje\s+go\b/i,
+      /\bprogramaci[oó]n\s+en\s+go\b/i,
+      /(?:^|[\s·•,|/])go(?:[\s·•,|/]|$)/i,
+    ],
+  },
+  PHP: { canonical: 'PHP', category: 'Lenguajes de programación', patterns: [/\bphp\b/i] },
+  Kotlin: { canonical: 'Kotlin', category: 'Lenguajes de programación', patterns: [/\bkotlin\b/i] },
+  Swift: { canonical: 'Swift', category: 'Lenguajes de programación', patterns: [/\bswift\b/i] },
+  Dart: { canonical: 'Dart', category: 'Lenguajes de programación', patterns: [/\bdart\b/i] },
+  'Bash / Shell': { canonical: 'Bash / Shell', category: 'Lenguajes de programación', patterns: [/\bbash\b/i, /\bshell\s+script(?:ing)?\b/i] },
+  React: { canonical: 'React', category: 'Frameworks y librerías', patterns: [/\breact(?:\.js)?\b/i] },
+  Angular: { canonical: 'Angular', category: 'Frameworks y librerías', patterns: [/\bangular\b/i] },
+  'Vue.js': { canonical: 'Vue.js', category: 'Frameworks y librerías', patterns: [/\bvue(?:\.js)?\b/i] },
+  'Node.js': { canonical: 'Node.js', category: 'Frameworks y librerías', patterns: [/\bnode(?:\.js)?\b/i] },
+  'Spring Boot': { canonical: 'Spring Boot', category: 'Frameworks y librerías', patterns: [/\bspring\s*boot\b/i, /\bspring\s+framework\b/i] },
+  '.NET': { canonical: '.NET', category: 'Frameworks y librerías', patterns: [/\b\.net\b/i, /\bdotnet\b/i, /\basp\.net\b/i] },
+  Django: { canonical: 'Django', category: 'Frameworks y librerías', patterns: [/\bdjango\b/i] },
+  FastAPI: { canonical: 'FastAPI', category: 'Frameworks y librerías', patterns: [/\bfastapi\b/i] },
+  Flutter: { canonical: 'Flutter', category: 'Frameworks y librerías', patterns: [/\bflutter\b/i] },
+  'UIKit / SwiftUI': { canonical: 'UIKit / SwiftUI', category: 'Frameworks y librerías', patterns: [/\buikit\b/i, /\bswiftui\b/i] },
+  'Jetpack Compose': { canonical: 'Jetpack Compose', category: 'Frameworks y librerías', patterns: [/\bjetpack\s+compose\b/i] },
+  SQL: { canonical: 'SQL', category: 'Bases de datos y analítica', patterns: [/(?<!transact-)(?<!t-)\bsql\b(?!\s*(?:server|lite))/i] },
+  PostgreSQL: { canonical: 'PostgreSQL', category: 'Bases de datos y analítica', patterns: [/\bpostgres(?:ql)?\b/i] },
+  MySQL: { canonical: 'MySQL', category: 'Bases de datos y analítica', patterns: [/\bmysql\b/i] },
+  'SQL Server': { canonical: 'SQL Server', category: 'Bases de datos y analítica', patterns: [/\bsql\s*server\b/i, /\bmssql\b/i] },
+  'Oracle DB': { canonical: 'Oracle DB', category: 'Bases de datos y analítica', patterns: [/\boracle\s*(?:db|database|bd)?\b/i] },
+  MongoDB: { canonical: 'MongoDB', category: 'Bases de datos y analítica', patterns: [/\bmongodb\b/i, /\bmongo\b/i] },
+  Redis: { canonical: 'Redis', category: 'Bases de datos y analítica', patterns: [/\bredis\b/i] },
+  'Power BI': { canonical: 'Power BI', category: 'Bases de datos y analítica', patterns: [/\bpower\s*bi\b/i] },
+  Excel: { canonical: 'Excel', category: 'Bases de datos y analítica', patterns: [/\bexcel\b(?:\s*avanzado|\s*intermedio)?/i] },
+  ETL: { canonical: 'ETL', category: 'Bases de datos y analítica', patterns: [/\betl\b/i] },
+  AWS: { canonical: 'AWS', category: 'Cloud, DevOps e Infraestructura', patterns: [/\baws\b/i, /\bamazon\s+web\s+services\b/i] },
+  Azure: { canonical: 'Azure', category: 'Cloud, DevOps e Infraestructura', patterns: [/\bazure\b/i, /\bmicrosoft\s+azure\b/i] },
+  'Google Cloud': { canonical: 'Google Cloud', category: 'Cloud, DevOps e Infraestructura', patterns: [/\bgcp\b/i, /\bgoogle\s+cloud(?:\s+platform)?\b/i] },
+  Docker: { canonical: 'Docker', category: 'Cloud, DevOps e Infraestructura', patterns: [/\bdocker\b/i] },
+  Kubernetes: { canonical: 'Kubernetes', category: 'Cloud, DevOps e Infraestructura', patterns: [/\bkubernetes\b/i, /\bk8s\b/i] },
+  Linux: { canonical: 'Linux', category: 'Cloud, DevOps e Infraestructura', patterns: [/\blinux\b/i] },
+  Ubuntu: { canonical: 'Ubuntu', category: 'Cloud, DevOps e Infraestructura', patterns: [/\bubuntu\b/i] },
+  Git: { canonical: 'Git', category: 'Cloud, DevOps e Infraestructura', patterns: [/\bgit\b(?!\s*(?:hub|lab))/i] },
+  'CI/CD': { canonical: 'CI/CD', category: 'Cloud, DevOps e Infraestructura', patterns: [/\bci\s*\/\s*cd\b/i, /\bcontinuous\s+integration\b/i, /\bintegraci[oó]n\s+continua\b/i] },
+  Terraform: { canonical: 'Terraform', category: 'Cloud, DevOps e Infraestructura', patterns: [/\bterraform\b/i] },
+  'APIs REST': { canonical: 'APIs REST', category: 'Arquitectura y Metodologías', patterns: [/\bapis?\s+rest(?:ful)?\b/i, /\bservicios?\s+rest\b/i, /\brest\s*api\b/i] },
+  Microservicios: { canonical: 'Microservicios', category: 'Arquitectura y Metodologías', patterns: [/\bmicroservicios\b/i, /\bmicroservices\b/i] },
+  'Clean Architecture': { canonical: 'Clean Architecture', category: 'Arquitectura y Metodologías', patterns: [/\bclean\s+architecture\b/i, /\barquitectura\s+limpia\b/i, /\bmvvm\b/i] },
+  'ERP / SAP': { canonical: 'ERP / SAP', category: 'Sistemas de gestión', patterns: [/\berp\b/i, /\bsap\b/i, /\bmrp\b/i] },
+  Ciberseguridad: { canonical: 'Ciberseguridad', category: 'Seguridad y Redes', patterns: [/\bciberseguridad\b/i, /\bseguridad\s+inform[aá]tica\b/i, /\binformation\s+security\b/i, /\bsecurity\b/i] },
+  Redes: { canonical: 'Redes', category: 'Seguridad y Redes', patterns: [/\bredes(?!\s*sociales)(?:\s+de\s+datos|\s+y\s+telecomunicaciones|\s+tcp|\s+cisco)?\b/i] },
+};
+
+const PREFERRED_PATTERNS = [
+  /\bdeseable\b/i,
+  /\bpreferible\b/i,
+  /\bpreferente\b/i,
+  /\bde\s+preferencia\b/i,
+  /\bplus\b/i,
+  /\bopcional\b/i,
+  /\bvalorar[aá]\b/i,
+  /\bse\s+valorar[aá]\b/i,
+  /\bno\s+excluyente\b/i,
+];
+
+const REQUIRED_PATTERNS = [
+  /\bindispensable\b/i,
+  /\bexcluyente\b/i,
+  /\bobligatorio\b/i,
+  /\bm[ií]nimo\b/i,
+  /\brequisito\b/i,
+  /\bexperiencia\s*(?:m[ií]nima|comprobada|de)\b/i,
+  /\bconocimiento\s*(?:s[oó]lido|avanzado|intermedio)\b/i,
+  /\bdebe\s+contar\b/i,
+  /\bdominio\b/i,
+];
+
+function determineSkillPriority(clause, sourceField) {
+  const norm = normalized(clause);
+  if (PREFERRED_PATTERNS.some((pat) => pat.test(norm))) {
+    return 'PREFERRED';
+  }
+  if (REQUIRED_PATTERNS.some((pat) => pat.test(norm))) {
+    return 'REQUIRED';
+  }
+  if (['requirements', 'skills', 'title'].includes(sourceField)) {
+    return 'REQUIRED';
+  }
+  return 'MENTIONED';
+}
+
+function extractOpportunitySkills(job) {
+  const extracted = {};
+
+  function inspectBlock(text, sourceField) {
+    if (!text || typeof text !== 'string') return;
+    const clauses = text.split(/[;.\n\r·•|]/).map((c) => c.trim()).filter(Boolean);
+    const items = clauses.length > 0 ? clauses : [text.trim()];
+
+    for (const clause of items) {
+      const normClause = normalized(clause);
+      for (const [skillKey, defn] of Object.entries(SKILL_TAXONOMY)) {
+        for (const pattern of defn.patterns) {
+          if (pattern.test(normClause)) {
+            const priority = determineSkillPriority(clause, sourceField);
+            const priorityRank = { REQUIRED: 3, PREFERRED: 2, MENTIONED: 1 };
+            if (extracted[skillKey]) {
+              if (extracted[skillKey].source_field === 'requirements' && sourceField === 'skills') {
+                // Keep requirements as authoritative
+              } else {
+                const priorityRank = { REQUIRED: 3, PREFERRED: 2, MENTIONED: 1 };
+                if ((priorityRank[priority] || 0) > (priorityRank[extracted[skillKey].priority] || 0)) {
+                  extracted[skillKey].priority = priority;
+                  extracted[skillKey].source_field = sourceField;
+                  extracted[skillKey].context = clause.slice(0, 120);
+                }
+              }
+            } else {
+              extracted[skillKey] = {
+                canonical: defn.canonical,
+                category: defn.category,
+                raw: skillKey,
+                priority,
+                source_field: sourceField,
+                context: clause.slice(0, 120),
+              };
+            }
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // 1. Requirements field (highest specificity)
+  const reqsField = String(job?.requirements || '').trim();
+  if (reqsField && !/^no\s/i.test(reqsField)) inspectBlock(reqsField, 'requirements');
+
+  // 2. Direct explicit skills field
+  const skillsField = String(job?.skills || '').trim();
+  if (skillsField && !/^no\s/i.test(skillsField)) inspectBlock(skillsField, 'skills');
+
+  // 3. Title field
+  const titleField = String(job?.title || '').trim();
+  if (titleField) inspectBlock(titleField, 'title');
+
+  // 4. Tasks / description field
+  const tasksField = String(job?.tasks || '').trim();
+  if (tasksField && !/^no\s/i.test(tasksField)) inspectBlock(tasksField, 'tasks');
+
+  return extracted;
+}
+
+function compareOpportunitySkills(jobA, jobB) {
+  const skillsA = extractOpportunitySkills(jobA);
+  const skillsB = extractOpportunitySkills(jobB);
+
+  const keysA = Object.keys(skillsA);
+  const keysB = Object.keys(skillsB);
+
+  const sharedKeys = keysA.filter((k) => keysB.includes(k)).sort();
+  const exclusiveAKeys = keysA.filter((k) => !keysB.includes(k)).sort();
+  const exclusiveBKeys = keysB.filter((k) => !keysA.includes(k)).sort();
+
+  const shared_skills = sharedKeys.map((k) => ({
+    canonical: k,
+    category: skillsA[k].category,
+    priorityA: skillsA[k].priority,
+    priorityB: skillsB[k].priority,
+    sourceFieldA: skillsA[k].source_field,
+    sourceFieldB: skillsB[k].source_field,
+    contextA: skillsA[k].context,
+    contextB: skillsB[k].context,
+  }));
+
+  const exclusive_a = exclusiveAKeys.map((k) => skillsA[k]);
+  const exclusive_b = exclusiveBKeys.map((k) => skillsB[k]);
+
+  const required_a = keysA.filter((k) => skillsA[k].priority === 'REQUIRED').sort();
+  const required_b = keysB.filter((k) => skillsB[k].priority === 'REQUIRED').sort();
+
+  const preferred_a = keysA.filter((k) => skillsA[k].priority === 'PREFERRED').sort();
+  const preferred_b = keysB.filter((k) => skillsB[k].priority === 'PREFERRED').sort();
+
+  return {
+    job_a_id: String(jobA?.id || 'A'),
+    job_b_id: String(jobB?.id || 'B'),
+    shared_skills,
+    exclusive_a,
+    exclusive_b,
+    required_a,
+    required_b,
+    preferred_a,
+    preferred_b,
+    is_a_unspecified: keysA.length === 0,
+    is_b_unspecified: keysB.length === 0,
+  };
+}
+
+function renderSkillsComparison(jobA, jobB) {
+  const comp = compareOpportunitySkills(jobA, jobB);
+  const titleA = escapeHTML(jobA.employer || jobA.title || 'Oportunidad A');
+  const titleB = escapeHTML(jobB.employer || jobB.title || 'Oportunidad B');
+
+  const priorityBadge = (priority) => {
+    if (priority === 'REQUIRED') {
+      return `<span class="inline-block text-[9px] font-semibold text-rose-700 bg-rose-50 border border-rose-200/80 px-1.5 py-0.5 rounded" title="Requisito expresamente obligatorio">Obligatorio</span>`;
+    }
+    if (priority === 'PREFERRED') {
+      return `<span class="inline-block text-[9px] font-semibold text-amber-800 bg-amber-50 border border-amber-200/80 px-1.5 py-0.5 rounded" title="Requisito deseable o preferente">Deseable</span>`;
+    }
+    return `<span class="inline-block text-[9px] font-semibold text-stone-600 bg-stone-100 border border-stone-200/80 px-1.5 py-0.5 rounded" title="Tecnología mencionada sin prioridad explícita">Mención</span>`;
+  };
+
+  const sharedHtml = comp.shared_skills.length > 0
+    ? `<div class="flex flex-wrap gap-1.5">
+        ${comp.shared_skills.map((s) => `
+          <div class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 border border-emerald-200/90 px-2 py-1 text-xs text-emerald-950" title="Compartida · ${escapeHTML(s.canonical)}&#10;En ${titleA}: ${s.priorityA} (${escapeHTML(s.sourceFieldA)})&#10;En ${titleB}: ${s.priorityB} (${escapeHTML(s.sourceFieldB)})">
+            <span class="font-semibold">${escapeHTML(s.canonical)}</span>
+            <span class="text-[9px] text-emerald-700 font-mono">(${s.priorityA === s.priorityB ? (s.priorityA === 'REQUIRED' ? 'Oblig.' : (s.priorityA === 'PREFERRED' ? 'Deseab.' : 'Menc.')) : 'Distinta prioridad'})</span>
+          </div>
+        `).join('')}
+      </div>`
+    : `<p class="text-xs text-stone-500 italic">No se identificaron tecnologías coincidentes explicitadas en ambas fichas.</p>`;
+
+  const exclusiveAHtml = comp.exclusive_a.length > 0
+    ? `<div class="flex flex-wrap gap-1.5">
+        ${comp.exclusive_a.map((s) => `
+          <div class="inline-flex items-center gap-1.5 rounded-lg bg-sky-50 border border-sky-200/90 px-2 py-1 text-xs text-sky-950" title="Exclusiva de ${titleA}&#10;Prioridad: ${s.priority}&#10;Detectado en: ${escapeHTML(s.source_field)}&#10;Contexto: &quot;${escapeHTML(s.context)}&quot;">
+            <span class="font-semibold">${escapeHTML(s.canonical)}</span>
+            ${priorityBadge(s.priority)}
+          </div>
+        `).join('')}
+      </div>`
+    : `<p class="text-xs text-stone-500 italic">Sin competencias técnicas exclusivas detectadas para esta oportunidad.</p>`;
+
+  const exclusiveBHtml = comp.exclusive_b.length > 0
+    ? `<div class="flex flex-wrap gap-1.5">
+        ${comp.exclusive_b.map((s) => `
+          <div class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50 border border-indigo-200/90 px-2 py-1 text-indigo-950" title="Exclusiva de ${titleB}&#10;Prioridad: ${s.priority}&#10;Detectado en: ${escapeHTML(s.source_field)}&#10;Contexto: &quot;${escapeHTML(s.context)}&quot;">
+            <span class="font-semibold">${escapeHTML(s.canonical)}</span>
+            ${priorityBadge(s.priority)}
+          </div>
+        `).join('')}
+      </div>`
+    : `<p class="text-xs text-stone-500 italic">Sin competencias técnicas exclusivas detectadas para esta oportunidad.</p>`;
+
+  const unstatedWarnings = [];
+  if (comp.is_a_unspecified) {
+    unstatedWarnings.push(`<b>${titleA}</b> no incluye un listado estructurado de tecnologías o requisitos técnicos en la publicación oficial registrada.`);
+  }
+  if (comp.is_b_unspecified) {
+    unstatedWarnings.push(`<b>${titleB}</b> no incluye un listado estructurado de tecnologías o requisitos técnicos en la publicación oficial registrada.`);
+  }
+
+  const warningsHtml = unstatedWarnings.length > 0
+    ? `<div class="mt-3 rounded-lg bg-amber-50/80 border border-amber-200/80 p-3 text-xs text-amber-900 leading-relaxed">
+        <div class="flex items-center gap-1.5 font-semibold text-amber-800 mb-1">
+          <svg class="h-3.5 w-3.5 text-amber-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          <span>Limitación de información registrada:</span>
+        </div>
+        <ul class="list-disc pl-4 space-y-1">
+          ${unstatedWarnings.map((w) => `<li>${w}</li>`).join('')}
+        </ul>
+        <p class="mt-1.5 text-[11px] text-amber-800 italic">La ausencia de una tecnología en la ficha no certifica que el puesto prescinda de ella; refleja que no fue explícitamente declarada en la convocatoria fuente.</p>
+      </div>`
+    : '';
+
+  return `
+    <section class="skills-comparison-panel mb-5 rounded-xl border border-stone-200 bg-white p-4 sm:p-5 shadow-xs" aria-label="Comparativa de competencias técnicas y requisitos">
+      <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-stone-200/80 pb-3">
+        <div>
+          <h3 class="text-sm font-bold uppercase tracking-wider text-stone-800 flex items-center gap-2">
+            <span>Contraste de Requisitos Técnicos y Competencias</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-iceBlue/20 text-arcticBlue border border-crystalBlue/30">Análisis determinista</span>
+          </h3>
+          <p class="text-xs text-stone-600 mt-0.5">Identificación de habilidades coincidentes y diferenciadoras trazables a los datos de cada convocatoria.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+        <!-- 1. Coincidentes -->
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50/40 p-3.5 flex flex-col">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-900 flex items-center gap-1.5">
+              <svg class="h-3.5 w-3.5 text-emerald-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <span>Coincidentes</span>
+            </h4>
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">${comp.shared_skills.length}</span>
+          </div>
+          <div class="flex-1">${sharedHtml}</div>
+        </div>
+
+        <!-- 2. Exclusivas A -->
+        <div class="rounded-lg border border-sky-200 bg-sky-50/40 p-3.5 flex flex-col">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-sky-900 truncate" title="Exclusivas de ${titleA}">
+              <span>Exclusivas: ${titleA}</span>
+            </h4>
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-300">${comp.exclusive_a.length}</span>
+          </div>
+          <div class="flex-1">${exclusiveAHtml}</div>
+        </div>
+
+        <!-- 3. Exclusivas B -->
+        <div class="rounded-lg border border-indigo-200 bg-indigo-50/40 p-3.5 flex flex-col">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-900 truncate" title="Exclusivas de ${titleB}">
+              <span>Exclusivas: ${titleB}</span>
+            </h4>
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300">${comp.exclusive_b.length}</span>
+          </div>
+          <div class="flex-1">${exclusiveBHtml}</div>
+        </div>
+      </div>
+
+      ${warningsHtml}
+    </section>
+  `;
+}
+
 function getVisibleJobs() {
   const tokens = normalized(filters.query.value).split(/\s+/).filter(Boolean);
   const location = normalized(filters.location.value);
@@ -1531,6 +2077,7 @@ function getVisibleJobs() {
   const family = normalized(filters.family.value);
   const sector = filters.sector.value;
   const level = filters.level.value;
+  const regime = filters.regime?.value || '';
   const includeUnconfirmed = document.querySelector('#include-unconfirmed').checked;
   const includeDemonstrations = document.querySelector('#include-demonstrations').checked;
   const includeHistory = filters.history.checked;
@@ -1548,12 +2095,15 @@ function getVisibleJobs() {
     if (family && !normalized(job.family).includes(family)) return false;
     if (sector && job.sector !== sector) return false;
     if (level && job.level !== level) return false;
+    if (regime && getJobLaborRegime(job) !== regime) return false;
     if (filters.salary.value === 'published' && (!job.salary || /no publicado|no especificado/i.test(job.salary))) return false;
     if (filters.risk.value === 'temporary' && !temporarySignal.test([job.title, job.duration, job.deadline, job.continuity, job.risk].join(' '))) return false;
+    const jobRegime = getJobLaborRegime(job);
+    const regimeDef = REGIME_DEFINITIONS[jobRegime] || REGIME_DEFINITIONS.UNSPECIFIED;
     const searchable = normalized([
       job.title, job.employer, job.sector, job.family, job.level,
       job.kind, job.mode, job.location, job.eligibility, job.skills,
-      job.tasks, job.requirements,
+      job.tasks, job.requirements, jobRegime, regimeDef.label, regimeDef.shortLabel,
     ].join(' '));
     return tokens.every((token) => searchable.includes(token));
   }).sort((a, b) => {
@@ -1612,6 +2162,7 @@ function updateCatalogView() {
     || (filters.level && filters.level.value !== '')
     || (filters.salary && filters.salary.value !== '')
     || (filters.risk && filters.risk.value !== '')
+    || (filters.regime && filters.regime.value !== '')
   );
   const includeExamples = document.querySelector('#include-demonstrations').checked;
   const includeOtherStates = document.querySelector('#include-unconfirmed').checked || filters.history.checked;
@@ -1736,12 +2287,14 @@ filters.sector.addEventListener('change', updateCatalogView);
 filters.level.addEventListener('change', updateCatalogView);
 filters.salary.addEventListener('change', updateCatalogView);
 filters.risk.addEventListener('change', updateCatalogView);
+if (filters.regime) filters.regime.addEventListener('change', updateCatalogView);
 filters.history.addEventListener('change', updateCatalogView);
 document.querySelector('#include-unconfirmed').addEventListener('change', updateCatalogView);
 document.querySelector('#include-demonstrations').addEventListener('change', updateCatalogView);
 document.querySelector('#filters').addEventListener('submit', (event) => event.preventDefault());
 document.querySelector('#filters').addEventListener('reset', () => setTimeout(() => {
   filters.family.value = '';
+  if (filters.regime) filters.regime.value = '';
   updateCatalogView();
 }, 0));
 

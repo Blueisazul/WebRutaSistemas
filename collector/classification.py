@@ -45,6 +45,7 @@ def _normalize(text: str | None) -> str:
 DIRECT_RELEVANCE_PATTERNS = [
     r"\bsoftware\b",
     r"\bdeveloper\b",
+    r"\bdesarrollo\b",
     r"\bdesarrollador\b",
     r"\bdesarrolladora\b",
     r"\bengineer\b",
@@ -79,6 +80,8 @@ DIRECT_RELEVANCE_PATTERNS = [
     r"\bia\b",
     r"\btech support\b",
     r"\btechnical support\b",
+    r"\bhelp desk\b",
+    r"\bhelpdesk\b",
     r"\bsoporte tecnico\b",
     r"\btechnical specialist\b",
     r"\bit support\b",
@@ -245,6 +248,9 @@ class ClassificationResult:
     geography_reason: str
     experience_reason: str
     is_staging_eligible: bool
+    labor_regime: str = "UNSPECIFIED"
+    labor_regime_certainty: str = "UNSPECIFIED"
+    labor_regime_explanation: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -255,6 +261,9 @@ class ClassificationResult:
             "geographyReason": self.geography_reason,
             "experienceReason": self.experience_reason,
             "isStagingEligible": self.is_staging_eligible,
+            "laborRegime": self.labor_regime,
+            "laborRegimeCertainty": self.labor_regime_certainty,
+            "laborRegimeExplanation": self.labor_regime_explanation,
         }
 
 
@@ -365,7 +374,17 @@ def classify_candidate(
         exp_tier = "MID"
         exp_reason = "Puesto profesional estándar sin prefijos restrictivos de nivel senior ni junior."
 
-    # --- 4. OVERALL STAGING ELIGIBILITY ---
+    # --- 4. CLASSIFY LABOR REGIME (TASK-R7-01) ---
+    from collector.labor_regime import classify_labor_regime
+    regime_res = classify_labor_regime({
+        "title": title,
+        "employer": employer,
+        "location": location,
+        "mode": mode,
+        "tasks": description,
+    })
+
+    # --- 5. OVERALL STAGING ELIGIBILITY ---
     # To be staged into inbox, an opportunity must be DIRECT or ADJACENT,
     # and its geography must be potentially eligible (PERU_LOCAL, PERU_REMOTE, LATAM, GLOBAL_REMOTE).
     # Senior positions are recorded and staged with their explicit tier so the owner can review them.
@@ -384,4 +403,7 @@ def classify_candidate(
         geography_reason=geo_reason,
         experience_reason=exp_reason,
         is_staging_eligible=is_eligible,
+        labor_regime=regime_res.regime_id,
+        labor_regime_certainty=regime_res.certainty,
+        labor_regime_explanation=regime_res.explanation,
     )

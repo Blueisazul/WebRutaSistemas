@@ -17,6 +17,7 @@ FETCH_CONNECTORS = {
     "ositran-portal",
     "defensoria-cas",
     "hiringroom-board",
+    "gobpe-convocatorias",
 }
 
 

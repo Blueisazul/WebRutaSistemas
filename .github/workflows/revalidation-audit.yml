@@ -1,21 +1,32 @@
-name: Revalidation and Lifecycle Audit (R4-03)
+name: Scheduled Revalidation and Lifecycle Audit (R6-02)
 
 on:
   schedule:
-    # Daily at 11:00 UTC (06:00 AM America/Lima)
-    - cron: "0 11 * * *"
+    # Weekly on Sunday at 09:00 UTC (04:00 AM America/Lima)
+    - cron: "0 9 * * 0"
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Ejecutar en modo simulación (dry-run) sin modificar catálogo"
+        type: boolean
+        required: true
+        default: true
+      as_of:
+        description: "Fecha de corte civil YYYY-MM-DD (en blanco para fecha actual)"
+        type: string
+        required: false
+        default: ""
 
 permissions:
   contents: read
 
 concurrency:
   group: revalidation-audit
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   audit-lifecycle:
-    name: Audit Candidate Freshness & Lifecycle
+    name: Audit Canonical Catalog & Staging Freshness
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -41,11 +52,24 @@ jobs:
           python -m unittest discover -s tests -v
           node tests/catalog_ui.test.cjs
 
-      - name: Run Lifecycle Revalidation in Dry-Run Mode
+      - name: Run Staging Revalidation (Dry-Run)
         run: |
           mkdir -p artifacts
           python scripts/editorial_cli.py revalidate --dry-run --output artifacts/revalidation-report.json
-          python scripts/editorial_cli.py revalidate --catalog --output artifacts/catalog-audit-report.json
+
+      - name: Run Canonical Catalog Revalidation
+        run: |
+          AS_OF_FLAG=""
+          if [ -n "${{ github.event.inputs.as_of }}" ]; then
+            AS_OF_FLAG="--as-of ${{ github.event.inputs.as_of }}"
+          fi
+          
+          # Default to dry-run unless workflow_dispatch explicitly set dry_run=false
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.dry_run }}" = "false" ]; then
+            python scripts/editorial_cli.py revalidate --catalog --apply $AS_OF_FLAG --output artifacts/catalog-audit-report.json
+          else
+            python scripts/editorial_cli.py revalidate --catalog --dry-run $AS_OF_FLAG --output artifacts/catalog-audit-report.json
+          fi
 
       - name: Upload Revalidation Audit Artifacts
         uses: actions/upload-artifact@v4
@@ -54,7 +78,8 @@ jobs:
           path: artifacts/
           retention-days: 14
 
-      - name: Verify Canonical Catalog Immutability
+      - name: Verify Canonical Catalog Immutability (Dry-Run Guard)
+        if: github.event_name == 'schedule' || github.event.inputs.dry_run != 'false'
         run: |
           python scripts/validate_catalog.py
           python scripts/build_catalog.py --check

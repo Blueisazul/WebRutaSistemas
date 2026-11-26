@@ -17,6 +17,16 @@ VERIFICATION_STATES = {"verified", "pending", "stale", "unverified"}
 PUBLICATION_STATES = {"active", "unconfirmed", "historical"}
 RECORD_KINDS = {"demonstration", "curated", "imported_unreviewed"}
 EDITORIAL_DECISIONS = {"approved", "rejected", "withdrawn"}
+LABOR_REGIMES = {
+    "PRE_PROFESSIONAL_INTERNSHIP",
+    "PROFESSIONAL_INTERNSHIP",
+    "CAS",
+    "LABOR_REGIME_728",
+    "CIVIL_SERVICES",
+    "OTHER",
+    "UNSPECIFIED",
+}
+LABOR_REGIME_CERTAINTIES = {"EXPLICIT_EVIDENCE", "DERIVED_BASES", "UNSPECIFIED"}
 EVIDENCE_FIELDS = {
     "employer", "publisher", "title", "sourceUrl", "applyUrl", "publishedAt", "deadline",
     "location", "mode", "salary", "benefits", "contractType", "duration", "requirements",
@@ -222,6 +232,10 @@ def validate_records(
             result.errors.append(f"{prefix}.recordKind inválido")
         if item.get("publicationStatus") not in PUBLICATION_STATES:
             result.errors.append(f"{prefix}.publicationStatus inválido")
+        if item.get("laborRegime") is not None and item.get("laborRegime") not in LABOR_REGIMES:
+            result.errors.append(f"{prefix}.laborRegime inválido: '{item.get('laborRegime')}'")
+        if item.get("laborRegimeCertainty") is not None and item.get("laborRegimeCertainty") not in LABOR_REGIME_CERTAINTIES:
+            result.errors.append(f"{prefix}.laborRegimeCertainty inválido: '{item.get('laborRegimeCertainty')}'")
         try:
             deadline = parse_date(item.get("deadline"), f"{prefix}.deadline")
             parse_date(item.get("publishedAt"), f"{prefix}.publishedAt")

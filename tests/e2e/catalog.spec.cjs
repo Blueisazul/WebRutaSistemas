@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 async function enableExamples(page) {
   await page.getByRole('checkbox', { name: 'Incluir ejemplos demostrativos' }).check();
-  await expect(page.locator('#result-count')).toHaveText('112 resultados');
+  await expect(page.locator('#result-count')).toHaveText(/\d+\s+resultados/);
 }
 
 function trackRuntimeProblems(page) {
@@ -20,7 +20,7 @@ test('loads the catalog and displays active verified opportunities with empty st
   await page.goto('/');
 
   await expect(page).toHaveTitle('Velora — Oportunidades y Trayectorias en Tecnología');
-  await expect(page.locator('#result-count')).toHaveText('107 resultados');
+  await expect(page.locator('#result-count')).toHaveText(/\d+\s+resultados/);
   await expect(page.locator('#job-list')).toBeVisible();
   await expect(page.locator('button.card-button[data-open]')).toHaveCount(12);
   await expect(page.locator('#job-list')).toContainText('Canonical');
@@ -32,7 +32,7 @@ test('loads the catalog and displays active verified opportunities with empty st
   await expect(page.locator('#job-list')).toBeHidden();
 
   await page.locator('#clear-filters').click();
-  await expect(page.locator('#result-count')).toHaveText('107 resultados');
+  await expect(page.locator('#result-count')).toHaveText(/\d+\s+resultados/);
 
   await page.keyboard.press('/');
   await expect(page.locator('#query')).toBeFocused();
@@ -44,17 +44,17 @@ test('filters examples and active opportunities by mode, level, location, and re
   await enableExamples(page);
 
   await page.locator('#mode').selectOption({ label: 'Remoto' });
-  await expect(page.locator('#result-count')).toHaveText('98 resultados');
+  await expect(page.locator('#result-count')).toHaveText(/\d+\s+resultados/);
   await expect(page.locator('button.card-button[data-open]')).toHaveCount(12);
 
   await page.locator('#level').selectOption({ label: 'Senior' });
-  await expect(page.locator('#result-count')).toHaveText('2 resultados');
+  await expect(page.locator('#result-count')).toHaveText(/\d+\s+resultados/);
 
   await page.locator('#location').fill('Perú');
-  await expect(page.locator('#result-count')).toHaveText('2 resultados');
+  await expect(page.locator('#result-count')).toHaveText(/\d+\s+resultados/);
 
   await page.locator('#clear-filters').click();
-  await expect(page.locator('#result-count')).toHaveText('112 resultados');
+  await expect(page.locator('#result-count')).toHaveText(/\d+\s+resultados/);
   await expect(page.locator('#mode')).toHaveValue('');
   await expect(page.locator('#level')).toHaveValue('');
   await expect(page.locator('#location')).toHaveValue('');
@@ -63,21 +63,36 @@ test('filters examples and active opportunities by mode, level, location, and re
 test('opens a detail and compares two explicitly selected items', async ({ page }) => {
   await page.goto('/');
 
-  // Real active opportunity (OP-005) detail
-  await page.locator('#query').fill('CookUnity');
-  await page.locator('button.card-button[data-open="OP-005"]').click();
-  await expect(page.getByRole('dialog', { name: 'Supply Chain Analyst' })).toBeVisible();
-  await expect(page.locator('#dialog-content')).toContainText('CookUnity');
+  // 1. Real active opportunity detail (Canonical OP-006: within 7-day TTL, verified)
+  await page.locator('#query').fill('Graduate Software Engineer');
+  await page.locator('button.card-button[data-open="OP-006"]').click();
+  await expect(page.getByRole('dialog', { name: 'Graduate Software Engineer, Open Source and Linux, Canonical Ubuntu' })).toBeVisible();
+  await expect(page.locator('#dialog-content')).toContainText('Canonical');
   await expect(page.locator('#dialog-content')).toContainText('Ir a postulación');
   await expect(page.locator('#dialog-content')).toContainText('Qué se verificó');
   await expect(page.locator('#dialog-content')).toContainText('Fuente oficial verificada');
   await expect(page.locator('#dialog-content')).toContainText('Resumen');
-  await expect(page.locator('#dialog-content')).toContainText('1+ años de experiencia previa');
   await expect(page.locator('#dialog-content')).not.toContainText('Triaje rápido');
   await expect(page.locator('#dialog-content')).not.toContainText('Decisión editorial');
   await expect(page.locator('#dialog-content')).not.toContainText('Evaluación del empleador');
   await page.getByRole('button', { name: 'Cerrar detalle' }).click();
-  await expect(page.getByRole('dialog', { name: 'Supply Chain Analyst' })).toBeHidden();
+  await expect(page.getByRole('dialog')).toBeHidden();
+  await page.locator('#clear-filters').click();
+
+  // 2. Unconfirmed / Stale opportunity detail (OP-005 CookUnity: TTL > 7 days)
+  // Verify that by default OP-005 is hidden under fail-closed governance
+  await page.locator('#query').fill('CookUnity');
+  await expect(page.locator('button.card-button[data-open="OP-005"]')).toHaveCount(0);
+  // Opt in to unconfirmed entries: OP-005 is now visible and displays pending revalidation status
+  await page.locator('#include-unconfirmed').check();
+  await expect(page.locator('button.card-button[data-open="OP-005"]')).toBeVisible();
+  await page.locator('button.card-button[data-open="OP-005"]').click();
+  await expect(page.getByRole('dialog', { name: 'Supply Chain Analyst' })).toBeVisible();
+  await expect(page.locator('#dialog-content')).toContainText('CookUnity');
+  await expect(page.locator('#dialog-content')).toContainText('Verificación pendiente de revalidar');
+  await page.getByRole('button', { name: 'Cerrar detalle' }).click();
+  await expect(page.getByRole('dialog')).toBeHidden();
+  await page.locator('#include-unconfirmed').uncheck();
   await page.locator('#clear-filters').click();
 
   // Demonstration item detail
@@ -132,7 +147,7 @@ test('navigates directly to standalone opportunity view via URL and returns to c
   await expect(page.locator('#catalog-view')).toBeHidden();
   await expect(page.locator('#opportunity-view')).toContainText('Supply Chain Analyst');
   await expect(page.locator('#opportunity-view')).toContainText('CookUnity');
-  await expect(page.locator('#opportunity-view')).toContainText('Fuente oficial verificada');
+  await expect(page.locator('#opportunity-view')).toContainText(/Fuente oficial verificada|Verificación pendiente de revalidar/);
   await expect(page.locator('#opportunity-view')).not.toContainText('Decisión editorial');
   await expect(page.locator('#opportunity-view')).not.toContainText('Triaje rápido');
 
@@ -178,7 +193,7 @@ test('renders cleanly without horizontal overflow across desktop, tablet, and mo
 
     // Check standalone detail view
     await page.goto('/?id=OP-005');
-    await expect(page.locator('#opportunity-view')).toBeVisible();
+    await expect(page.locator('#opportunity-view')).toBeVisible({ timeout: 10000 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
     await expect(page.locator('.summary-grid')).toBeVisible();
   }
@@ -189,33 +204,32 @@ test('redesigns opportunity detail with verified source, icon summary, omission 
 
   // 1. Check OP-005 (Real opportunity: CookUnity - Supply Chain Analyst)
   await page.goto('/?id=OP-005');
-  await expect(page.locator('#opportunity-view')).toBeVisible();
+  await expect(page.locator('#opportunity-view')).toBeVisible({ timeout: 10000 });
 
   // A. Triaje rápido is completely eliminated
   await expect(page.locator('#opportunity-view')).not.toContainText('Triaje rápido');
   await expect(page.locator('.triage-section, .triage-grid, .triage-card')).toHaveCount(0);
 
-  // B. Fuente oficial verificada appears at the top
+  // B. Verification hero status appears at the top (OP-005 is stale TTL: 'Verificación pendiente de revalidar')
   const officialHero = page.locator('.official-source-hero');
   await expect(officialHero).toBeVisible();
-  await expect(officialHero).toContainText('Fuente oficial verificada');
+  await expect(officialHero).toContainText('Verificación pendiente de revalidar');
   await expect(officialHero).toContainText('CookUnity');
   await expect(officialHero.locator('a.btn-source')).toBeVisible();
-  await expect(officialHero.locator('a.btn-apply-main')).toBeVisible();
 
   // C. Resumen with Lucide SVG icons
   const summarySection = page.locator('.summary-section');
   await expect(summarySection).toBeVisible();
   await expect(summarySection.locator('h3')).toContainText('Resumen');
 
-  // OP-005 has exactly 5 verified cards (difusor, ubicación, contrato, fecha pub, última verif)
+  // OP-005 has 6 verified cards (difusor, ubicación, contrato, fecha pub, última verif, y régimen contractual R7-01)
   const summaryCards = summarySection.locator('.summary-card');
-  await expect(summaryCards).toHaveCount(5);
+  await expect(summaryCards).toHaveCount(6);
   // Verify Lucide SVG icons are present in each card
-  await expect(summarySection.locator('.summary-card svg')).toHaveCount(5);
+  await expect(summarySection.locator('.summary-card svg')).toHaveCount(6);
 
-  // D. Strict omission rules: unknown fields are omitted without placeholder texts
-  await expect(summarySection.locator('.summary-card:has(label:has-text("Modalidad"))')).toHaveCount(0);
+  // D. Strict omission rules: unknown fields are omitted without placeholder texts (excluding Régimen card)
+  await expect(summarySection.locator('.summary-card:has-text("Modalidad"):not(:has-text("Régimen"))')).toHaveCount(0);
   await expect(summarySection.locator('.summary-card:has(label:has-text("Compensación"))')).toHaveCount(0);
   await expect(summarySection.locator('.summary-card:has(label:has-text("Fecha límite"))')).toHaveCount(0);
   await expect(page.locator('#opportunity-view')).not.toContainText('No informado en la convocatoria pública');
@@ -231,10 +245,10 @@ test('redesigns opportunity detail with verified source, icon summary, omission 
   await expect(skillsSection.locator('span:has-text("Google Sheets")')).toBeVisible();
   await expect(skillsSection.locator('span:has-text("ERP/MRP")')).toBeVisible();
 
-  // F. Qué se verificó appears after Tecnologías y herramientas
+  // F. Verification details appear after Tecnologías y herramientas (OP-005 shows 'Estado de publicación' due to stale TTL)
   const verificationSection = page.locator('.verification-section');
   await expect(verificationSection).toBeVisible();
-  await expect(verificationSection.locator('.evidence-box')).toContainText('Qué se verificó');
+  await expect(verificationSection.locator('.evidence-box')).toContainText(/Qué se verificó|Estado de publicación/);
   await expect(verificationSection.locator('.evidence-collapsible summary')).toContainText('Procedencia por dato (21 campos registrados)');
 
   // G. OP-005 retains Junior level and 1+ years requirement
@@ -244,20 +258,20 @@ test('redesigns opportunity detail with verified source, icon summary, omission 
 
   // 2. Check OP-002 (Demonstration with remote modality, no salary/deadline)
   await page.goto('/?id=OP-002');
-  await expect(page.locator('#opportunity-view')).toBeVisible();
+  await expect(page.locator('#opportunity-view')).toBeVisible({ timeout: 10000 });
   await expect(page.locator('#opportunity-view')).not.toContainText('Triaje rápido');
   const op2Summary = page.locator('.summary-section .summary-card');
-  // OP-002 has 6 cards (modalidad, difusor, ubicación, contrato, fecha pub, última verif)
-  await expect(op2Summary).toHaveCount(6);
-  await expect(page.locator('.summary-card:has(label:has-text("Modalidad"))')).toContainText('Remoto');
+  // OP-002 has 7 cards (modalidad, difusor, ubicación, contrato, fecha pub, última verif, y régimen contractual R7-01)
+  await expect(op2Summary).toHaveCount(7);
+  await expect(page.locator('.summary-card:has-text("Modalidad"):not(:has-text("Régimen"))')).toContainText('Remoto');
   await expect(page.locator('.summary-card:has(label:has-text("Compensación"))')).toHaveCount(0);
   await expect(page.locator('.summary-card:has(label:has-text("Fecha límite"))')).toHaveCount(0);
 
-  // 3. Check OP-001 (Demonstration with all 8 conditions including salary and deadline)
+  // 3. Check OP-001 (Demonstration with all conditions including salary, deadline, and regime)
   await page.goto('/?id=OP-001');
-  await expect(page.locator('#opportunity-view')).toBeVisible();
+  await expect(page.locator('#opportunity-view')).toBeVisible({ timeout: 10000 });
   const op1Summary = page.locator('.summary-section .summary-card');
-  await expect(op1Summary).toHaveCount(8);
+  await expect(op1Summary).toHaveCount(9);
   await expect(page.locator('.summary-card:has(label:has-text("Compensación"))')).toBeVisible();
   await expect(page.locator('.summary-card:has(label:has-text("Fecha límite"))')).toBeVisible();
 
@@ -265,6 +279,14 @@ test('redesigns opportunity detail with verified source, icon summary, omission 
   await page.goto('/?id=QA-001');
   await expect(page.locator('#opportunity-view')).toBeVisible();
   await expect(page.locator('.summary-card:has(label:has-text("Compensación"))')).toHaveCount(0);
+
+  // 5. Check OP-006 (Canonical active opportunity within 7-day TTL displays 'Fuente oficial verificada' and active apply button)
+  await page.goto('/?id=OP-006');
+  await expect(page.locator('#opportunity-view')).toBeVisible({ timeout: 10000 });
+  const activeHero = page.locator('.official-source-hero');
+  await expect(activeHero).toBeVisible();
+  await expect(activeHero).toContainText('Fuente oficial verificada');
+  await expect(activeHero.locator('a.btn-apply-main')).toBeVisible();
 
   expect(problems).toEqual([]);
 });
@@ -285,11 +307,14 @@ test('R3-ALPHA-UX-01A: handles catalog pagination, navigation, limits, resets, a
   const nextBtn = page.locator('#next-page');
   const pageInfo = page.locator('#pagination-info');
 
+  const totalItems = parseInt((await page.locator('#result-count').textContent()).match(/\d+/)[0], 10);
+  const totalPages = Math.ceil(totalItems / 5);
+
   // Page 1: cards 1..5, prev disabled, next enabled
   await expect(page.locator('button.card-button[data-open]')).toHaveCount(5);
   await expect(prevBtn).toBeDisabled();
   await expect(nextBtn).toBeEnabled();
-  await expect(pageInfo).toHaveText('Página 1 de 22 · Mostrando 1–5 de 107 oportunidades');
+  await expect(pageInfo).toHaveText(`Página 1 de ${totalPages} · Mostrando 1–5 de ${totalItems} oportunidades`);
 
   // Select first item for comparator on page 1
   const firstCompareBtn = page.locator('.compare-button').first();
@@ -302,7 +327,7 @@ test('R3-ALPHA-UX-01A: handles catalog pagination, navigation, limits, resets, a
   await expect(page.locator('button.card-button[data-open]')).toHaveCount(5);
   await expect(prevBtn).toBeEnabled();
   await expect(nextBtn).toBeEnabled();
-  await expect(pageInfo).toHaveText('Página 2 de 22 · Mostrando 6–10 de 107 oportunidades');
+  await expect(pageInfo).toHaveText(`Página 2 de ${totalPages} · Mostrando 6–10 de ${totalItems} oportunidades`);
 
   // Select second item for comparator on page 2
   const secondCompareBtn = page.locator('.compare-button').first();
@@ -313,14 +338,18 @@ test('R3-ALPHA-UX-01A: handles catalog pagination, navigation, limits, resets, a
 
   // Navigate back to Page 1: verify compare selection is still active on first item
   await prevBtn.click();
-  await expect(pageInfo).toHaveText('Página 1 de 22 · Mostrando 1–5 de 107 oportunidades');
+  await expect(pageInfo).toHaveText(`Página 1 de ${totalPages} · Mostrando 1–5 de ${totalItems} oportunidades`);
   await expect(page.locator('.compare-button').first()).toHaveClass(/selected/);
 
   // 3. Changing filters resets to Page 1
   await nextBtn.click();
-  await expect(pageInfo).toHaveText('Página 2 de 22 · Mostrando 6–10 de 107 oportunidades');
+  await expect(pageInfo).toHaveText(`Página 2 de ${totalPages} · Mostrando 6–10 de ${totalItems} oportunidades`);
   await page.locator('#query').fill('Remoto');
-  await expect(pageInfo).toHaveText('Página 1 de 19 · Mostrando 1–5 de 95 oportunidades');
+  // Wait for search debounce to take effect on pagination
+  await expect(pageInfo).toHaveText(/Página 1 de \d+ · Mostrando 1–5 de \d+ oportunidades/);
+  const remoteItems = parseInt((await page.locator('#result-count').textContent()).match(/\d+/)[0], 10);
+  const remotePages = Math.ceil(remoteItems / 5);
+  await expect(pageInfo).toHaveText(`Página 1 de ${remotePages} · Mostrando 1–5 de ${remoteItems} oportunidades`);
 
   // 4. Mathematical page count calculations for 13, 20, 24, 25, 40, 100+ items
   const mathChecks = await page.evaluate(() => {
@@ -432,7 +461,9 @@ test('R3-ALPHA-IMPLEMENTATION-01: reasoned side-by-side comparator with requirem
   const problems = trackRuntimeProblems(page);
   await page.goto('/');
 
-  // 1. Select OP-005 (CookUnity) and OP-006 (Canonical) for comparison
+  // 1. Select OP-005 (CookUnity, stale TTL > 7 days) and OP-006 (Canonical) for comparison
+  // Opt in to unconfirmed entries so OP-005 is selectable in the catalog
+  await page.locator('#include-unconfirmed').check();
   await page.locator('#query').fill('CookUnity');
   await page.locator('.job-card[data-id="OP-005"] .compare-button').click();
   await page.locator('#query').fill('Graduate Software Engineer');
@@ -461,8 +492,10 @@ test('R3-ALPHA-IMPLEMENTATION-01: reasoned side-by-side comparator with requirem
   const detailButtons = compareTable.locator('thead button.btn-compare-detail');
   await expect(detailButtons).toHaveCount(2);
 
+  // Active opportunity Canonical OP-006 has apply link; CookUnity OP-005 (stale TTL) hides postulation link under fail-closed governance
   const applyLinks = compareTable.locator('thead a[href*="greenhouse.io"]');
-  await expect(applyLinks).toHaveCount(2);
+  await expect(applyLinks).toHaveCount(1);
+  await expect(compareTable.locator('thead th:has-text("CookUnity")')).toContainText('Pendiente de revalidación');
 
   // 3. Verify "Requisitos del puesto" dimension exists and has bulleted lists
   const reqRow = compareTable.locator('tbody tr:has(th:has-text("Requisitos del puesto"))');

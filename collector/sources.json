@@ -399,6 +399,255 @@
       "titleKeywords": [],
       "excludeKeywords": [],
       "purpose": "Adquisición automatizada controlada de vacantes oficiales de Encora en Perú (R4-10)"
+    },
+    {
+      "id": "gobpe-indecopi-convocatorias",
+      "kind": "official_discovery_portal",
+      "connector": "gobpe-convocatorias",
+      "enabled": true,
+      "decision": "approved",
+      "manualAccessStatus": "public_page_documented",
+      "manualReviewStatus": "approved",
+      "automatedAccessStatus": "approved",
+      "publicReuseStatus": "approved",
+      "termsReview": "approved_employer_site",
+      "robotsReview": "reviewed_allowed",
+      "rightsReview": "metadata_only_approved",
+      "employer": "INDECOPI",
+      "publisher": "Instituto Nacional de Defensa de la Competencia y de la Protección de la Propiedad Intelectual (INDECOPI)",
+      "officialUrl": "https://oportunidadeslaborales.indecopi.gob.pe/convocatorias-cas/",
+      "portalUrl": "https://www.gob.pe/indecopi",
+      "allowedHosts": [
+        "oportunidadeslaborales.indecopi.gob.pe",
+        "www.gob.pe",
+        "cdn.www.gob.pe"
+      ],
+      "allowedPostingHosts": [
+        "oportunidadeslaborales.indecopi.gob.pe",
+        "www.gob.pe",
+        "cdn.www.gob.pe"
+      ],
+      "maxRequestsPerRun": 10,
+      "minDelayMs": 2000,
+      "purpose": "Adquisición controlada R5-01 de convocatorias públicas oficiales (CAS y prácticas) del Estado peruano publicadas en Gob.pe"
+    },
+    {
+      "id": "sunat-convocatorias",
+      "kind": "official_discovery_portal",
+      "connector": "manual-review",
+      "enabled": false,
+      "decision": "pending_review",
+      "manualAccessStatus": "public_page_documented",
+      "manualReviewStatus": "pending_review",
+      "automatedAccessStatus": "pending_review",
+      "publicReuseStatus": "pending_review",
+      "termsReview": "pending",
+      "robotsReview": "pending_unavailable",
+      "rightsReview": "pending",
+      "employer": "SUNAT",
+      "publisher": "Superintendencia Nacional de Aduanas y de Administración Tributaria (SUNAT)",
+      "officialUrl": "https://unete.sunat.gob.pe/",
+      "portalUrl": "https://www.gob.pe/sunat",
+      "allowedHosts": ["unete.sunat.gob.pe", "www.sunat.gob.pe"],
+      "allowedPostingHosts": ["unete.sunat.gob.pe", "www.sunat.gob.pe"],
+      "maxRequestsPerRun": 0,
+      "minDelayMs": 0,
+      "purpose": "Portal Únete SUNAT protegido con controles de acceso/WAF (HTTP 403); extracción automatizada deshabilitada (fail-closed)"
+    },
+    {
+      "id": "reniec-convocatorias",
+      "kind": "official_discovery_portal",
+      "connector": "manual-review",
+      "enabled": false,
+      "decision": "pending_review",
+      "manualAccessStatus": "public_page_documented",
+      "manualReviewStatus": "pending_review",
+      "automatedAccessStatus": "pending_review",
+      "publicReuseStatus": "pending_review",
+      "termsReview": "pending",
+      "robotsReview": "pending_unavailable",
+      "rightsReview": "pending",
+      "employer": "RENIEC",
+      "publisher": "Registro Nacional de Identificación y Estado Civil (RENIEC)",
+      "officialUrl": "https://apps.reniec.gob.pe/postulaReniec/empleo",
+      "portalUrl": "https://www.gob.pe/reniec",
+      "allowedHosts": ["apps.reniec.gob.pe", "www.reniec.gob.pe"],
+      "allowedPostingHosts": ["apps.reniec.gob.pe", "www.reniec.gob.pe"],
+      "maxRequestsPerRun": 0,
+      "minDelayMs": 0,
+      "purpose": "Portal de convocatorias RENIEC requiere navegación con sesión y formularios dinámicos; extracción automatizada deshabilitada (fail-closed)"
+    },
+    {
+      "id": "stefanini-hiringroom",
+      "kind": "corporate_ats",
+      "connector": "hiringroom-board",
+      "enabled": true,
+      "decision": "approved",
+      "manualAccessStatus": "public_page_documented",
+      "manualReviewStatus": "approved",
+      "automatedAccessStatus": "approved",
+      "publicReuseStatus": "approved",
+      "termsReview": "approved_employer_site",
+      "robotsReview": "reviewed_allowed",
+      "rightsReview": "metadata_only_approved",
+      "employer": "Stefanini IT Solutions Perú S.A.C.",
+      "publisher": "Portal de Empleo Stefanini Perú (HiringRoom)",
+      "officialUrl": "https://stefaniniitsolutionsperu.hiringroom.com/jobs",
+      "portalUrl": "https://stefaniniitsolutionsperu.hiringroom.com/jobs",
+      "allowedHosts": [
+        "stefaniniitsolutionsperu.hiringroom.com",
+        "hiringroom.com"
+      ],
+      "allowedPostingHosts": [
+        "stefaniniitsolutionsperu.hiringroom.com",
+        "hiringroom.com"
+      ],
+      "maxRequestsPerRun": 15,
+      "minDelayMs": 1500,
+      "purpose": "Adquisición automatizada R5-03 de vacantes tecnológicas y consultoría TI en Perú publicadas en el portal HiringRoom de Stefanini Perú"
+    },
+    {
+      "id": "canvia-hiringroom",
+      "kind": "corporate_ats",
+      "connector": "hiringroom-board",
+      "enabled": true,
+      "decision": "approved",
+      "manualAccessStatus": "public_page_documented",
+      "manualReviewStatus": "approved",
+      "automatedAccessStatus": "approved",
+      "publicReuseStatus": "approved",
+      "termsReview": "approved_employer_site",
+      "robotsReview": "reviewed_allowed",
+      "rightsReview": "metadata_only_approved",
+      "employer": "Canvia",
+      "publisher": "Portal de Empleo Canvia (HiringRoom)",
+      "officialUrl": "https://canvia.hiringroom.com/jobs",
+      "portalUrl": "https://canvia.hiringroom.com/jobs",
+      "allowedHosts": [
+        "canvia.hiringroom.com",
+        "hiringroom.com"
+      ],
+      "allowedPostingHosts": [
+        "canvia.hiringroom.com",
+        "hiringroom.com"
+      ],
+      "maxRequestsPerRun": 10,
+      "minDelayMs": 1500,
+      "purpose": "Adquisición automatizada R5-03 de vacantes de infraestructura TI, operaciones y cloud en Perú de Canvia"
+    },
+    {
+      "id": "myapps-hiringroom",
+      "kind": "corporate_ats",
+      "connector": "hiringroom-board",
+      "enabled": true,
+      "decision": "approved",
+      "manualAccessStatus": "public_page_documented",
+      "manualReviewStatus": "approved",
+      "automatedAccessStatus": "approved",
+      "publicReuseStatus": "approved",
+      "termsReview": "approved_employer_site",
+      "robotsReview": "reviewed_allowed",
+      "rightsReview": "metadata_only_approved",
+      "employer": "MyApps Soluciones S.A.C.",
+      "publisher": "Portal de Empleo MyApps (HiringRoom)",
+      "officialUrl": "https://myapps.hiringroom.com/jobs",
+      "portalUrl": "https://myapps.hiringroom.com/jobs",
+      "allowedHosts": [
+        "myapps.hiringroom.com",
+        "hiringroom.com"
+      ],
+      "allowedPostingHosts": [
+        "myapps.hiringroom.com",
+        "hiringroom.com"
+      ],
+      "maxRequestsPerRun": 10,
+      "minDelayMs": 1500,
+      "purpose": "Adquisición automatizada R5-03 de vacantes de desarrollo de software, QA y soporte TI en Perú de MyApps Soluciones"
+    },
+    {
+      "id": "efitec-hiringroom",
+      "kind": "corporate_ats",
+      "connector": "hiringroom-board",
+      "enabled": true,
+      "decision": "approved",
+      "manualAccessStatus": "public_page_documented",
+      "manualReviewStatus": "approved",
+      "automatedAccessStatus": "approved",
+      "publicReuseStatus": "approved",
+      "termsReview": "approved_employer_site",
+      "robotsReview": "reviewed_allowed",
+      "rightsReview": "metadata_only_approved",
+      "employer": "Efitec Corporation S.A.C.",
+      "publisher": "Portal de Empleo Efitec Corporation (HiringRoom)",
+      "officialUrl": "https://efitec.hiringroom.com/jobs",
+      "portalUrl": "https://efitec.hiringroom.com/jobs",
+      "allowedHosts": [
+        "efitec.hiringroom.com",
+        "hiringroom.com"
+      ],
+      "allowedPostingHosts": [
+        "efitec.hiringroom.com",
+        "hiringroom.com"
+      ],
+      "maxRequestsPerRun": 10,
+      "minDelayMs": 1500,
+      "purpose": "Adquisición automatizada R5-03 de vacantes de ingeniería de software, arquitectura cloud y banca TI en Perú de Efitec Corporation"
+    },
+    {
+      "id": "belcorp-careers",
+      "kind": "corporate_careers_portal",
+      "connector": "manual-review",
+      "enabled": false,
+      "decision": "pending_review",
+      "manualAccessStatus": "public_page_documented",
+      "manualReviewStatus": "pending_review",
+      "automatedAccessStatus": "pending_review",
+      "publicReuseStatus": "pending_review",
+      "termsReview": "pending",
+      "robotsReview": "pending_unavailable",
+      "rightsReview": "pending",
+      "employer": "Belcorp",
+      "publisher": "Portal de Empleo Corporativo Belcorp (Rankmi / Pandapé)",
+      "officialUrl": "https://trabajaenbelcorp.biz/",
+      "portalUrl": "https://trabajaenbelcorp.biz/",
+      "allowedHosts": [
+        "trabajaenbelcorp.biz"
+      ],
+      "allowedPostingHosts": [
+        "trabajaenbelcorp.biz"
+      ],
+      "maxRequestsPerRun": 0,
+      "minDelayMs": 0,
+      "purpose": "Evaluado en R5-03; portal protegido mediante SPA cliente JS (Rankmi/Pandapé) sin endpoint REST/JSON público desatendido; extracción automatizada deshabilitada (fail-closed)"
+    },
+    {
+      "id": "bcp-yape-krowdy",
+      "kind": "corporate_careers_portal",
+      "connector": "manual-review",
+      "enabled": false,
+      "decision": "pending_review",
+      "manualAccessStatus": "public_page_documented",
+      "manualReviewStatus": "pending_review",
+      "automatedAccessStatus": "pending_review",
+      "publicReuseStatus": "pending_review",
+      "termsReview": "pending",
+      "robotsReview": "pending_unavailable",
+      "rightsReview": "pending",
+      "employer": "Banco de Crédito del Perú (BCP) / Yape",
+      "publisher": "Portal Únete al BCP (Krowdy / Bumeran)",
+      "officialUrl": "https://www.viabcp.com/unete-al-equipo-bcp",
+      "portalUrl": "https://www.viabcp.com/unete-al-equipo-bcp",
+      "allowedHosts": [
+        "www.viabcp.com",
+        "viabcp.com"
+      ],
+      "allowedPostingHosts": [
+        "www.viabcp.com",
+        "viabcp.com"
+      ],
+      "maxRequestsPerRun": 0,
+      "minDelayMs": 0,
+      "purpose": "Evaluado en R5-03; portal bancario gestionado a través de Krowdy y portales comerciales terceros sin feed headless unauthenticated directo; extracción deshabilitada (fail-closed)"
     }
   ]
 }

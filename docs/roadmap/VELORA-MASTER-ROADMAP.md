@@ -139,17 +139,26 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
 #### `TASK-R5-01` — Conector de Convocatorias Estatales Gob.pe (`gobpe-convocatorias`)
 - **Prioridad:** `P1` (Alto impacto nacional)
 - **Tipo:** `[INTEGRACIÓN_OSS]` (Reutilización de parsers HTML y PDF nativos)
-- **Estado:** `PENDING`
-- **Dependencias:** `TASK-R4-11-01`.
+- **Estado:** `COMPLETED_WITH_LIMITATIONS` (Software, conector, pruebas y Schema 2 completados y validados localmente; criterio de >= 5 oportunidades vigentes no cumplido por inexistencia coyuntural de vacantes abiertas de TI en la fuente oficial; 21 convocatorias históricas conservadas en staging)
+- **Dependencias:** `TASK-R4-11-01` (DONE).
 - **Objetivo:** Adquirir convocatorias públicas vigentes de TI y Sistemas publicadas en la plataforma única del Estado (`gob.pe`).
-- **Alcance:**
-  - Implementar en `collector/pe_connectors.py` el conector `gobpe-convocatorias` para rastrear secciones de "Informes y Publicaciones" (tipo: Convocatorias de Trabajo) de entidades priorizadas (INDECOPI, SUNAT, RENIEC, Ministerios).
-  - Integrar la descarga controlada de PDFs de bases oficiales y extracción de requisitos, perfil y cronograma mediante `extract_text_from_pdf_bytes`.
-  - Registrar la fuente en `collector/sources.json` bajo directiva *fail-closed*.
-- **Criterios de Aceptación:**
-  1. Extracción exitosa de convocatorias con enlaces oficiales a bases en CDN de Gob.pe.
-  2. Incorporación de al menos 5 oportunidades estatales vigentes al staging de candidatos.
-- **Riesgo:** Estructura HTML dispar entre distintas entidades en Gob.pe (mitigado con parsing defensivo).
+- **Alcance y Ejecución:**
+  - Implementado en `collector/pe_connectors.py` el conector `gobpe-convocatorias` para rastrear convocatorias públicas estructuradas en portales institucionales de `gob.pe` (portal oficial de INDECOPI enlazado a publicaciones en `www.gob.pe` y documentos en `cdn.www.gob.pe`).
+  - Integrada extracción defensiva de bases en PDF mediante `extract_text_from_pdf_bytes`.
+  - Registrada fuente oficial en `collector/sources.json` (`gobpe-indecopi-convocatorias`), junto con registros deshabilitados *fail-closed* para entidades con restricciones de acceso o formularios dinámicos (SUNAT y RENIEC).
+  - Validada clasificación determinista incorporando patrones directos (`desarrollo`, `help desk`).
+  - Ejecutada adquisición controlada: 668 oportunidades evaluadas, 21 oportunidades tecnológicas capturadas y validadas con Schema 2 en `data/candidates/inbox.local.json`.
+  - Realizada auditoría crítica de vigencia: se constató que los 21 candidatos tecnológicos capturados corresponden a procesos concluidos (`CLOSED` / `EXPIRED`). En la fuente oficial existen 16 procesos abiertos vigentes, pero todos corresponden a áreas legales/económicas/administrativas (cero de TI en la fecha de corte).
+- **Criterios de Aceptación y Estado Real:**
+  1. Extracción exitosa de convocatorias oficiales con enlaces a bases en CDN de Gob.pe y publicaciones legales de `gob.pe`: `CUMPLIDO`.
+  2. Incorporación de al menos 5 oportunidades estatales vigentes al staging: `NO CUMPLIDO (NOT_MET)` debido a la realidad coyuntural de la fuente oficial (0 vacantes de TI abiertas; 21 vacantes de TI históricas concluidas).
+  3. Integridad canónica certificada: `data/opportunities.seed.json` y `data/opportunities.json` 100% intactos: `CUMPLIDO`.
+  4. Suite de pruebas: 235 pruebas pasando exitosamente en 4.34s, incluyendo cobertura explícita de los 12 escenarios de borde y ciclo de vida: `CUMPLIDO`.
+  5. Cero exposición de PII y esquema Candidate Schema 2 conforme: `CUMPLIDO`.
+- **Evidencias Documentales:**
+  - `docs/audits/R5-01-GOBPE-CONNECTOR-VERIFICATION.md` (Verificación técnica de software).
+  - `docs/audits/R5-01-ACCEPTANCE-AND-FRESHNESS-REVIEW.md` (Auditoría crítica de vigencia y procedencia).
+  - `docs/audits/VELORA-OPEN-DECISIONS.md` (Decisión 6: Términos de acceso automatizado a Gob.pe).
 
 #### `TASK-R5-02` — Protocolo Institucional y Consulta Controlada de Talento Perú (SERVIR)
 - **Prioridad:** `P1` (Estratégico estatal)
@@ -167,50 +176,126 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
 #### `TASK-R5-03` — Ampliación de Empresas de Tecnología y Finanzas en Perú
 - **Prioridad:** `P1` (Diversificación privada)
 - **Tipo:** `[ADAPTACIÓN_OSS]`
-- **Estado:** `PENDING`
+- **Estado:** `COMPLETED` (Cumplimiento del 100% de criterios; 4 nuevas fuentes aprobadas y 20 vacantes de TI locales en staging)
 - **Dependencias:** Ninguna.
 - **Objetivo:** Incorporar 3 a 5 nuevas fuentes corporativas de tecnología con presencia física y contratación directa en el Perú.
-- **Alcance:**
-  - Auditar e integrar bolsas públicas en Greenhouse/Lever de: Belcorp, BCP / Yape (mediante su ATS correspondiente), Stefanini Perú y consultoras de software locales.
-  - Configurar filtros geográficos estrictos (`locationFilter: ["peru", "lima"]`).
+- **Alcance y Ejecución:**
+  - Auditados los canales ATS del mercado corporativo peruano: constatado que HiringRoom (`*.hiringroom.com`) es el estándar *de facto* para consultoras de TI y banca, mientras que Belcorp (Rankmi/Pandapé SPA) y BCP/Yape (Krowdy/Bumeran) operan bajo portales dinámicos sin feed público desatendido (registrados como `pending_review` bajo el principio de *fail-closed*).
+  - Generalizado el adaptador `hiringroom-board` en `collector/pe_connectors.py` para soporte multitenant integral, soportando extracción dual (JSON-LD Schema.org y metadatos OpenGraph/DOM con desescapado HTML y limpieza de prefijos).
+  - Registradas y configuradas en `collector/sources.json` 4 fuentes corporativas privadas aprobadas:
+    1. `stefanini-hiringroom` (Stefanini IT Solutions Perú S.A.C.)
+    2. `canvia-hiringroom` (Canvia)
+    3. `myapps-hiringroom` (MyApps Soluciones S.A.C.)
+    4. `efitec-hiringroom` (Efitec Corporation S.A.C.)
+  - Ejecutada adquisición controlada en vivo: 27 vacantes evaluadas, 7 descartadas (administrativas/talent pools) y **20 nuevas vacantes técnicas locales incorporadas** a `data/candidates/inbox.local.json`.
+  - Todas las 20 vacantes verificadas en territorio peruano (Lima, Miraflores, San Isidro, Surquillo), con relevancia directa en Ingeniería de Sistemas/TI y 100% de conformidad con Candidate Schema 2 (0 errores).
+  - Creados fixtures reproducibles offline en `tests/fixtures/ats/` y pruebas unitarias/de integración pasando al 100% (236 pruebas).
+  - Catálogo canónico (`data/opportunities.seed.json` y `data/opportunities.json`) 100% intacto con hashes certificados.
 - **Criterios de Aceptación:**
-  1. Incorporación de al menos 20 nuevas vacantes privadas locales en staging.
-  2. Validación de elegibilidad y contrato en territorio peruano.
+  1. Incorporación de al menos 20 nuevas vacantes privadas locales en staging: `CUMPLIDO` (20 vacantes técnicas incorporadas).
+  2. Validación de elegibilidad y contrato en territorio peruano: `CUMPLIDO` (100% en territorio peruano bajo normativa laboral local).
+  3. Integridad canónica y cero PII garantizadas: `CUMPLIDO`.
+- **Evidencias Documentales:**
+  - `docs/audits/R5-03-CORPORATE-SOURCES-EXPANSION.md`
+  - `docs/audits/VELORA-OPEN-DECISIONS.md` (Decisión 8)
+
+#### `TASK-R5-04-01` — Evaluación Técnica de Plataformas Secundarias como Radares de Descubrimiento (Practicas.pe y Convocatorias de Trabajo)
+- **Prioridad:** `P1` (Propuesta de investigación de cobertura nacional)
+- **Tipo:** `[INVESTIGACIÓN_TÉCNICA]`
+- **Estado:** `EVALUATED_PROPOSED` (Investigación técnica, funcional y de gobernanza completada; dictaminada como viable exclusivamente bajo Modelo B de Descubrimiento Asistido; pendiente de decisión del propietario)
+- **Dependencias:** `TASK-R5-01` (DONE).
+- **Objetivo:** Determinar la viabilidad técnica, operativa y de gobernanza de utilizar Practicas.pe y Convocatorias de Trabajo (operadas por IDEADS) como sensores y radares secundarios para detectar convocatorias estatales y privadas dispersas.
+- **Alcance y Hallazgos:**
+  - Evaluadas ambas plataformas: pertenecen a la misma entidad matriz (IDEADS), no cuentan con APIs públicas y sus términos de uso eximen responsabilidad derivando expresamente a las fuentes primarias.
+  - El 100% de la muestra de convocatorias estatales analizadas contiene enlaces salientes directos a bases oficiales (`smv.gob.pe`, `ugel02.gob.pe`, `sedapal`, `portal.mpfn.gob.pe`, `intranet2.fondepes.gob.pe`, `cdn.www.gob.pe`).
+  - Evaluadas 3 alternativas de integración: A (Radar Automatizado), B (Descubrimiento Asistido) y C (Descarte).
+  - Recomendado el **Modelo B (Descubrimiento Asistido)**: utilizar los portales secundarios para extraer enlaces salientes a la fuente primaria e identificador de proceso, prohibiendo la copia de resúmenes textuales de IDEADS y condicionando la publicación a la verificación obligatoria en la fuente oficial.
+- **Criterios de Aceptación Cumplidos en la Investigación:**
+  1. Inspección técnica, de sitemaps y de políticas de acceso completada.
+  2. Muestra reproducible de 10 oportunidades analizada y clasificada.
+  3. Matriz comparativa de 10 criterios de integración documentada.
+  4. Decisión 7 registrada en `VELORA-OPEN-DECISIONS.md`.
+- **Evidencias Documentales:**
+  - `docs/audits/R5-04-01-SECONDARY-SOURCES-RESEARCH.md`
+  - `docs/audits/R5-04-01-DISCOVERY-SAMPLE.md`
+  - `docs/audits/R5-04-01-INTEGRATION-DECISION.md`
+- **Siguiente Tarea Derivada (Potencial):** `TASK-R5-04-02 — Conector Piloto de Descubrimiento Asistido para Enlaces Oficiales Secundarios` (condicionada a aprobación del propietario).
 
 ---
 
 ### FASE AUTOMATIZACIÓN OPERATIVA: Publicación Objetiva y Operación Continua (R6)
 
-#### `TASK-R6-01` — Política y Motor de Auto-Publicación Basada en Reglas Objetivas
+Estructura evolutiva de la Fase R6:
+- **R6.1 / R6.2:** Política y motor determinista de autopublicación basada en reglas (`TASK-R6-01`) — `COMPLETED`.
+- **R6.3:** Revalidación programada de oportunidades y automatización del ciclo de vida (`TASK-R6-02`) — `COMPLETED`.
+- **R6.4:** Detección de cambios de requisitos y enlaces rotos — `PENDING (PROPUESTA FUTURA)`.
+- **R6.5:** Alertas de fallos de fuentes y reportes de calidad ampliados — `PENDING (PROPUESTA FUTURA)`.
+
+#### `TASK-R6-01` (R6.1 / R6.2) — Política y Motor de Auto-Publicación Basada en Reglas Objetivas
 - **Prioridad:** `P1` (Escalabilidad de producto)
 - **Tipo:** `[DESARROLLO_PROPIO - Justificado]`
-- **Estado:** `PENDING`
-- **Dependencias:** Aprobación de política en `VELORA-OPEN-DECISIONS.md`.
-- **Objetivo:** Eliminar el cuello de botella de aprobación manual individual para fuentes pre-autorizadas y confiables.
-- **Alcance:**
-  - Implementar en `collector/` el módulo de promoción automática: un candidato en staging se promueve automáticamente al catálogo canónico si cumple al 100% las siguientes condiciones:
-    1. Proviene de una fuente con `decision: "approved"` y `automatedAccessStatus: "approved"`.
-    2. Enlace de postulación HTTPS válido en host de lista blanca.
-    3. Clasificación técnica inequívoca en taxonomía de Sistemas/Tecnología.
-    4. Cero colisiones en deduplicación determinista.
-    5. Fecha límite futura o vacante abierta confirmada en ATS.
-    6. Trazabilidad completa de evidencias requeridas.
-  - Los casos dudosos o con alertas de taxonomía se retienen en `pending_review` para inspección humana.
+- **Estado:** `COMPLETED` (Motor determinista fail-closed implementado en `collector/autopublish.py`, integrado en `scripts/editorial_cli.py autopublish` y certificado con 18 escenarios de prueba)
+- **Dependencias:** Aprobación de política en `VELORA-OPEN-DECISIONS.md` (Decisión 2, Opción A aprobada).
+- **Objetivo:** Eliminar el cuello de botella de aprobación manual individual para fuentes pre-autorizadas y confiables mediante evaluación determinista de 6 reglas obligatorias concurrentes.
+- **Alcance y Ejecución:**
+  - Implementado el motor determinista de autopublicación en `collector/autopublish.py` bajo el principio estricto de *fail-closed* y cero dependencias externas.
+  - Implementadas y desacopladas las 6 reglas obligatorias:
+    1. **Regla 1 (Fuente autorizada):** `decision == "approved"` y `automatedAccessStatus == "approved"` en `sources.json`.
+    2. **Regla 2 (URL de postulación segura):** Protocolo HTTPS estricto y validación de host contra lista blanca autorizada (`allowedPostingHosts` y `allowedHosts`), rechazando ataques de subcadena (ej. `evil-encora.com`).
+    3. **Regla 3 (Taxonomía técnica directa):** Relevancia estricta `DIRECT` en la taxonomía de Sistemas/Computación/Tecnología; roles adyacentes u operacionales son retenidos.
+    4. **Regla 4 (Elegibilidad explícita para Perú):** Condición independiente y obligatoria que exige prueba de `PERU_LOCAL` o `PERU_REMOTE`; términos genéricos (`LATAM`, `GLOBAL_REMOTE` o remoto no calificado) son retenidos.
+    5. **Regla 5 (Deduplicación sin colisiones):** Cero colisiones exactas (clave primaria, URL idéntica) ni de identificador o firma secundaria (`employer|title`) contra el catálogo canónico ni contra el lote en proceso.
+    6. **Regla 6 (Vigencia y trazabilidad verificables):** Fecha límite futura (`deadline >= as_of`) O confirmación activa en ATS dentro de la ventana de frescura TTL (`<= 7` días), con trazabilidad completa de evidencias y rechazo si hay indicios de proceso cerrado.
+  - Integrado el subcomando `autopublish` en `scripts/editorial_cli.py` con soporte para `--dry-run` (activo por defecto), `--apply`, `--as-of`, `--max-promote`, `--output` y `--json-report`.
+  - Desarrollada la suite de pruebas `tests/test_autopublish.py` cubriendo exhaustivamente los 18 escenarios de aceptación requeridos.
+  - Ejecutada la suite completa del proyecto: **254 pruebas pasando al 100% en 4.5s**, sin regresiones.
+  - Ejecutada evaluación en seco (*dry-run*) sobre la bandeja real (`data/candidates/inbox.local.json`): 295 candidatos evaluados, 90 aprobados como aptos para publicación y 108 retenidos en revisión.
+  - Salvaguarda canónica verificada: `data/opportunities.seed.json` y `data/opportunities.json` se mantuvieron 100% intactos con sus hashes SHA-256 inalterados.
 - **Criterios de Aceptación:**
-  1. Ejecución de prueba con fixtures: candidatos válidos se publican automáticamente; candidatos ambiguos quedan retenidos.
-- **Riesgo:** Inclusión involuntaria de un rol no afín si la taxonomía falla (mitigado con lista de exclusión de palabras clave).
+  1. Motor determinista fail-closed con 6 reglas objetivas: `CUMPLIDO`.
+  2. Cobertura completa de los 18 escenarios de aceptación: `CUMPLIDO`.
+  3. Integración en CLI editorial y modo dry-run seguro: `CUMPLIDO`.
+  4. Protección canónica de archivos seed y snapshot: `CUMPLIDO`.
+- **Evidencias Documentales:**
+  - `collector/autopublish.py`
+  - `scripts/editorial_cli.py` (subcomando `autopublish`)
+  - `tests/test_autopublish.py` (18 escenarios pasando)
+  - `docs/audits/R6-01-AUTOPUBLICATION-ENGINE.md`
+  - `docs/audits/VELORA-OPEN-DECISIONS.md` (Decisión 2)
 
-#### `TASK-R6-02` — Revalidación Programada en GitHub Actions
-- **Prioridad:** `P2` (Frescura desatendida)
+#### `TASK-R6-02` (R6.3) — Revalidación Programada de Oportunidades en GitHub Actions
+- **Prioridad:** `P2` (Frescura desatendida y ciclo de vida)
 - **Tipo:** `[DESARROLLO_PROPIO - Justificado]`
-- **Estado:** `PENDING`
-- **Dependencias:** `TASK-R6-01`.
-- **Objetivo:** Automatizar la comprobación semanal de vacantes cerradas y refresco de timestamps.
-- **Alcance:**
-  - Activar un workflow cron en `.github/workflows/revalidation-audit.yml` (ejecución semanal).
-  - Cerrar automáticamente registros cuya vacante desapareció del ATS tras 2 verificaciones consecutivas.
+- **Correspondencia evolutiva:** `R6.3 — Revalidación programada de oportunidades`
+- **Estado:** `COMPLETED` (Motor de revalidación determinista con Regla de Dos Ausencias Consecutivas implementado en `collector/revalidation.py`, integrado en `scripts/editorial_cli.py`, workflow de GitHub Actions actualizado en `.github/workflows/revalidation-audit.yml` y certificado con 23 escenarios de prueba)
+- **Dependencias:** `TASK-R6-01` (COMPLETED).
+- **Objetivo:** Automatizar la comprobación periódica de vigencia y ciclo de vida de oportunidades en el catálogo canónico y bandeja de staging, garantizando la transición segura a estado histórico sin intervención manual mediante la Regla de Dos Verificaciones Consecutivas.
+- **Alcance y Ejecución:**
+  - Implementada en `collector/revalidation.py` la **Regla de Dos Verificaciones Consecutivas** (*Two-Absence Rule*):
+    - **Caso A (Confirmada abierta):** ATS confirma vacante activa -> `lastVerifiedAt` actualizado, contador de ausencias reiniciado a 0, permanece `active`/`open`.
+    - **Caso B (Primera ausencia):** Vacante ausente una vez -> clasificada como `DISAPPEARED_ONCE`, contador = 1; **salvaguarda anti-cierre activa**: la oportunidad permanece `active`/`open` en catálogo.
+    - **Caso C (Segunda ausencia consecutiva):** Vacante ausente en 2 verificaciones consecutivas exitosas -> `NOT_FOUND_CONFIRMED`, contador = 2; pasa automáticamente a `opportunityStatus: "closed"`, `publicationStatus: "historical"`, `verificationStatus: "stale"`.
+    - **Caso D (Fallo temporal de red):** Error HTTP 403, 429, 500, timeout o fallo de red -> clasificado como `TEMPORARY_ERROR`; **el contador de ausencias NO se incrementa** y la oportunidad se preserva intacta.
+    - **Caso E (Cierre explícito en ATS):** Fuente reporta estado cerrado/concluido/cancelado -> `CLOSED_CONFIRMED`; pasa directamente a estado histórico con evidencia sin requerir dos ausencias.
+  - Implementada protección de concurrencia mediante `RevalidationLock` (`data/.revalidation.lock`) para prevenir colisiones o sobreescrituras concurrentes durante ejecuciones programadas.
+  - Diseñada la separación de almacenamiento de estado persistente en `data/revalidation-state.json`, garantizando que el conteo de ausencias sobreviva entre corridas semanales independientes sin alterar la estructura del catálogo cliente.
+  - Actualizado el CLI editorial (`scripts/editorial_cli.py revalidate --catalog`) con argumentos `--catalog`, `--apply`, `--state-file`, `--threshold`, `--as-of` y reportes JSON/estructurados.
+  - Actualizado el workflow programado en `.github/workflows/revalidation-audit.yml` con ejecución semanal desatendida (`cron: "0 9 * * 0"`, domingos 04:00 AM Lima), `workflow_dispatch`, `concurrency`, permisos mínimos de solo lectura (`contents: read`) y salvaguardas de inmutabilidad en modo dry-run.
+  - Desarrollada la suite de pruebas unitarias y de integración `tests/test_revalidation_r6_02.py` cubriendo exhaustivamente los 22 escenarios de aceptación obligatorios más la prueba de regresión de frescura TTL de R4-11-03 (23 pruebas).
+  - Ejecutada la suite completa del proyecto: **277 pruebas pasando al 100%**, sin regresiones.
+  - Verificada la inmutabilidad de los catálogos en modo dry-run: `data/opportunities.seed.json` y `data/opportunities.json` preservados con paridad de hash SHA-256 intacta.
 - **Criterios de Aceptación:**
-  1. Convocatorias cerradas pasan automáticamente a estado histórico sin intervención manual.
+  1. Convocatorias cerradas o desaparecidas pasan automáticamente a estado histórico bajo la regla de dos ausencias: `CUMPLIDO`.
+  2. Salvaguarda anti-cierre ante fallos transitorios de red o primera ausencia: `CUMPLIDO`.
+  3. Workflow programado y concurrencia segura en GitHub Actions: `CUMPLIDO`.
+  4. Persistencia de estado entre ejecuciones sin mutar Schema 2 del cliente: `CUMPLIDO`.
+  5. 23 pruebas de aceptación y 277 pruebas globales pasando: `CUMPLIDO`.
+- **Evidencias Documentales:**
+  - `collector/revalidation.py`
+  - `scripts/editorial_cli.py`
+  - `.github/workflows/revalidation-audit.yml`
+  - `tests/test_revalidation_r6_02.py`
+  - `docs/audits/R6-02-REVALIDATION-ENGINE.md`
 
 ---
 
@@ -219,32 +304,92 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
 #### `TASK-R7-01` — Taxonomía de Regímenes Laborales Peruanos (CAS, 728, Formativo)
 - **Prioridad:** `P2` (Valor funcional Perú)
 - **Tipo:** `[DESARROLLO_PROPIO - Justificado]`
-- **Estado:** `PENDING`
-- **Dependencias:** `TASK-R5-01`.
-- **Objetivo:** Permitir al usuario filtrar y entender la modalidad de contratación en el sector público y privado.
-- **Alcance:**
-  - Añadir filtro en frontend y campo en esquema: `Modalidad Formativa (Ley 28518)`, `CAS (D.L. 1057)`, `Régimen 728 (Privado/Público)`, `Locación de Servicios / Honorarios`.
-  - Explicar en la tarjeta los derechos básicos asociados a cada modalidad (ej. subvención, seguro, vacaciones).
+- **Estado:** `COMPLETED`
+- **Dependencias:** `TASK-R5-01`, `TASK-R6-01`, `TASK-R6-02`.
+- **Objetivo:** Permitir al usuario filtrar y entender la modalidad de contratación en el sector público y privado con rigor normativo y certeza documental.
+- **Alcance Implementado:**
+  - Módulo normalizador `collector/labor_regime.py` con las 7 categorías canónicas: `PRE_PROFESSIONAL_INTERNSHIP`, `PROFESSIONAL_INTERNSHIP`, `CAS`, `LABOR_REGIME_728`, `CIVIL_SERVICES`, `OTHER`, `UNSPECIFIED`.
+  - Clasificador determinista y fail-closed que analiza `contractType`, `opportunityType`, `requisition`, títulos, tareas, requisitos y beneficios.
+  - Marco normativo peruano citado explícitamente: Ley 28518, D. Leg. 1057 / Ley 29849 / Ley 31131 (CAS), TUO D. Leg. 728 (D.S. 003-97-TR), Código Civil art. 1764 (locación), y Ley 31396.
+  - Integración en `collector/classification.py`, `collector/autopublish.py` y validación en `scripts/catalog_quality.py`.
+  - Frontend con selector `<select id="regime-filter">` en `index.html`, badges visuales temáticos en tarjetas (`app.js`), tarjeta de resumen y sección detallada de marco normativo con jornada, derechos y cautelas en el modal y vista de oportunidad.
+  - Suite de pruebas unitarias exhaustiva en `tests/test_labor_regime.py` (23 pruebas) y validación en `tests/catalog_ui.test.cjs`.
+  - Total global del proyecto: 300 pruebas unitarias y de integración pasando al 100%.
+  - Integridad canónica preservada al 100% (paridad SHA-256 intacta en `data/opportunities.seed.json` y `data/opportunities.json`).
 - **Criterios de Aceptación:**
-  1. Filtro visible en UI que discrimina efectivamente puestos formativos de CAS y régimen privado.
+  1. Filtro visible en UI que discrimina efectivamente puestos formativos de CAS y régimen privado: `CUMPLIDO`.
+  2. Taxonomía de 7 modalidades con citas legales peruanas exactas: `CUMPLIDO`.
+  3. Clasificación fail-closed sin presunciones ciegas: `CUMPLIDO`.
+  4. Retrocompatibilidad total con Schema 2 del catálogo: `CUMPLIDO`.
+- **Evidencias Documentales:**
+  - `collector/labor_regime.py`
+  - `tests/test_labor_regime.py`
+  - `docs/audits/R7-01-LABOR-REGIME-TAXONOMY.md`
 
 #### `TASK-R7-02` — Comparador de Trayectorias y Requisitos Técnicos
 - **Prioridad:** `P3` (Evolución de producto)
-- **Tipo:** `[DESARROLLO_PROPIO - Justificado]`
-- **Estado:** `PENDING`
-- **Dependencias:** `TASK-R7-01`.
-- **Objetivo:** Brindar a los estudiantes herramientas de análisis de brechas de habilidades frente a los requisitos del mercado.
-- **Alcance:**
-  - Extraer nube de tecnologías y competencias requeridas (Python, Java, Cloud, SQL, Redes) y contrastar requisitos entre dos oportunidades en el comparador actual.
+- **Tipo:** `[REUTILIZACIÓN_INTERNA]` + `[DESARROLLO_PROPIO - Justificado]`
+- **Estado:** `COMPLETED`
+- **Dependencias:** `TASK-R7-01` (Satisfecha).
+- **Objetivo:** Brindar a los estudiantes y egresados de Ingeniería de Sistemas y TI herramientas de análisis de brechas de habilidades y requisitos técnicos frente a las demandas de mercado registradas en el catálogo.
+- **Alcance Implementado:**
+  - Taxonomía canónica de competencias técnicas normalizadas y alias (lenguajes, frameworks, bases de datos, cloud, DevOps, redes y seguridad) en `collector/skills.py` y `app.js`.
+  - Extractor determinista y clasificador de prioridad (`REQUIRED`, `PREFERRED`, `MENTIONED`, `UNSPECIFIED`) con protección estricta contra falsos positivos (C vs palabras comunes, SQL vs SQL Server/SQLite, C++, redes telecomunicaciones vs redes sociales).
+  - Jerarquía contextual donde los requisitos textuales explícitos prevalecen sobre etiquetas genéricas de habilidades.
+  - Reutilización y extensión del comparador nativo `#compare-dialog` en `app.js`: matriz visual de 3 columnas (Coincidentes, Exclusivas A, Exclusivas B), badges temáticos con tooltips de trazabilidad textual y advertencias explícitas de requerimientos no declarados (fail-closed).
+  - Inclusión del régimen contractual laboral (`TASK-R7-01`) en la tabla atributiva del comparador.
+  - Suite de pruebas unitarias en `tests/test_skills.py` (13 pruebas) y pruebas de UI en `tests/catalog_ui.test.cjs`.
+  - Suite global: 313 pruebas pasando al 100% sin regresiones. Catálogos canónicos 100% íntegros e inalterados.
 - **Criterios de Aceptación:**
-  1. Vista comparativa resalta competencias coincidentes y diferenciadoras.
+  1. Vista comparativa resalta competencias coincidentes y diferenciadoras: `CUMPLIDO`.
+  2. Clasificación determinista de obligatoriedad sin modelos de caja negra ni sesgos: `CUMPLIDO`.
+  3. Manejo transparente de vacíos de información sin hacer suposiciones: `CUMPLIDO`.
+  4. Preservación estricta de retrocompatibilidad y paridad de datos: `CUMPLIDO`.
+- **Evidencias Documentales:**
+  - `collector/skills.py`
+  - `tests/test_skills.py`
+  - `docs/audits/R7-02-OPPORTUNITY-COMPARATOR.md`
+
+#### `TASK-R7-RELEASE-AUDIT` — Auditoría de Consolidación y Verificación Integral Pre-Release de Fase R7
+- **Prioridad:** `P2` (Consolidación operativa)
+- **Tipo:** `[AUDITORÍA_TÉCNICA]`
+- **Estado:** `COMPLETED`
+- **Dictamen de Preparación:** `READY_WITH_LIMITATIONS`
+- **Dependencias:** `TASK-R7-01`, `TASK-R7-02` (Satisfechas).
+- **Objetivo:** Ejecutar la revisión final cruzada de frontend, tests globales, accesibilidad WCAG 2.1 AA del comparador y del filtro de regímenes, y certificar la preparación para merge/despliegue de las innovaciones de R7 en producción.
+- **Alcance Auditado y Verificado:**
+  - Verificación de integración frontend (`index.html`, `app.js`) y módulos Python (`collector/labor_regime.py`, `collector/skills.py`).
+  - Pruebas reales en navegador Chromium automatizadas con Playwright evaluando interacción de filtros de régimen, modal de detalle, y matriz de competencias en `#compare-dialog`.
+  - Auditoría de accesibilidad WCAG 2.1 AA con `@axe-core/playwright` en viewports Desktop (1280x800), Mobile (375x667) y Narrow (320x568): cero violaciones críticas o serias detectadas.
+  - Suite global de regresión: 313 pruebas de Python aprobadas al 100% y `catalog_ui.test.cjs` aprobado con exit code 0.
+  - Integridad canónica de datos: paridad SHA-256 intacta en `data/opportunities.seed.json` y `data/opportunities.json`.
+  - Evidencias: DEF-R7-01 corregido en `tests/e2e/accessibility.spec.cjs` y `tests/e2e/catalog.spec.cjs`.
+- **Evidencias Documentales:**
+  - `docs/audits/R7-RELEASE-CONSOLIDATION-AUDIT.md`
+
+#### `TASK-R7-RELEASE-EXECUTION` — Preparación de Consolidación y Certificación Pre-Release de Fase R7
+- **Prioridad:** `P1` (Consolidación operativa)
+- **Tipo:** `[REUTILIZACIÓN_INTERNA]` + `[REFACTOR/FIX]` + `[AUDITORÍA_TÉCNICA]`
+- **Estado:** `COMPLETED` (Preparación local finalizada y certificada; pendiente decisión/autorización del propietario)
+- **Dictamen de Preparación:** `READY_FOR_RELEASE`
+- **Dependencias:** `TASK-R7-RELEASE-AUDIT` (Satisfecha).
+- **Objetivo:** Resolver el defecto E2E `DEF-R7-01`, validar la convivencia e integración de R7-01 y R7-02, certificar la suite completa de pruebas y preparar los cambios para la revisión y autorización del propietario sin alterar la rama remota ni realizar despliegues no autorizados.
+- **Alcance Ejecutado y Verificado:**
+  - Resolución integral de `DEF-R7-01` desacoplando aserciones de recuento de vacantes activas y comprobando dinámicamente la degradación fail-closed de `OP-005` (CookUnity) tras superar el TTL de 7 días.
+  - Ejecución de suite E2E completa en Playwright: **45/45 pruebas aprobadas (100% OK)** en Chromium, Mobile y Narrow con **0 violaciones WCAG 2.1 AA**.
+  - Ejecución de suite unitaria en Python: **313/313 pruebas aprobadas (100% OK)** y pruebas de frontend en Node.js aprobadas con exit code 0.
+  - Verificación criptográfica de catálogos canónicos: SHA-256 de `data/opportunities.seed.json` (`710D77...`) y `data/opportunities.json` (`1D96EC...`) 100% intactos e inmutados.
+  - Cero dependencias externas adicionales introducidas.
+- **Evidencias Documentales:**
+  - `tests/e2e/accessibility.spec.cjs`
+  - `tests/e2e/catalog.spec.cjs`
+  - `docs/audits/R7-RELEASE-CONSOLIDATION-AUDIT.md`
 
 ---
 
 ## 5. Siguiente Acción Única Recomendada
 
-**Inicio de la Fase R5 — Cobertura Nacional de Fuentes (`TASK-R5-01`):**
-Con la Fase R4-11 (Consolidación Operativa y Despliegue) culminada exitosamente al 100% tras el despliegue verificado de la identidad **Velora** en GitHub Pages y Vercel Production, la siguiente acción técnica inmediata es iniciar la implementación de:
-- **`TASK-R5-01` — Conector de Convocatorias Estatales Gob.pe (`gobpe-convocatorias`)**
-  - **Prioridad:** `P1`
-  - **Objetivo:** Adquisición controlada de vacantes tecnológicas del Estado peruano (CAS / Formativo), reutilizando los extractores y validadores del subsistema `collector/` hacia la bandeja de staging `inbox.json`, respetando el principio de fail-closed y salvaguardando la integridad del catálogo canónico.
+**Decisión y Autorización del Propietario para el Despliegue de Fase R7:**
+Habiendo completado la preparación técnica, corregido el defecto DEF-R7-01 y obtenido el dictamen `READY_FOR_RELEASE` con 45/45 pruebas E2E y 313/313 pruebas unitarias aprobadas, la siguiente acción corresponde exclusivamente a la **autorización explícita del propietario**:
+
+- **Acción:** Autorizar commit consolidado en `main`, creación del tag de versión (e.g., `v0.7.0`) y push a `origin/main` para la ejecución del pipeline automatizado de despliegue a GitHub Pages y Vercel.
