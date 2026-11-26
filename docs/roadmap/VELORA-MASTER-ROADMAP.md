@@ -367,29 +367,31 @@ Estructura evolutiva de la Fase R6:
 - **Evidencias Documentales:**
   - `docs/audits/R7-RELEASE-CONSOLIDATION-AUDIT.md`
 
-#### `TASK-R7-RELEASE-EXECUTION` — Preparación de Consolidación y Certificación Pre-Release de Fase R7
-- **Prioridad:** `P1` (Consolidación operativa)
-- **Tipo:** `[REUTILIZACIÓN_INTERNA]` + `[REFACTOR/FIX]` + `[AUDITORÍA_TÉCNICA]`
-- **Estado:** `COMPLETED` (Preparación local finalizada y certificada; pendiente decisión/autorización del propietario)
-- **Dictamen de Preparación:** `READY_FOR_RELEASE`
+#### `TASK-R7-RELEASE-EXECUTION` — Consolidación, Etiquetado y Despliegue de Release de Fase R7
+- **Prioridad:** `P1` (Despliegue de producción autorizado)
+- **Tipo:** `[CONSOLIDACIÓN_Y_RELEASE]`
+- **Estado:** `COMPLETED`
+- **Dictamen de Despliegue:** `DEPLOYED_AND_VERIFIED`
 - **Dependencias:** `TASK-R7-RELEASE-AUDIT` (Satisfecha).
-- **Objetivo:** Resolver el defecto E2E `DEF-R7-01`, validar la convivencia e integración de R7-01 y R7-02, certificar la suite completa de pruebas y preparar los cambios para la revisión y autorización del propietario sin alterar la rama remota ni realizar despliegues no autorizados.
-- **Alcance Ejecutado y Verificado:**
-  - Resolución integral de `DEF-R7-01` desacoplando aserciones de recuento de vacantes activas y comprobando dinámicamente la degradación fail-closed de `OP-005` (CookUnity) tras superar el TTL de 7 días.
-  - Ejecución de suite E2E completa en Playwright: **45/45 pruebas aprobadas (100% OK)** en Chromium, Mobile y Narrow con **0 violaciones WCAG 2.1 AA**.
-  - Ejecución de suite unitaria en Python: **313/313 pruebas aprobadas (100% OK)** y pruebas de frontend en Node.js aprobadas con exit code 0.
-  - Verificación criptográfica de catálogos canónicos: SHA-256 de `data/opportunities.seed.json` (`710D77...`) y `data/opportunities.json` (`1D96EC...`) 100% intactos e inmutados.
-  - Cero dependencias externas adicionales introducidas.
+- **Objetivo:** Ejecutar la consolidación definitiva sobre `main`, crear el tag de release `v0.7.0`, realizar push a `origin/main` y verificar en vivo los despliegues automatizados de GitHub Pages y Vercel.
+- **Alcance Ejecutado y Certificado:**
+  - Creación del commit consolidado `4006413` sobre `main` y tag anotado `v0.7.0`.
+  - Push exitoso a `origin/main` y tag remoto `v0.7.0`.
+  - Pipeline GitHub Actions `Validate and publish Ruta Sistemas` (Run ID: `45876535680`): jobs `validate` y `publish` aprobados con éxito (`success`).
+  - Verificación en vivo sobre GitHub Pages (`https://blueisazul.github.io/WebRutaSistemas/`) y Vercel (`https://velora-six-fawn.vercel.app/`): 0 errores de consola, 0 fallos de red.
+  - Paridad criptográfica absoluta (100% bit a bit) del catálogo servido (`417B38...`, 537,807 bytes).
+  - Verificación interactiva de funcionalidades R7 en vivo: selector `#regime-filter`, modal normativo, comparador con matriz de 3 columnas de habilidades y soporte fail-closed de oportunidades desactualizadas (`#include-unconfirmed`).
 - **Evidencias Documentales:**
-  - `tests/e2e/accessibility.spec.cjs`
-  - `tests/e2e/catalog.spec.cjs`
+  - `docs/audits/TASK-R7-RELEASE-EXECUTION.md`
   - `docs/audits/R7-RELEASE-CONSOLIDATION-AUDIT.md`
 
 ---
 
 ## 5. Siguiente Acción Única Recomendada
 
-**Decisión y Autorización del Propietario para el Despliegue de Fase R7:**
-Habiendo completado la preparación técnica, corregido el defecto DEF-R7-01 y obtenido el dictamen `READY_FOR_RELEASE` con 45/45 pruebas E2E y 313/313 pruebas unitarias aprobadas, la siguiente acción corresponde exclusivamente a la **autorización explícita del propietario**:
+**Cierre de Fase R7 y Planificación Operativa:**
+Con la publicación exitosa del release `v0.7.0` en GitHub Pages y Vercel, la **Fase R7 — Valor Profesional y UX** queda formalmente concluida y en producción. La siguiente acción en el Roadmap Maestro para evaluación del propietario es:
 
-- **Acción:** Autorizar commit consolidado en `main`, creación del tag de versión (e.g., `v0.7.0`) y push a `origin/main` para la ejecución del pipeline automatizado de despliegue a GitHub Pages y Vercel.
+- **Definición de Prioridades para Próximas Fases:**
+  - Evaluar la incorporación de nuevas fuentes de sector público/privado validadas (Fase R5).
+  - Activar ciclos programados de revalidación periódica de catálogo en background (Fase R6).
