@@ -378,16 +378,16 @@
               </kbd>
             </label>
 
-            <!-- Ubicación -->
+            <!-- Ubicación / Texto libre -->
             <label
               class="flex h-11 min-w-0 items-center gap-3 rounded-xl border border-borderMuted bg-slate-100 px-3.5 transition-colors hover:border-crystalBlue focus-within:border-crystalBlue focus-within:ring-2 focus-within:ring-iceBlue/25">
-              <span class="sr-only">Ciudad o país</span>
+              <span class="sr-only">Buscar por ciudad, sede o texto</span>
               <svg aria-hidden="true" class="h-[18px] w-[18px] shrink-0 text-brandMuted" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
                 <circle cx="12" cy="10" r="3" />
               </svg>
-              <input type="search" id="location" placeholder="Ciudad o país" autocomplete="off"
+              <input type="search" id="location" placeholder="Ciudad, sede o texto libre" autocomplete="off"
                 class="w-full min-w-0 bg-transparent text-[13px] text-brandBlack placeholder:text-brandMuted outline-none" />
             </label>
 
@@ -403,6 +403,28 @@
 
           <!-- Filtros secundarios -->
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+
+            <!-- Ámbito territorial (TASK-R5-05) -->
+            <label class="min-w-0 space-y-1.5">
+              <span class="block text-xs font-medium text-brandDark">Ámbito territorial</span>
+              <select id="scope-filter"
+                class="h-10 w-full rounded-lg border border-borderMuted bg-white px-3 text-xs text-brandDark outline-none transition-colors hover:border-crystalBlue focus:border-crystalBlue focus:ring-2 focus:ring-iceBlue/25">
+                <option value="">Todos los ámbitos</option>
+                <option value="PERU_LOCAL">Empleo en Perú (Presencial/Híbrido)</option>
+                <option value="PERU_REMOTE">Remoto nacional (Perú)</option>
+                <option value="INTERNATIONAL_REMOTE_PERU_ELIGIBLE">Internacional remoto (admite Perú)</option>
+                <option value="INTERNATIONAL_REMOTE_UNCONFIRMED">Internacional (por confirmar)</option>
+              </select>
+            </label>
+
+            <!-- Departamento en Perú (TASK-R5-05) -->
+            <label class="min-w-0 space-y-1.5">
+              <span class="block text-xs font-medium text-brandDark">Ubicación en Perú</span>
+              <select id="department-filter"
+                class="h-10 w-full rounded-lg border border-borderMuted bg-white px-3 text-xs text-brandDark outline-none transition-colors hover:border-crystalBlue focus:border-crystalBlue focus:ring-2 focus:ring-iceBlue/25">
+                <option value="">Todas las ubicaciones</option>
+              </select>
+            </label>
 
             <!-- Modalidad -->
             <label class="min-w-0 space-y-1.5">

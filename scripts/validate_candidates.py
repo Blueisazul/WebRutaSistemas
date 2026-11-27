@@ -61,9 +61,10 @@ def validate_payload(payload: object, *, sources: dict, today: date) -> tuple[li
 
         source_url = candidate.get("sourceUrl")
         source_ok, source_host = valid_https_url(source_url)
+        allowed_source_hosts = set(source.get("allowedHosts", [])) | set(source.get("allowedPostingHosts", [])) if source else set()
         if not source_ok:
             errors.append(f"{prefix}.sourceUrl debe ser HTTPS")
-        elif source and source_host not in source.get("allowedHosts", []):
+        elif source and source_host not in allowed_source_hosts:
             errors.append(f"{prefix}.sourceUrl host no está permitido para la fuente")
 
         try:

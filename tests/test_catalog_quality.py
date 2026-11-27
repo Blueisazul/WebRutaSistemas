@@ -139,6 +139,17 @@ class CatalogQualityTests(unittest.TestCase):
         result = validate_records([record], today=TODAY)
         self.assertFalse(result.ok)
 
+    def test_source_url_cannot_be_rest_api_endpoint(self):
+        for api_url in [
+            "https://boards-api.greenhouse.io/v1/boards/empresa/jobs",
+            "https://api.lever.co/v0/postings/empresa?mode=json",
+        ]:
+            host = "boards-api.greenhouse.io" if "greenhouse" in api_url else "api.lever.co"
+            record = active_record(sourceUrl=api_url, allowedHosts=["jobs.example.test", host])
+            result = validate_records([record], today=TODAY)
+            self.assertFalse(result.ok)
+            self.assertTrue(any("no puede apuntar a endpoints API REST" in err for err in result.errors))
+
     def test_duplicate_ids_block_publication(self):
         result = validate_records([active_record(), active_record()], today=TODAY)
         self.assertIn("ID duplicado", " ".join(result.errors))

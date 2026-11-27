@@ -145,6 +145,7 @@ assert.match(regimeTagContext.result, /Planilla 728/, 'regime tag renders Planil
 
 const detailContext = vm.createContext({
   safeHttpsUrl: (url) => url,
+  safeNavigableWebUrl: (url) => url,
   escapeHTML: (str) => String(str || ''),
   formatDateTime: (dt) => dt,
   formatLocationEligibility: () => 'Lima, Perú',
@@ -170,6 +171,95 @@ assert.match(detailContext.result, /Jornada y tiempo de trabajo/, 'detail explai
 assert.match(detailContext.result, /Subvención \/ Remuneración/, 'detail explains compensation');
 assert.match(detailContext.result, /Garantías y derechos principales/, 'detail explains key rights');
 assert.match(detailContext.result, /Cautelas y consideraciones/, 'detail explains cautions');
+
+const apiDetailContext = vm.createContext({
+  safeHttpsUrl: (url) => url,
+  safeNavigableWebUrl: (url) => {
+    try {
+      const u = new URL(url);
+      return (u.hostname === 'boards-api.greenhouse.io' || u.hostname === 'api.lever.co') ? null : url;
+    } catch { return null; }
+  },
+  escapeHTML: (str) => String(str || ''),
+  formatDateTime: (dt) => dt,
+  formatLocationEligibility: () => 'Lima, Perú',
+  knownValue: (v) => Boolean(v),
+  cleanContractDuration: () => 'Full-time',
+  formatStructuredList: () => '',
+  statusTag: () => '<span>Status</span>',
+  currentStates: () => ({ opportunityStatus: 'open', verificationStatus: 'verified', publicationStatus: 'active' }),
+  catalogConfig: { verificationTtlDays: 7 },
+  lucideIcon: (name) => `<svg>${name}</svg>`,
+  isCivilDate: () => true,
+  result: null,
+});
+vm.runInContext(`${functions}\n${source.slice(detailStart, detailEnd)}\nresult = renderDetailContent({ id: 'OP-API-1', employer: 'Canonical', title: 'Linux Kernel Engineer', requisition: '123', sourceUrl: 'https://boards-api.greenhouse.io/v1/boards/canonical/jobs', applyUrl: 'https://job-boards.greenhouse.io/canonical/jobs/123' });`, apiDetailContext);
+assert.ok(!apiDetailContext.result.includes('Ver publicación original'), 'detail does not render "Ver publicación original" button when sourceUrl is a REST API endpoint');
+assert.ok(apiDetailContext.result.includes('https://job-boards.greenhouse.io/canonical/jobs/123'), 'detail retains applyUrl button when present');
+
+// --- TASK-R5-05: Geographic Normalization & Territorial Scope UI tests ---
+assert.match(html, /<select[^>]*id="scope-filter"/, 'scope-filter select element exists in HTML');
+assert.match(html, /<select[^>]*id="department-filter"/, 'department-filter select element exists in HTML');
+for (const scopeKey of [
+  'PERU_LOCAL',
+  'PERU_REMOTE',
+  'INTERNATIONAL_REMOTE_PERU_ELIGIBLE',
+  'INTERNATIONAL_REMOTE_UNCONFIRMED',
+]) {
+  assert.match(html, new RegExp(`value="${scopeKey}"`), `scope option ${scopeKey} is present in index.html`);
+}
+
+function runGeoView({ scope = '', department = '', location = '' } = {}) {
+  const catalog = [
+    { id: 'JOB-PE-LOCAL', recordKind: 'curated', publicationStatus: 'active', employer: 'CookUnity', title: 'Senior Software Engineer', mode: 'Híbrido', location: 'Lima, Perú' },
+    { id: 'JOB-PE-REMOTE', recordKind: 'curated', publicationStatus: 'active', employer: 'Encora', title: 'Senior Java Engineer', mode: 'Remoto', location: 'Perú (Remoto nacional)' },
+    { id: 'JOB-INTL-OK', recordKind: 'curated', publicationStatus: 'active', employer: 'Canonical', title: 'Software Engineer', mode: 'Remoto', location: 'Remoto (América Latina)', eligibility: 'Perú elegible' },
+    { id: 'JOB-INTL-UNCONF', recordKind: 'curated', publicationStatus: 'active', employer: 'Launchpad', title: 'Platform Engineer', mode: 'Remoto', location: 'Remoto internacional', eligibility: 'Confirmar contratación directa' },
+  ];
+  const filters = {
+    query: { value: '' }, location: { value: location }, mode: { value: '' }, kind: { value: '' },
+    family: { value: '' }, sector: { value: '' }, level: { value: '' }, salary: { value: '' },
+    risk: { value: '' }, regime: { value: '' }, scope: { value: scope }, department: { value: department },
+    history: { checked: false },
+  };
+  const toggles = {
+    '#include-unconfirmed': { checked: false },
+    '#include-demonstrations': { checked: false },
+  };
+  const context = vm.createContext({
+    catalog, filters,
+    document: { querySelector: (selector) => toggles[selector] },
+    result: null,
+    currentStates: () => ({ opportunityStatus: 'open', publicationStatus: 'active', verificationStatus: 'verified' }),
+  });
+  vm.runInContext(`${functions}\nresult = getVisibleJobs();`, context);
+  return Array.from(context.result, (job) => job.id);
+}
+
+assert.deepEqual(runGeoView({ scope: 'PERU_LOCAL' }), ['JOB-PE-LOCAL'], 'scope filter correctly filters PERU_LOCAL');
+assert.deepEqual(runGeoView({ scope: 'PERU_REMOTE' }), ['JOB-PE-REMOTE'], 'scope filter correctly filters PERU_REMOTE');
+assert.deepEqual(runGeoView({ scope: 'INTERNATIONAL_REMOTE_PERU_ELIGIBLE' }), ['JOB-INTL-OK'], 'scope filter correctly filters INTERNATIONAL_REMOTE_PERU_ELIGIBLE');
+assert.deepEqual(runGeoView({ scope: 'INTERNATIONAL_REMOTE_UNCONFIRMED' }), ['JOB-INTL-UNCONF'], 'scope filter correctly filters INTERNATIONAL_REMOTE_UNCONFIRMED');
+assert.deepEqual(runGeoView({ department: 'Lima' }), ['JOB-PE-LOCAL'], 'department filter correctly filters opportunities in Lima');
+assert.deepEqual(runGeoView({ location: 'Lima' }), ['JOB-PE-LOCAL'], 'free-text location search works for Lima');
+assert.equal(runGeoView().length, 4, 'all opportunities visible when no geographic filter is active');
+
+const geoTagContext = vm.createContext({
+  escapeHTML: (str) => String(str || ''),
+  result: null,
+});
+vm.runInContext(`${functions}\nresult = geographicScopeTag({ id: 'JOB-PE-LOCAL', location: 'Lima, Perú', mode: 'Híbrido' });`, geoTagContext);
+assert.match(geoTagContext.result, /Perú local/, 'geographicScopeTag renders Perú local badge');
+
+vm.runInContext(`result = geographicScopeTag({ id: 'JOB-PE-REMOTE', location: 'Perú (Remoto nacional)', mode: 'Remoto' });`, geoTagContext);
+assert.match(geoTagContext.result, /Remoto Perú/, 'geographicScopeTag renders Remoto Perú badge');
+
+vm.runInContext(`result = geographicScopeTag({ id: 'JOB-INTL-OK', location: 'Remoto (América Latina)', eligibility: 'Perú elegible', mode: 'Remoto' });`, geoTagContext);
+assert.match(geoTagContext.result, /Internacional elegible/, 'geographicScopeTag renders Internacional elegible badge');
+
+vm.runInContext(`result = renderDetailContent({ id: 'OP-GEO-1', employer: 'CookUnity', title: 'Software Engineer', location: 'Lima, Perú', mode: 'Híbrido', sourceUrl: 'https://cookunity.com', applyUrl: 'https://cookunity.com/jobs' });`, detailContext);
+assert.match(detailContext.result, /Ámbito territorial/, 'detail renders geographic scope summary card');
+assert.match(detailContext.result, /Empleo en Perú \(Presencial\/Híbrido\)/, 'detail renders full scope label');
 
 const metricContext = vm.createContext({
   catalog: [

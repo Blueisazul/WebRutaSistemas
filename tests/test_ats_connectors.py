@@ -66,7 +66,7 @@ class AtsConnectorsSchema2Tests(unittest.TestCase):
         first = candidates[0]
         self.assertEqual(first["candidateId"], "CAND-greenhouse-public-job-board-template-990101")
         self.assertEqual(first["sourceId"], "greenhouse-public-job-board-template")
-        self.assertEqual(first["sourceUrl"], "https://boards-api.greenhouse.io/v1/boards/empresa-ficticia/jobs")
+        self.assertEqual(first["sourceUrl"], "https://boards.greenhouse.io/empresa-ficticia/jobs/990101")
         self.assertEqual(first["capturedAt"], SAMPLE_TIMESTAMP)
         self.assertEqual(first["captureMethod"], "manual")
         self.assertEqual(first["editorialReview"]["status"], "pending_review")
@@ -181,7 +181,7 @@ class AtsConnectorsSchema2Tests(unittest.TestCase):
         first = candidates[0]
         self.assertEqual(first["candidateId"], "CAND-lever-public-postings-template-lev-uuid-990201")
         self.assertEqual(first["sourceId"], "lever-public-postings-template")
-        self.assertEqual(first["sourceUrl"], "https://api.lever.co/v0/postings/empresa-ficticia?mode=json")
+        self.assertEqual(first["sourceUrl"], "https://jobs.lever.co/empresa-ficticia/lev-uuid-990201")
         self.assertEqual(first["capturedAt"], SAMPLE_TIMESTAMP)
         self.assertEqual(first["captureMethod"], "manual")
         self.assertEqual(first["editorialReview"]["status"], "pending_review")

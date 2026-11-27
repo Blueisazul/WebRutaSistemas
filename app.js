@@ -24,6 +24,8 @@ const compareClear = document.querySelector('#compare-clear');
 const filters = {
   query: document.querySelector('#query'),
   location: document.querySelector('#location'),
+  scope: document.querySelector('#scope-filter'),
+  department: document.querySelector('#department-filter'),
   mode: document.querySelector('#mode'),
   kind: document.querySelector('#kind'),
   family: document.querySelector('#family'),
@@ -261,6 +263,20 @@ function safeHttpsUrl(value) {
   }
 }
 
+function safeNavigableWebUrl(value) {
+  const safe = safeHttpsUrl(value);
+  if (!safe) return null;
+  try {
+    const hostname = new URL(safe).hostname.toLowerCase();
+    if (hostname === 'boards-api.greenhouse.io' || hostname === 'api.lever.co') {
+      return null;
+    }
+    return safe;
+  } catch {
+    return null;
+  }
+}
+
 function initials(name) {
   return name.split(/\s+/).slice(0, 2).map((part) => part[0] || '').join('').toUpperCase();
 }
@@ -379,6 +395,7 @@ function renderCard(job) {
         <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
           ${modeTag(job)}
           ${regimeTag(job)}
+          ${geographicScopeTag(job)}
 
           <span class="inline-flex items-center rounded-md bg-surfaceRaised px-2 py-1 text-[10px] font-medium text-brandDark">
             ${escapeHTML(familyLabel)}
@@ -669,7 +686,7 @@ function formatStructuredList(text, fallbackText = '') {
 
 function renderDetailContent(job, { isStandalone = false } = {}) {
   const state = currentStates(job);
-  const sourceUrl = safeHttpsUrl(job.sourceUrl);
+  const sourceUrl = safeNavigableWebUrl(job.sourceUrl);
   const applyUrl = safeHttpsUrl(job.applyUrl);
   const canApply = state.publicationStatus === 'active' && job.recordKind !== 'demonstration' && state.opportunityStatus !== 'expired';
   const isStale = state.verificationStatus === 'stale';
@@ -758,6 +775,14 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
     icon: 'briefcase',
     label: 'Régimen y modalidad',
     value: escapeHTML(regimeDef.label) + (job.laborRegimeCertainty === 'EXPLICIT_EVIDENCE' ? ' (Explícito)' : ''),
+  });
+
+  const scopeKey = getJobGeographicScope(job);
+  const scopeDef = GEOGRAPHIC_SCOPES[scopeKey] || GEOGRAPHIC_SCOPES.UNSPECIFIED;
+  summaryCards.push({
+    icon: 'pin',
+    label: 'Ámbito territorial',
+    value: escapeHTML(scopeDef.label),
   });
 
   if (job.deadline && isCivilDate(job.deadline)) {
@@ -1725,6 +1750,133 @@ function regimeTag(job) {
   return `<span class="inline-flex items-center rounded-md px-2 py-1 text-[10px] font-semibold border ${defn.badgeClass}" title="${escapeHTML(defn.label)} · ${escapeHTML(defn.legalFramework)}">${escapeHTML(defn.shortLabel)}</span>`;
 }
 
+// --- TASK-R5-05: Geographic Taxonomy and Territorial Scope Classification ---
+const GEOGRAPHIC_SCOPES = {
+  PERU_LOCAL: {
+    id: 'PERU_LOCAL',
+    label: 'Empleo en Perú (Presencial/Híbrido)',
+    shortLabel: 'Perú local',
+    badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  },
+  PERU_REMOTE: {
+    id: 'PERU_REMOTE',
+    label: 'Remoto nacional (Perú)',
+    shortLabel: 'Remoto Perú',
+    badgeClass: 'bg-sky-50 text-sky-700 border-sky-200',
+  },
+  INTERNATIONAL_REMOTE_PERU_ELIGIBLE: {
+    id: 'INTERNATIONAL_REMOTE_PERU_ELIGIBLE',
+    label: 'Internacional remoto (admite Perú)',
+    shortLabel: 'Internacional elegible',
+    badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  },
+  INTERNATIONAL_REMOTE_UNCONFIRMED: {
+    id: 'INTERNATIONAL_REMOTE_UNCONFIRMED',
+    label: 'Internacional (por confirmar)',
+    shortLabel: 'Por confirmar',
+    badgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
+  },
+  NOT_ELIGIBLE_PERU: {
+    id: 'NOT_ELIGIBLE_PERU',
+    label: 'No elegible para Perú',
+    shortLabel: 'No elegible',
+    badgeClass: 'bg-rose-50 text-rose-700 border-rose-200',
+  },
+  UNSPECIFIED: {
+    id: 'UNSPECIFIED',
+    label: 'Ámbito no especificado',
+    shortLabel: 'No especificado',
+    badgeClass: 'bg-slate-50 text-slate-700 border-slate-200',
+  },
+};
+
+function getJobGeographicScope(job) {
+  if (job?.geographicScope && GEOGRAPHIC_SCOPES[job.geographicScope]) {
+    return job.geographicScope;
+  }
+  const text = normalized([job?.location, job?.mode, job?.eligibility].filter(Boolean).join(' '));
+
+  // 1. Exclusión explícita de Perú
+  if (/\bus residents only\b|\bsolo residentes en eeuu\b|\bnot eligible in peru\b|\bexclusive for chile\b|\bno aplica para peru\b/.test(text)) {
+    return 'NOT_ELIGIBLE_PERU';
+  }
+
+  // 2. Remoto nacional en Perú
+  if (/remoto nacional|trabajo remoto en territorio peruano/.test(text)) {
+    return 'PERU_REMOTE';
+  }
+
+  const isMulticountry = /chile peru o colombia/.test(text);
+  const isWorldwideOrMulti = /worldwide|americas|emea|apac|latin america|global/.test(text);
+  const hasPeruMention = /\bperu\b|\blima\b|\barequipa\b|\bcusco\b|\btrujillo\b|\bcallao\b/.test(text);
+
+  // 3. Local en Perú (Presencial o híbrido)
+  if (hasPeruMention && !isWorldwideOrMulti && !isMulticountry) {
+    const isRemote = /remot|remote|teletrabajo/.test(normalized(job?.mode || ''));
+    if (!isRemote || /encora/.test(normalized(job?.employer || ''))) {
+      return 'PERU_LOCAL';
+    }
+  }
+
+  // 4. Internacional remoto con elegibilidad no confirmada (prevalece fail-closed)
+  if (/confirmar contratacion|no confirmad|por confirmar|global segun el anuncio/.test(text)) {
+    return 'INTERNATIONAL_REMOTE_UNCONFIRMED';
+  }
+
+  // 5. Internacional remoto con elegibilidad confirmada
+  if (/peru elegible|elegible para peru|remoto internacional|chile peru o colombia|local o remoto/.test(text)) {
+    return 'INTERNATIONAL_REMOTE_PERU_ELIGIBLE';
+  }
+
+  if (isWorldwideOrMulti) {
+    return 'INTERNATIONAL_REMOTE_UNCONFIRMED';
+  }
+
+  return 'UNSPECIFIED';
+}
+
+function getJobDepartment(job) {
+  if (job?.department) return job.department;
+  const text = normalized([job?.location, job?.eligibility].filter(Boolean).join(' '));
+  const deptPatterns = [
+    { name: 'Lima', pattern: /\blima\b|\bsurquillo\b|\bmagdalena\b|\bsan isidro\b|\bmiraflores\b|\bsan borja\b|\bsurco\b|\bla molina\b|\blince\b|\bjesus maria\b|\bpueblo libre\b|\blos olivos\b|\bsan martin de porres\b|\bbarranco\b|\bchorrillos\b|\bate\b|\bsan miguel\b|\bhuancho\b|\bcomas\b/ },
+    { name: 'Callao', pattern: /\bcallao\b|\bbellavista\b|\bla perla\b|\bla punta\b|\bventanilla\b/ },
+    { name: 'Arequipa', pattern: /\barequipa\b|\bcaman[aá]\b|\bcayma\b/ },
+    { name: 'Cusco', pattern: /\bcusco\b|\bcuzco\b|\burubamba\b|\bwanchaq\b/ },
+    { name: 'La Libertad', pattern: /\btrujillo\b|\bla libertad\b|\bhuanchaco\b|\bchepen\b/ },
+    { name: 'Piura', pattern: /\bpiura\b|\bsullana\b|\btalara\b|\bpaita\b/ },
+    { name: 'Lambayeque', pattern: /\bchiclayo\b|\blambayeque\b|\bferrenafe\b/ },
+    { name: 'Junín', pattern: /\bhuancayo\b|\bjunin\b|\btarma\b|\bjauja\b|\bsatipo\b/ },
+    { name: 'Áncash', pattern: /\bancash\b|\bchimbote\b|\bhuaraz\b|\bcasma\b/ },
+    { name: 'Ica', pattern: /\bica\b|\bchincha\b|\bpisco\b|\bnazca\b/ },
+    { name: 'San Martín', pattern: /\bsan martin\b|\btarapoto\b|\bmoyobamba\b/ },
+    { name: 'Loreto', pattern: /\bloreto\b|\biquitos\b|\byurimaguas\b/ },
+    { name: 'Puno', pattern: /\bpuno\b|\bjuliaca\b/ },
+    { name: 'Amazonas', pattern: /\bamazonas\b|\bchachapoyas\b|\bbagua\b/ },
+    { name: 'Apurímac', pattern: /\bapurimac\b|\babancay\b|\bandahuaylas\b/ },
+    { name: 'Ayacucho', pattern: /\bayacucho\b|\bhuamanga\b/ },
+    { name: 'Cajamarca', pattern: /\bcajamarca\b|\bjaen\b|\bchota\b/ },
+    { name: 'Huancavelica', pattern: /\bhuancavelica\b|\btayacaja\b/ },
+    { name: 'Huánuco', pattern: /\bhuanuco\b|\btingo maria\b/ },
+    { name: 'Madre de Dios', pattern: /\bmadre de dios\b|\bpuerto maldonado\b/ },
+    { name: 'Moquegua', pattern: /\bmoquegua\b|\bilo\b/ },
+    { name: 'Pasco', pattern: /\bpasco\b|\bcerro de pasco\b|\boxapampa\b/ },
+    { name: 'Tacna', pattern: /\btacna\b/ },
+    { name: 'Tumbes', pattern: /\btumbes\b|\bzarumilla\b/ },
+    { name: 'Ucayali', pattern: /\bucayali\b|\bpucallpa\b|\bcoronel portillo\b/ },
+  ];
+  for (const { name, pattern } of deptPatterns) {
+    if (pattern.test(text)) return name;
+  }
+  return null;
+}
+
+function geographicScopeTag(job) {
+  const scopeKey = getJobGeographicScope(job);
+  const defn = GEOGRAPHIC_SCOPES[scopeKey] || GEOGRAPHIC_SCOPES.UNSPECIFIED;
+  return `<span class="inline-flex items-center rounded-md px-2 py-1 text-[10px] font-semibold border ${defn.badgeClass}">${escapeHTML(defn.shortLabel)}</span>`;
+}
+
 // --- TASK-R7-02: Skills & Competencies Taxonomy and Comparison Engine ---
 const SKILL_TAXONOMY = {
   Python: { canonical: 'Python', category: 'Lenguajes de programación', patterns: [/\bpython(?:3)?\b/i] },
@@ -2072,6 +2224,8 @@ function renderSkillsComparison(jobA, jobB) {
 function getVisibleJobs() {
   const tokens = normalized(filters.query.value).split(/\s+/).filter(Boolean);
   const location = normalized(filters.location.value);
+  const scope = filters.scope?.value || '';
+  const department = filters.department?.value || '';
   const mode = normalized(filters.mode.value);
   const kind = filters.kind.value;
   const family = normalized(filters.family.value);
@@ -2088,6 +2242,8 @@ function getVisibleJobs() {
     if (demonstration && !includeDemonstrations) return false;
     if (!demonstration && state.publicationStatus === 'historical' && !includeHistory) return false;
     if (!demonstration && state.publicationStatus !== 'active' && state.publicationStatus !== 'historical' && !includeUnconfirmed) return false;
+    if (scope && getJobGeographicScope(job) !== scope) return false;
+    if (department && getJobDepartment(job) !== department) return false;
     if (location && !normalized(job.location + ' ' + job.eligibility).includes(location)) return false;
     if (mode && !normalized(job.mode).includes(mode)) return false;
     if (kind === 'Junior / profesional' && job.kind !== 'Profesional') return false;
@@ -2100,10 +2256,14 @@ function getVisibleJobs() {
     if (filters.risk.value === 'temporary' && !temporarySignal.test([job.title, job.duration, job.deadline, job.continuity, job.risk].join(' '))) return false;
     const jobRegime = getJobLaborRegime(job);
     const regimeDef = REGIME_DEFINITIONS[jobRegime] || REGIME_DEFINITIONS.UNSPECIFIED;
+    const jobScope = getJobGeographicScope(job);
+    const scopeDef = GEOGRAPHIC_SCOPES[jobScope] || GEOGRAPHIC_SCOPES.UNSPECIFIED;
+    const jobDept = getJobDepartment(job) || '';
     const searchable = normalized([
       job.title, job.employer, job.sector, job.family, job.level,
       job.kind, job.mode, job.location, job.eligibility, job.skills,
       job.tasks, job.requirements, jobRegime, regimeDef.label, regimeDef.shortLabel,
+      jobScope, scopeDef.label, scopeDef.shortLabel, jobDept,
     ].join(' '));
     return tokens.every((token) => searchable.includes(token));
   }).sort((a, b) => {
@@ -2155,6 +2315,8 @@ function updateCatalogView() {
   const isFiltered = Boolean(
     (filters.query && filters.query.value.trim() !== '')
     || (filters.location && filters.location.value.trim() !== '')
+    || (filters.scope && filters.scope.value !== '')
+    || (filters.department && filters.department.value !== '')
     || (filters.mode && filters.mode.value !== '')
     || (filters.kind && filters.kind.value !== '')
     || (filters.family && filters.family.value !== '')
@@ -2200,6 +2362,10 @@ function populateFilters() {
   setFilterOptions(filters.sector, catalog.map((job) => job.sector), 'Todos los sectores', filters.sector.value);
   setFilterOptions(filters.level, catalog.map((job) => job.level), 'Todos los niveles', filters.level.value);
   setFilterOptions(filters.family, catalog.map((job) => job.family), 'Familia profesional', filters.family.value);
+  if (filters.department) {
+    const availableDepts = [...new Set(catalog.map(getJobDepartment).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+    setFilterOptions(filters.department, availableDepts, 'Todas las ubicaciones', filters.department.value);
+  }
 }
 
 function renderDialog(job) {
@@ -2288,6 +2454,8 @@ filters.level.addEventListener('change', updateCatalogView);
 filters.salary.addEventListener('change', updateCatalogView);
 filters.risk.addEventListener('change', updateCatalogView);
 if (filters.regime) filters.regime.addEventListener('change', updateCatalogView);
+if (filters.scope) filters.scope.addEventListener('change', updateCatalogView);
+if (filters.department) filters.department.addEventListener('change', updateCatalogView);
 filters.history.addEventListener('change', updateCatalogView);
 document.querySelector('#include-unconfirmed').addEventListener('change', updateCatalogView);
 document.querySelector('#include-demonstrations').addEventListener('change', updateCatalogView);
@@ -2295,6 +2463,8 @@ document.querySelector('#filters').addEventListener('submit', (event) => event.p
 document.querySelector('#filters').addEventListener('reset', () => setTimeout(() => {
   filters.family.value = '';
   if (filters.regime) filters.regime.value = '';
+  if (filters.scope) filters.scope.value = '';
+  if (filters.department) filters.department.value = '';
   updateCatalogView();
 }, 0));
 

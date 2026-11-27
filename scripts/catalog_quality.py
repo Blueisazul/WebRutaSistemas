@@ -282,6 +282,8 @@ def validate_records(
         source_ok, source_host = valid_https_url(item.get("sourceUrl"))
         if not source_ok:
             result.errors.append(f"{prefix}.sourceUrl debe ser HTTPS")
+        elif source_host in {"boards-api.greenhouse.io", "api.lever.co"}:
+            result.errors.append(f"{prefix}.sourceUrl no puede apuntar a endpoints API REST ({source_host}); debe ser una página web navegable")
         allowed_hosts = item.get("allowedHosts", [])
         if not isinstance(allowed_hosts, list) or any(not isinstance(host, str) for host in allowed_hosts):
             result.errors.append(f"{prefix}.allowedHosts debe ser lista de hosts")

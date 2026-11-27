@@ -173,12 +173,17 @@ def transform_greenhouse_payload(
             continue
         seen_ids.add(ext_id)
 
+        # sourceUrl represents the navigable HTML job posting webpage.
+        # applyUrl represents the application form channel (same as raw_url if no dedicated distinct form endpoint is in payload).
+        item_source_url = raw_url
+        item_apply_url = raw_url
+
         proposed = _empty_proposed()
         proposed["title"] = title
         proposed["employer"] = employer
         proposed["publisher"] = publisher
         proposed["externalReference"] = ext_id
-        proposed["applyUrl"] = raw_url
+        proposed["applyUrl"] = item_apply_url
 
         loc = job.get("location")
         loc_name = _safe_str(loc.get("name")) if isinstance(loc, dict) else None
@@ -202,7 +207,7 @@ def transform_greenhouse_payload(
         record = _build_candidate_record(
             candidate_id=candidate_id,
             source_id=source_id,
-            source_url=source_url,
+            source_url=item_source_url,
             captured_at=captured_at_str,
             proposed=proposed,
         )
@@ -263,7 +268,9 @@ def transform_lever_payload(
         if not title:
             continue
 
-        raw_url = _safe_str(posting.get("applyUrl")) or _safe_str(posting.get("hostedUrl"))
+        hosted_url = _safe_str(posting.get("hostedUrl"))
+        apply_url = _safe_str(posting.get("applyUrl"))
+        raw_url = hosted_url or apply_url
         if not raw_url:
             continue
         url_ok, url_host = _is_valid_https_url(raw_url)
@@ -274,12 +281,15 @@ def transform_lever_payload(
             continue
         seen_ids.add(ext_id)
 
+        item_source_url = hosted_url or apply_url
+        item_apply_url = apply_url or hosted_url
+
         proposed = _empty_proposed()
         proposed["title"] = title
         proposed["employer"] = employer
         proposed["publisher"] = publisher
         proposed["externalReference"] = ext_id
-        proposed["applyUrl"] = raw_url
+        proposed["applyUrl"] = item_apply_url
 
         categories = posting.get("categories") if isinstance(posting.get("categories"), dict) else {}
         loc_name = _safe_str(categories.get("location"))
@@ -313,7 +323,7 @@ def transform_lever_payload(
         record = _build_candidate_record(
             candidate_id=candidate_id,
             source_id=source_id,
-            source_url=source_url,
+            source_url=item_source_url,
             captured_at=captured_at_str,
             proposed=proposed,
         )
