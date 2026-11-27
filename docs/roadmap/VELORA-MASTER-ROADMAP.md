@@ -162,16 +162,26 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
 
 #### `TASK-R5-02` — Protocolo Institucional y Consulta Controlada de Talento Perú (SERVIR)
 - **Prioridad:** `P1` (Estratégico estatal)
-- **Tipo:** `[DESARROLLO_PROPIO - Justificado]`
-- **Estado:** `BLOCKED` (Pendiente de decisión editorial y autorización)
-- **Dependencias:** Aprobación del propietario en `VELORA-OPEN-DECISIONS.md`.
-- **Objetivo:** Establecer un canal regular y autorizado para incorporar el volumen masivo de convocatorias de SERVIR.
-- **Alcance:**
-  - Vía A (Institucional): Tramitar comunicación formal de datos abiertos a SERVIR (`talentoperu@servir.gob.pe`).
-  - Vía B (Técnica asistida): Implementar un extractor local que consulte el formulario JSF `ofertas_laborales.xhtml` respetando estrictamente `minDelayMs: 10000`, extrayendo únicamente metadatos de puestos de Sistemas para contrastar contra fuentes oficiales.
+- **Tipo:** `[INVESTIGACIÓN_TÉCNICA - READ_ONLY]`
+- **Estado:** `BLOCKED` (Preservado formalmente; inviabilidad técnica de scraping desatendido por WAF Imperva y JSF stateful; sometido a decisión del propietario)
+- **Dependencias:** Aprobación del propietario en `VELORA-OPEN-DECISIONS.md` (Decisión 3).
+- **Objetivo:** Determinar la viabilidad técnica y de gobernanza para incorporar las convocatorias de empleo público de SERVIR.
+- **Alcance y Hallazgos de la Investigación (26-11-2026):**
+  - **Arquitectura de Servidor:** JavaServer Faces 2.0 (Mojarra) con PrimeFaces 5.3 sobre Apache y clúster Tomcat/JBoss (`.node31`).
+  - **Seguridad Perimetral:** Protegido activamente por WAF Imperva Incapsula (`X-CDN: Imperva`, cookies `visid_incap_*`, `incap_ses_*`, script `_Incapsula_Resource`) y librerías de CAPTCHA (`RealPerson`).
+  - **Endpoints y Datos Abiertos:** Inexistencia absoluta de API REST/JSON/XML documentada o no documentada. La Plataforma Nacional de Datos Abiertos (`datosabiertos.gob.pe`) no cuenta con feeds diarios de convocatorias (solo compendios estadísticos anuales estáticos). `robots.txt` responde HTTP 404.
+  - **Inexistencia de Permalinks:** Las URLs de detalle (`detalle_ofertas_laborales.xhtml`) son estrictamente *stateful*; peticiones GET directas sin sesión previa devuelven plantillas vacías sin datos de la vacante.
+  - **Muestra en Vivo:** 210 vacantes vigentes de Sistemas e Informática identificadas mediante simulación AJAX controlada.
+  - **Trazabilidad a Fuente Primaria:** El campo `DETALLE` de la vacante contiene el enlace oficial al portal de la entidad convocante donde residen las bases completas en PDF (ej. `https://redsaludhuaylasnorte.gob.pe/`).
+  - **Clasificación:** `Escenario E / Escenario D (Híbrido)`.
 - **Criterios de Aceptación:**
-  1. Registro auditable de autorización o mecanismo de consulta de bajo impacto sin violar términos del servicio.
-- **Riesgo:** Bloqueo de IP o rechazo institucional.
+  1. Registro auditable de investigación técnica y viabilidad de gobernanza completado: `CUMPLIDO`.
+  2. Preservación estricta de estado `BLOCKED` y prioridad `P1` sin modificaciones en código de producción ni catálogo canónico: `CUMPLIDO`.
+- **Evidencias Documentales:**
+  - `docs/audits/R5-02-SERVIR-OFFICIAL-ENDPOINT-INVESTIGATION.md`
+  - `docs/audits/VELORA-OPEN-DECISIONS.md` (Decisión 3)
+- **Riesgo:** Alto riesgo de bloqueo perimetral por Imperva e inestabilidad de `ViewState` ante cualquier intento de scraping recurrente desatendido.
+
 
 #### `TASK-R5-03` — Ampliación de Empresas de Tecnología y Finanzas en Perú
 - **Prioridad:** `P1` (Diversificación privada)
@@ -219,7 +229,109 @@ Fase Valor Profesional (R7) ──► Régimen Laboral (CAS/728), Habilidades y 
   - `docs/audits/R5-04-01-SECONDARY-SOURCES-RESEARCH.md`
   - `docs/audits/R5-04-01-DISCOVERY-SAMPLE.md`
   - `docs/audits/R5-04-01-INTEGRATION-DECISION.md`
-- **Siguiente Tarea Derivada (Potencial):** `TASK-R5-04-02 — Conector Piloto de Descubrimiento Asistido para Enlaces Oficiales Secundarios` (condicionada a aprobación del propietario).
+
+#### `TASK-R5-04-02` — Conector Piloto de Descubrimiento Asistido para Enlaces Oficiales Secundarios
+- **Prioridad:** `P1` (Cobertura nacional asistida)
+- **Tipo:** `[DESARROLLO_PROPIO - JUSTIFICADO]` + `[REUTILIZACIÓN_OSS_FIRST]`
+- **Estado:** `PILOT_FIELD_VALIDATED_WITH_LIMITATIONS` (Validación operativa de campo completada con 10 oportunidades reales; revisión editorial de candidatos ejecutada; 5 decisiones formalizadas y aprobadas por el propietario el 27 de noviembre de 2026: conservar postulate.pe como radar auxiliar manual, retirar laboral.pe del uso operativo, no ampliar allowedHosts para minam.gob.pe, mantener DEVIDA y HNHU en staging en revisión, y no descartar convocatorias con plazo menor a 24 horas; catálogo canónico intacto con paridad SHA-256; 342 pruebas pasando al 100%)
+- **Dependencias:** Decisiones 7 y 9 en `VELORA-OPEN-DECISIONS.md`.
+- **Objetivo:** Implementar un piloto técnico-operativo de descubrimiento asistido para registrar convocatorias descubiertas en `postulate.pe` y `laboral.pe`, verificándolas obligatoriamente contra su fuente primaria oficial.
+- **Alcance y Componentes Implementados:**
+  - Módulo de radar y validación estricta en `collector/assisted_discovery.py`:
+    - Registro exclusivo de metadatos permitidos (`processCode`, `entity`, `shortTitle`, `secondaryUrl`, `officialUrl`, `detectedAt`, `verifiedAt`, `verificationStatus`, `officialEvidence`).
+    - Prohibición estricta de almacenar descripciones, requisitos o textos secundarios (`PROHIBITED_RADAR_FIELDS`).
+    - Conversión a Candidate Schema 2 condicionada a `verificationStatus == 'verified_official'` y evidencia en la fuente primaria.
+  - Registro de fuentes de radar en `collector/sources.json` (`postulate-pe-radar` y `laboral-pe-radar`) con `enabled: false`, `autopublish: false`, `connector: 'manual-review'` (*fail-closed*).
+  - Integración en `scripts/editorial_cli.py`: comandos `radar-record`, `radar-verify` y `radar-promote` (con soporte para `--dry-run` y `--json-report`), reforzado con validación de `allowedHosts` del registro de fuentes.
+  - Validación operativa de campo con 10 oportunidades reales (5 de cada portal):
+    - 2 promovidas a staging (`data/candidates/inbox.local.json`) con estado `pending_review` (DEVIDA e Hipólito Unanue).
+    - 1 retenida por requerir alta de host oficial ministerial (`minam.gob.pe`).
+    - 1 descartada por perfil no perteneciente a TI (`OSIPTEL` - Ciencias de la Comunicación).
+    - 1 descartada por URL oficial genérica sin proceso específico (`MINCETUR`).
+    - 5 descartadas por URL primaria rota HTTP 404 en Talento Perú / SERVIR (`laboral.pe`).
+  - Formalización de Decisiones del Propietario (27 de noviembre de 2026):
+    1. Criterio temporal: no descartar por plazo < 24 horas; mostrar fechas y horas oficiales sin inventar horarios.
+    2. `postulate.pe`: conservado como radar auxiliar manual (no automatizado).
+    3. `laboral.pe`: retirado del uso operativo por ineficiencia de enlaces (100% 404 a SERVIR), conservando su historial técnico.
+    4. `minam.gob.pe`: no autorizado para inclusión en `allowedHosts`; se preserva la política *fail-closed*.
+    5. Candidatos DEVIDA y HNHU: conservados en staging local bajo recomendación `RECOMMEND_KEEP_IN_REVIEW`, sin publicar en el catálogo activo ni canónico.
+  - Suite de 14 pruebas específicas en `tests/test_assisted_discovery.py` y 342 pruebas globales pasando al 100%.
+- **Criterios de Aceptación Cumplidos:**
+  1. Registro de metadatos permitidos para `postulate.pe` y `laboral.pe`: `CUMPLIDO`.
+  2. Rechazo de URLs no HTTPS o hosts no autorizados: `CUMPLIDO`.
+  3. Rechazo estricto de campos de contenido no permitidos (descripciones extensas): `CUMPLIDO`.
+  4. Separación entre fuente secundaria y fuente oficial: `CUMPLIDO`.
+  5. Imposibilidad de certificar verificación sin evidencia oficial primaria: `CUMPLIDO`.
+  6. Manejo de estados de descarte sin promover a staging: `CUMPLIDO`.
+  7. Deduplicación mediante mecanismos existentes: `CUMPLIDO`.
+  8. Ausencia de autopublicación o incorporación directa al catálogo público: `CUMPLIDO`.
+  9. Preservación estricta de la integridad canónica (hashes certificados intactos): `CUMPLIDO`.
+  10. Trazabilidad de detección y verificación: `CUMPLIDO`.
+  11. Compatibilidad total con la suite de pruebas (342 pruebas pasando): `CUMPLIDO`.
+  12. Formalización documental de gobernanza completada: `CUMPLIDO`.
+- **Evidencias Documentales:**
+  - `docs/audits/TASK-R5-04-02-FIELD-VALIDATION.md`
+  - `docs/audits/TASK-R5-04-02-EDITORIAL-REVIEW.md`
+  - `docs/audits/R5-04-03-ASSISTED-DISCOVERY-PILOT.md`
+  - `docs/audits/VELORA-OPEN-DECISIONS.md` (Decisiones 7 y 9)
+
+##### Investigación Complementaria R5.4 — Evaluación de 8 Portales Secundarios y Taxonomía de Búsqueda
+- **Prioridad:** `P2` (Evolución de cobertura nacional)
+- **Tipo:** `[INVESTIGACIÓN_TÉCNICA]`
+- **Estado:** `EVALUATED_PROPOSED` (Investigación técnica complementaria completada; evaluación individual de 8 portales peruanos, ratificación de Modelo B y propuesta de taxonomía desacoplada en 7 dimensiones; pendiente de decisión del propietario)
+- **Alcance y Hallazgos:**
+  - Inspeccionados 8 portales secundarios: `convocatoriasdetrabajo.pe`, `postulate.pe`, `peruconvoca.com`, `convocatoriasperu.net.pe`, `convocape.online`, `laboral.pe`, `portaltrabajos.pe`, `convocatoriascas.com`.
+  - Diferenciación de operadores confirmada: `convocatoriasdetrabajo.pe` (LiteSpeed) es independiente de IDEADS (`convocatoriasdetrabajo.com`).
+  - Hallazgo estructural: las plataformas públicas más estructuradas (`postulate.pe`, `laboral.pe`, `peruconvoca.com`) operan como agregadores secundarios del portal oficial **SERVIR – Talento Perú** (`app.servir.gob.pe`).
+  - Identificado operador comercial formal de `postulate.pe`: INDEXCOM PERU E.I.R.L. (RUC 20601906792).
+  - Ratificado el **Modelo B — Descubrimiento Asistido** sin excepciones; prohibida la copia de textos descriptivos protegidos.
+  - Diseñada taxonomía desacoplada en 7 dimensiones (carrera solicitada, familia profesional, especialidad/área funcional, cargo, tecnologías, nivel académico, experiencia) extensible a otras profesiones.
+  - Portales clasificados para eventual piloto asistido: `postulate.pe` y `laboral.pe` (`VIABLE_WITH_LIMITATIONS`).
+- **Evidencias Documentales:**
+  - `docs/audits/R5-04-02-SECONDARY-SOURCES-RESEARCH.md`
+
+#### `TASK-R5-05` — Normalización Geográfica y Segmentación del Ámbito Territorial de las Oportunidades
+- **Prioridad:** `P1` (Experiencia de descubrimiento y precisión territorial)
+- **Tipo:** `[REFACTOR/FIX]` + `[REUTILIZACIÓN_INTERNA]` + `[MEJORA_UX]`
+- **Estado:** `COMPLETED_VERIFIED` (Taxonomía tridimensional implementada en backend `collector/geography.py` y frontend `app.js`; selectores dinámicos integrados en `index.html`; 14 pruebas unitarias Python y suite UI en Node.js pasando; 329 pruebas globales del repositorio pasando)
+- **Dependencias:** Ninguna (opera sobre el catálogo canónico Schema 2).
+- **Objetivo:** Resolver la confusión entre convocatorias con presencia física local en Perú y vacantes remotas internacionales, proveyendo selectores visuales por ámbito territorial y por departamento peruano sin dependencias externas.
+- **Alcance y Componentes Implementados:**
+  - **Módulo Backend (`collector/geography.py`):**
+    - Clasificación en 3 dimensiones independientes: Ámbito territorial (`PERU_LOCAL`, `PERU_REMOTE`, `INTERNATIONAL_REMOTE_PERU_ELIGIBLE`, `INTERNATIONAL_REMOTE_UNCONFIRMED`, `NOT_ELIGIBLE_PERU`, `UNSPECIFIED`), Modalidad físico-espacial (`ONSITE`, `HYBRID`, `REMOTE`, `UNSPECIFIED`) y Ubicación en Perú (25 departamentos/jurisdicciones).
+    - Principio estricto *fail-closed* y *zero hallucination* sin servicios externos de geocodificación.
+  - **Interfaz de Usuario (`index.html`):**
+    - Incorporación de selectores `<select id="scope-filter">` y `<select id="department-filter">` en la barra de filtros secundarios.
+    - Preservación y reorientación del campo `<input id="location">` para búsquedas por texto libre complementarias.
+  - **Motor Frontend (`app.js`):**
+    - Población dinámica de `#department-filter` con los departamentos efectivamente presentes en el catálogo cargado (eliminando opciones vacías).
+    - Filtrado reactivo en `getVisibleJobs()`, soporte en `isFiltered` y limpieza integral en el evento `reset`.
+    - Renderizado de etiquetas de ámbito territorial (`geographicScopeTag`) en tarjetas y ficha de detalle.
+  - **Pruebas y Verificación:**
+    - 14 pruebas unitarias en `tests/test_geography.py`.
+    - Pruebas de integración UI en `tests/catalog_ui.test.cjs`.
+- **Evidencias Documentales:**
+  - `docs/audits/TASK-R5-05-GEOGRAPHIC-NORMALIZATION-AND-FILTERS.md`
+
+#### `TASK-FIX-E2E-R5-05` — Corrección de Pruebas E2E tras la Integración de Normalización Geográfica
+- **Prioridad:** `P0` (Bloqueante de CI y paridad Pages)
+- **Tipo:** `[REFACTOR/FIX]` + `[REUTILIZACIÓN_INTERNA]`
+- **Estado:** `COMPLETED_LOCALLY` (Aserciones actualizadas para las 7 tarjetas de resumen, icono SVG y aserción explícita de Ámbito territorial en `tests/e2e/catalog.spec.cjs`; suite E2E de Playwright pasando al 100% en Chromium, Mobile y Narrow; pendiente de commit y push)
+- **Dependencias:** `TASK-R5-05` (Satisfecha en código y desplegada en Vercel).
+- **Objetivo:** Resolver el fallo de aserción en el pipeline de GitHub Actions (`refresh-catalog.yml`, Run ID `46055123843`) provocado por la expectativa fija heredada de R7 de 6 tarjetas de resumen frente a las 7 tarjetas reales generadas tras la incorporación de la tarjeta de ámbito territorial por R5-05.
+- **Alcance y Ejecución:**
+  - Actualizadas las expectativas en `tests/e2e/catalog.spec.cjs:227` para reflejar las 7 tarjetas reales de `OP-005` y los 7 iconos SVG correspondientes.
+  - Incorporada aserción funcional semántica explícita para la tarjeta de Ámbito territorial (`scopeCard`), verificando label, icono y valor (`Empleo en Perú (Presencial/Híbrido)`).
+  - Verificada la integridad de las 6 tarjetas restantes y ausencia de tarjetas vacías o duplicadas.
+  - Actualizados los conteos coherentes para `OP-002` (8 tarjetas, `Ámbito no especificado`) y `OP-001` (10 tarjetas, `Empleo en Perú (Presencial/Híbrido)`).
+  - Ejecutada validación exhaustiva en Playwright (Chromium, Mobile, Narrow) y regresión completa.
+- **Criterios de Aceptación:**
+  1. Conteo de tarjetas coherente con las 7 tarjetas del diseño actual: `CUMPLIDO`.
+  2. Aserción funcional explícita del Ámbito territorial: `CUMPLIDO`.
+  3. Los tres proyectos de Playwright pasando: `CUMPLIDO`.
+  4. Suite de regresión pasando al 100%: `CUMPLIDO`.
+- **Evidencias Documentales:**
+  - `docs/audits/TASK-FIX-E2E-R5-05.md`
 
 ---
 
@@ -390,8 +502,19 @@ Estructura evolutiva de la Fase R6:
 ## 5. Siguiente Acción Única Recomendada
 
 **Cierre de Fase R7 y Planificación Operativa:**
-Con la publicación exitosa del release `v0.7.0` en GitHub Pages y Vercel, la **Fase R7 — Valor Profesional y UX** queda formalmente concluida y en producción. La siguiente acción en el Roadmap Maestro para evaluación del propietario es:
+Con la publicación exitosa del release `v0.7.0` en GitHub Pages y Vercel, la **Fase R7 — Valor Profesional y UX** queda formalmente concluida y en producción.
+
+**Consolidación de Calidad de Catálogo y Cobertura Geográfica (TASK-FIX-URL-01 + TASK-R5-05):**
+- **Identificadores Consolidados:** TASK-FIX-URL-01 (Corrección de URLs de publicación ATS) y TASK-R5-05 (Normalización geográfica y filtros territoriales).
+- **Tipo:** [CONSOLIDACIÓN_TÉCNICA] + [REUTILIZACIÓN_INTERNA] + [REFACTOR/FIX]
+- **Estado:** PUSHED_TO_MAIN_DEPLOYMENT_PARTIAL (Commit f861e06 publicado en origin/main; Vercel desplegado y 100% operativo en producción con URLs corregidas y filtros geográficos; GitHub Pages desfasado debido a fallo de aserción en job validate de refresh-catalog.yml resuelto localmente en TASK-FIX-E2E-R5-05).
+- **Evidencias Documentales:**
+  - docs/audits/TASK-FIX-E2E-R5-05.md
+  - docs/audits/VELORA-PRE-RELEASE-URL-GEOGRAPHY-CONSOLIDATION.md
+  - docs/audits/TASK-FIX-URL-01-ATS-PUBLICATION-URL-REMEDIATION.md
+  - docs/audits/TASK-R5-05-GEOGRAPHIC-NORMALIZATION-AND-FILTERS.md
 
 - **Definición de Prioridades para Próximas Fases:**
-  - Evaluar la incorporación de nuevas fuentes de sector público/privado validadas (Fase R5).
-  - Activar ciclos programados de revalidación periódica de catálogo en background (Fase R6).
+  - Decisión 8: Evaluación y eventual aprobación de adopción del ecosistema HiringRoom para cobertura privada en Perú.
+  - Decisión 6: Definición de frecuencia y modo de ingestión automatizada de convocatorias CAS de Gob.pe.
+  - Activación de ciclos programados de revalidación periódica de catálogo en background (Fase R6).

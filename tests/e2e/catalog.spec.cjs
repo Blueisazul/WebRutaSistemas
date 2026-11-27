@@ -222,11 +222,31 @@ test('redesigns opportunity detail with verified source, icon summary, omission 
   await expect(summarySection).toBeVisible();
   await expect(summarySection.locator('h3')).toContainText('Resumen');
 
-  // OP-005 has 6 verified cards (difusor, ubicación, contrato, fecha pub, última verif, y régimen contractual R7-01)
+  // OP-005 has 7 verified cards (difusor, ubicación, contrato, régimen R7-01, ámbito territorial R5-05, fecha pub, última verif)
   const summaryCards = summarySection.locator('.summary-card');
-  await expect(summaryCards).toHaveCount(6);
+  await expect(summaryCards).toHaveCount(7);
   // Verify Lucide SVG icons are present in each card
-  await expect(summarySection.locator('.summary-card svg')).toHaveCount(6);
+  await expect(summarySection.locator('.summary-card svg')).toHaveCount(7);
+
+  // Verify presence, label, icon, and territorial information for OP-005 (TASK-R5-05)
+  const scopeCard = summarySection.locator('.summary-card:has(label:has-text("Ámbito territorial"))');
+  await expect(scopeCard).toBeVisible();
+  await expect(scopeCard).toContainText('Empleo en Perú (Presencial/Híbrido)');
+  await expect(scopeCard.locator('svg')).toBeVisible();
+
+  // Verify the other 6 verified cards continue to display their expected data
+  await expect(summarySection.locator('.summary-card:has(label:has-text("Entidad que difunde"))')).toContainText('CookUnity');
+  await expect(summarySection.locator('.summary-card:has(label:has-text("Ubicación y elegibilidad"))')).toContainText('Lima, Perú');
+  await expect(summarySection.locator('.summary-card:has(label:has-text("Contrato y plazo"))')).toContainText('Full-time');
+  await expect(summarySection.locator('.summary-card:has(label:has-text("Régimen y modalidad"))')).toContainText('Modalidad no especificada');
+  await expect(summarySection.locator('.summary-card:has(label:has-text("Fecha de publicación"))')).toBeVisible();
+  await expect(summarySection.locator('.summary-card:has(label:has-text("Última verificación o consulta"))')).toContainText('Requiere revalidar');
+
+  // Verify absence of duplicate or empty cards
+  for (const card of await summaryCards.all()) {
+    await expect(card.locator('label')).not.toBeEmpty();
+    await expect(card.locator('p')).not.toBeEmpty();
+  }
 
   // D. Strict omission rules: unknown fields are omitted without placeholder texts (excluding Régimen card)
   await expect(summarySection.locator('.summary-card:has-text("Modalidad"):not(:has-text("Régimen"))')).toHaveCount(0);
@@ -261,9 +281,11 @@ test('redesigns opportunity detail with verified source, icon summary, omission 
   await expect(page.locator('#opportunity-view')).toBeVisible({ timeout: 10000 });
   await expect(page.locator('#opportunity-view')).not.toContainText('Triaje rápido');
   const op2Summary = page.locator('.summary-section .summary-card');
-  // OP-002 has 7 cards (modalidad, difusor, ubicación, contrato, fecha pub, última verif, y régimen contractual R7-01)
-  await expect(op2Summary).toHaveCount(7);
+  // OP-002 has 8 cards (modalidad, difusor, ubicación, contrato, régimen R7-01, ámbito territorial R5-05, fecha pub, última verif)
+  await expect(op2Summary).toHaveCount(8);
   await expect(page.locator('.summary-card:has-text("Modalidad"):not(:has-text("Régimen"))')).toContainText('Remoto');
+  const op2ScopeCard = page.locator('.summary-section .summary-card:has(label:has-text("Ámbito territorial"))');
+  await expect(op2ScopeCard).toContainText('Ámbito no especificado');
   await expect(page.locator('.summary-card:has(label:has-text("Compensación"))')).toHaveCount(0);
   await expect(page.locator('.summary-card:has(label:has-text("Fecha límite"))')).toHaveCount(0);
 
@@ -271,7 +293,10 @@ test('redesigns opportunity detail with verified source, icon summary, omission 
   await page.goto('/?id=OP-001');
   await expect(page.locator('#opportunity-view')).toBeVisible({ timeout: 10000 });
   const op1Summary = page.locator('.summary-section .summary-card');
-  await expect(op1Summary).toHaveCount(9);
+  // OP-001 has 10 cards (modalidad, difusor, ubicación, compensación, contrato, régimen R7-01, ámbito territorial R5-05, fecha límite, fecha pub, última verif)
+  await expect(op1Summary).toHaveCount(10);
+  const op1ScopeCard = page.locator('.summary-section .summary-card:has(label:has-text("Ámbito territorial"))');
+  await expect(op1ScopeCard).toContainText('Empleo en Perú (Presencial/Híbrido)');
   await expect(page.locator('.summary-card:has(label:has-text("Compensación"))')).toBeVisible();
   await expect(page.locator('.summary-card:has(label:has-text("Fecha límite"))')).toBeVisible();
 
