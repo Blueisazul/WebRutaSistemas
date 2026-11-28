@@ -65,20 +65,31 @@ class TestAcquisitionPilotR4(unittest.TestCase):
     # =========================================================================
 
     def test_registry_contains_approved_pilot_sources(self) -> None:
-        pilot_ids = [
-            "greenhouse-canonical",
-            "greenhouse-sezzle",
-            "greenhouse-cookunity",
+        # Lever remains approved and active
+        active_pilot_ids = [
             "lever-fintual",
             "lever-kavak",
         ]
-        for sid in pilot_ids:
+        for sid in active_pilot_ids:
             source = find_source(self.registry, sid)
             self.assertIsNotNone(source, f"Fuente piloto '{sid}' no encontrada en registry")
-            self.assertTrue(source.get("enabled"), f"Fuente '{sid}' debe estar habilitada para el piloto")
+            self.assertTrue(source.get("enabled"), f"Fuente '{sid}' debe estar habilitada")
             self.assertEqual(source.get("decision"), "approved")
             self.assertEqual(source.get("automatedAccessStatus"), "approved")
-            self.assertIn(source.get("connector"), ("greenhouse-job-board", "lever-postings"))
+            self.assertEqual(source.get("connector"), "lever-postings")
+
+        # Greenhouse sources are withdrawn by owner decision (27 de noviembre de 2026)
+        withdrawn_greenhouse_ids = [
+            "greenhouse-canonical",
+            "greenhouse-sezzle",
+            "greenhouse-cookunity",
+        ]
+        for sid in withdrawn_greenhouse_ids:
+            source = find_source(self.registry, sid)
+            self.assertIsNotNone(source, f"Fuente Greenhouse '{sid}' no encontrada en registry")
+            self.assertFalse(source.get("enabled"), f"Fuente '{sid}' debe estar deshabilitada por decisión del propietario")
+            self.assertEqual(source.get("decision"), "withdrawn")
+            self.assertEqual(source.get("automatedAccessStatus"), "withdrawn")
 
     def test_legacy_and_unapproved_sources_remain_disabled(self) -> None:
         legacy_disabled_ids = [

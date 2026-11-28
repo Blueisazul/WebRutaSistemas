@@ -267,8 +267,9 @@ def verify_candidate_evidence(
     if raw_deadline is None or raw_deadline == "":
         opp_validity = DEADLINE_UNKNOWN
         deadline_str = None
-    elif isinstance(raw_deadline, str) and ISO_DATE_REGEX.fullmatch(raw_deadline.strip()):
-        parsed_deadline = parse_iso_date(raw_deadline)
+    elif isinstance(raw_deadline, str):
+        val_str = raw_deadline.strip()
+        parsed_deadline = parse_iso_date(val_str)
         if parsed_deadline is not None:
             deadline_str = parsed_deadline.isoformat()
             if parsed_deadline > eval_date:
@@ -280,14 +281,27 @@ def verify_candidate_evidence(
                 warnings.append(f"Oportunidad vencida por fecha límite ({deadline_str} < {as_of_str})")
                 affected_fields_set.add("deadline")
         else:
-            opp_validity = DEADLINE_INVALID
-            deadline_str = str(raw_deadline)
-            errors.append(f"Fecha deadline '{raw_deadline}' no es una fecha civil válida")
-            affected_fields_set.add("deadline")
+            parsed_dt = parse_iso_timestamp(val_str)
+            if parsed_dt is not None:
+                deadline_str = parsed_dt.isoformat()
+                dt_lima = parsed_dt.astimezone(LIMA_TIMEZONE)
+                if dt_lima.date() > eval_date:
+                    opp_validity = DEADLINE_FUTURE
+                elif dt_lima.date() == eval_date:
+                    opp_validity = DEADLINE_REACHED
+                else:
+                    opp_validity = DEADLINE_EXPIRED
+                    warnings.append(f"Oportunidad vencida por fecha límite ({deadline_str} < {as_of_str})")
+                    affected_fields_set.add("deadline")
+            else:
+                opp_validity = DEADLINE_INVALID
+                deadline_str = str(raw_deadline)
+                errors.append(f"Formato deadline '{raw_deadline}' inválido; debe ser YYYY-MM-DD o ISO 8601 con zona horaria")
+                affected_fields_set.add("deadline")
     else:
         opp_validity = DEADLINE_INVALID
         deadline_str = str(raw_deadline)
-        errors.append(f"Formato deadline '{raw_deadline}' inválido; debe ser YYYY-MM-DD")
+        errors.append(f"Formato deadline '{raw_deadline}' inválido; debe ser YYYY-MM-DD o ISO 8601 con zona horaria")
         affected_fields_set.add("deadline")
 
     # 7. Evaluate Field Evidence

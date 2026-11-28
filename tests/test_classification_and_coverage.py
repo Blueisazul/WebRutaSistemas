@@ -95,13 +95,9 @@ class TestClassificationAndCoverage(unittest.TestCase):
     def test_approved_sources_configured_cleanly(self):
         reg = load_source_registry()
         approved = [s for s in reg["sources"] if s.get("enabled") and s.get("decision") == "approved"]
-        self.assertEqual(len(approved), 14, "Must have exactly 14 approved sources (6 ATS + 4 Initial PE + 4 Corporate PE)")
+        self.assertEqual(len(approved), 10, "Must have exactly 10 approved sources (2 Lever ATS + 4 Initial PE + 4 Corporate PE; Greenhouse withdrawn)")
         source_ids = {s["id"] for s in approved}
         expected_ids = {
-            "greenhouse-canonical",
-            "greenhouse-sezzle",
-            "greenhouse-cookunity",
-            "greenhouse-encora",
             "lever-fintual",
             "lever-kavak",
             "ositran-convocatorias",
@@ -114,7 +110,6 @@ class TestClassificationAndCoverage(unittest.TestCase):
             "efitec-hiringroom",
         }
         self.assertEqual(source_ids, expected_ids)
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -60,20 +60,20 @@ NOW_ISO = "2026-11-25T12:00:00-05:00"
 
 def _make_valid_candidate(
     candidate_id: str = "CAN-TEST-001",
-    source_id: str = "greenhouse-encora",
+    source_id: str = "lever-kavak",
     title: str = "Software Engineer Backend",
-    employer: str = "Encora",
-    apply_url: str = "https://job-boards.greenhouse.io/encora/jobs/12345",
+    employer: str = "Kavak",
+    apply_url: str = "https://jobs.lever.co/kavak/12345",
     location: str = "Lima, Perú",
     mode: str = "hybrid",
     deadline: str = "2026-12-15",
     captured_at: str = "2026-11-24T10:00:00-05:00",
 ) -> dict[str, Any]:
-    """Builds a candidate that fully satisfies all 6 rules under greenhouse-encora."""
+    """Builds a candidate that fully satisfies all 6 rules under lever-kavak."""
     return {
         "candidateId": candidate_id,
         "sourceId": source_id,
-        "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs",
+        "sourceUrl": "https://api.lever.co/v0/postings/kavak",
         "capturedAt": captured_at,
         "payloadSchemaVersion": "2.0",
         "proposed": {
@@ -202,7 +202,7 @@ class TestAutopublishEngineScenarios(unittest.TestCase):
 
     def test_scenario_04_insecure_http_url_retained(self) -> None:
         """Scenario 4: Non-HTTPS applyUrl is retained."""
-        cand = _make_valid_candidate(apply_url="http://job-boards.greenhouse.io/encora/jobs/12345")
+        cand = _make_valid_candidate(apply_url="http://jobs.lever.co/kavak/12345")
         res = evaluate_candidate_for_autopublication(
             candidate=cand,
             source_registry=self.registry,
@@ -591,10 +591,10 @@ class TestAutopublishEngineScenarios(unittest.TestCase):
             "opportunities": [],
         }, indent=2), encoding="utf-8")
 
-        c1 = _make_valid_candidate(candidate_id="CAN-VALID-1", apply_url="https://job-boards.greenhouse.io/encora/jobs/valid-1")
+        c1 = _make_valid_candidate(candidate_id="CAN-VALID-1", apply_url="https://jobs.lever.co/kavak/valid-1")
         c2_bad_source = _make_valid_candidate(candidate_id="CAN-BAD-SRC", source_id="unregistered-source")
-        c3_bad_proto = _make_valid_candidate(candidate_id="CAN-BAD-PROTO", apply_url="http://job-boards.greenhouse.io/encora/jobs/bad")
-        c4_valid_2 = _make_valid_candidate(candidate_id="CAN-VALID-2", title="Full Stack Developer", apply_url="https://job-boards.greenhouse.io/encora/jobs/valid-2")
+        c3_bad_proto = _make_valid_candidate(candidate_id="CAN-BAD-PROTO", apply_url="http://jobs.lever.co/kavak/bad")
+        c4_valid_2 = _make_valid_candidate(candidate_id="CAN-VALID-2", title="Full Stack Developer", apply_url="https://jobs.lever.co/kavak/valid-2")
         c5_remote_no_peru = _make_valid_candidate(candidate_id="CAN-NO-PERU", location="LATAM (Remote)", mode="remote")
         c5_remote_no_peru["proposed"]["description"] = "Desarrollador para América Latina."
 

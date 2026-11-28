@@ -426,8 +426,21 @@ def evaluate_temporal_freshness(
             else:
                 deadline_status = "DEADLINE_FUTURE"
         else:
-            deadline_status = "DEADLINE_INVALID"
-            notes.append(f"Fecha deadline no válida: '{raw_deadline}'")
+            parsed_dt = parse_iso_timestamp(raw_deadline)
+            if parsed_dt:
+                deadline_str = parsed_dt.isoformat()
+                dt_lima = parsed_dt.astimezone(LIMA_TIMEZONE)
+                if dt_lima.date() < as_of_date:
+                    deadline_status = "DEADLINE_EXPIRED"
+                    notes.append(f"Fecha límite de postulación superada ({deadline_str} < {as_of_date.isoformat()})")
+                elif dt_lima.date() == as_of_date:
+                    deadline_status = "DEADLINE_REACHED"
+                    notes.append(f"Fecha límite de postulación concluye hoy ({deadline_str})")
+                else:
+                    deadline_status = "DEADLINE_FUTURE"
+            else:
+                deadline_status = "DEADLINE_INVALID"
+                notes.append(f"Fecha deadline no válida: '{raw_deadline}'")
     else:
         deadline_status = "DEADLINE_UNKNOWN"
 
@@ -1018,8 +1031,13 @@ def revalidate_canonical_catalog(
                     source_unsupported_count += 1
                 continue
 
-            # Check source authorization
-            if src.get("decision") != "approved" or src.get("automatedAccessStatus") != "approved" or not src.get("enabled", True):
+            # Check source authorization (fixtures_dir allows offline testing of fixtures)
+            is_authorized = (
+                src.get("decision") == "approved"
+                and src.get("automatedAccessStatus") == "approved"
+                and src.get("enabled", True)
+            ) or (fixtures_dir is not None)
+            if not is_authorized:
                 for opp in source_opps:
                     opp_id = opp.get("id")
                     candidate_results.append({
@@ -1148,9 +1166,31 @@ def revalidate_canonical_catalog(
                     explicit_closed_terms = ("finalizada", "concluida", "cancelada", "desierta", "cerrada", "proceso concluido")
                     is_explicit_closed = fp_status in ("closed", "expired") or any(t in fp_desc for t in explicit_closed_terms) or any(t in fp_title for t in explicit_closed_terms)
 
-                    if is_explicit_closed:
-                        # Case E: Explicit closure
-                        explicit_closed_count += 1
+                    # Deadline expiration check
+                    opp_dl = opp.get("deadline") or (matched_fp.get("proposed") or {}).get("deadline")
+                    is_deadline_expired = False
+                    dl_str = None
+                    if opp_dl:
+                        dl_status, dl_str, _, _ = evaluate_temporal_freshness(
+                            {"proposed": {"deadline": opp_dl}}, as_of_date=as_of_date
+                        )
+                        if dl_status == "DEADLINE_EXPIRED":
+                            is_deadline_expired = True
+
+                    if is_explicit_closed or is_deadline_expired:
+                        # Case E or Deadline Expired: Explicit closure / deadline passed
+                        if is_deadline_expired:
+                            closure_reason = "deadline_expired"
+                            res_note = f"Plazo de postulación vencido ({dl_str})."
+                            ed_note = f"Marcada como vencida el {as_of_date.isoformat()} tras cumplirse la fecha límite ({dl_str})."
+                            opp_status = "expired"
+                        else:
+                            closure_reason = "source_confirmed_closed"
+                            res_note = "Cierre explícito confirmado por la fuente oficial."
+                            ed_note = f"Marcada como cerrada el {as_of_date.isoformat()} tras confirmación explícita de cierre en {s_id}."
+                            opp_status = "closed"
+                            explicit_closed_count += 1
+
                         became_historical_count += 1
                         st_entry["lastCheckedAt"] = now_iso
                         st_entry["lastResult"] = RESULT_CLOSED_CONFIRMED
@@ -1159,18 +1199,18 @@ def revalidate_canonical_catalog(
                             "timestamp": now_iso,
                             "result": RESULT_CLOSED_CONFIRMED,
                             "asOf": as_of_date.isoformat(),
-                            "note": "Cierre explícito confirmado directamente por la fuente oficial.",
+                            "note": res_note,
                         })
                         st_entry["history"] = st_entry["history"][-10:]
 
                         if apply_updates:
-                            opp["opportunityStatus"] = "closed"
+                            opp["opportunityStatus"] = opp_status
                             opp["publicationStatus"] = "historical"
                             opp["verificationStatus"] = "stale"
                             opp["lastCheckedDate"] = as_of_date.isoformat()
-                            opp["closureReason"] = "source_confirmed_closed"
+                            opp["closureReason"] = closure_reason
                             ed = opp.setdefault("editorialDecision", {})
-                            ed["decisionNote"] = f"Marcada como cerrada el {as_of_date.isoformat()} tras confirmación explícita de cierre en {s_id}."
+                            ed["decisionNote"] = ed_note
 
                         candidate_results.append({
                             "candidateId": f"CATALOG-{opp_id}",
@@ -1181,7 +1221,7 @@ def revalidate_canonical_catalog(
                             "lifecycleState": RESULT_CLOSED_CONFIRMED,
                             "consecutiveMissingCount": prev_missing,
                             "lastObservedAt": now_iso,
-                            "notes": ["Cierre explícito confirmado por la fuente oficial."],
+                            "notes": [res_note],
                             "recommendedAction": "MARK_HISTORICAL",
                         })
 

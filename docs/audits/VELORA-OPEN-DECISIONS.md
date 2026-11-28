@@ -112,3 +112,39 @@
   - **Opción C (Desarrollo de Raspadores Específicos por Empresa):** Construir un scraper personalizado para cada portal corporativo privado, incrementando drásticamente el costo de mantenimiento técnico.
 - **Impacto:**  
   La Opción A maximiza la captura de oportunidades locales reales con mínimo código adicional, cero librerías externas y pleno respeto de las directivas de acceso ético.
+
+---
+
+## Decisión 10: Retirada de Greenhouse de las Propuestas de Adquisición y Descarte en Staging
+
+- **Contexto:**
+  En la evaluación de calidad de catálogo y fuentes de empleo (`TASK-FIX-EXP-01`), el propietario determinó que los tableros internacionales de Greenhouse (incluyendo Canonical, CookUnity, Encora y plantillas genéricas) no aportan valor prioritario para la cobertura nacional de oportunidades peruanas y presentan dificultades de localización de vacantes presenciales/locales.
+- **Decisión del Propietario (27 de noviembre de 2026):**
+  **Retirar Greenhouse de las propuestas de adquisición de Velora.**
+  1. Descartar todas las propuestas procedentes de Greenhouse (incluidas Canonical y CookUnity) de la evaluación activa.
+  2. No continuar evaluando estas propuestas como candidatas para el catálogo.
+  3. No incorporar nuevas fuentes Greenhouse por iniciativa propia.
+  4. Conservar la trazabilidad histórica de lo ya registrado en el catálogo canónico (no eliminar registros históricos).
+- **Implementación Técnica Formalizada:**
+  1. **Registro de fuentes (`collector/sources.json`):** Todas las fuentes Greenhouse (`greenhouse-canonical`, `greenhouse-sezzle`, `greenhouse-cookunity`, `greenhouse-encora`, `greenhouse-public-job-board-template`, `canonical-careers`) configuradas en `enabled: false`, `decision: "withdrawn"`, `automatedAccessStatus: "withdrawn"`.
+  2. **Bandeja de candidatos (`data/candidates/inbox.local.json`):** Los 236 candidatos de Greenhouse en la bandeja de staging fueron pasados a `editorialReview.status: "rejected"` con nota de auditoría formal. Quedan exactamente 0 candidatos Greenhouse en `pending_review` o `approved_for_catalog`.
+  3. **Conectores genéricos (`collector/ats_connectors.py`):** Se conservan intactas las funciones extractoras por principio de reutilización técnica y preservación de trazabilidad histórica.
+
+---
+
+## Decisión 11: Ciclo de Vida Automático de Expiración, Plazos y Desactivación de Postulación
+
+- **Contexto:**
+  Se detectó que oportunidades con fecha límite de postulación superada (`deadline` en el pasado) continuaban mostrándose como activas en el catálogo web o manteniendo enlaces de postulación habilitados si no mediaba una intervención manual o si solo se evaluaba el TTL de verificación.
+- **Decisión del Propietario (27 de noviembre de 2026):**
+  **Garantizar que ninguna oportunidad vencida aparezca como activa y deshabilitar llamadas a la acción de postulación.**
+  1. Una oportunidad con fecha límite superada (`deadline < hoy` en zona horaria `America/Lima`, o timestamp exacto vencido) debe pasar automáticamente a estado histórico (`opportunityStatus: "expired"`, `publicationStatus: "historical"`).
+  2. Ninguna oportunidad histórica (`expired`, `closed`, `withdrawn`) debe mantener botones de postulación interactivos: el enlace debe removerse y el botón debe marcarse con `aria-disabled="true"`.
+  3. Las métricas públicas deben segregar con precisión las oportunidades activas de las históricas/vencidas, sin solapamientos.
+  4. La regla de vigencia temporal no debe confundir la fecha límite (`deadline`) con la fecha de fin de empleo (`employmentEndDate`), la fecha de verificación (`lastVerifiedAt`), ni el TTL de 7 días.
+  5. Ningún registro histórico debe ser eliminado del catálogo canónico (la expiración es una transición de estado, no una purga).
+- **Implementación Técnica Formalizada:**
+  - `app.js`: Función `isDeadlineExpired` con soporte de fecha civil y timestamps ISO 8601 en zona Lima. En `currentStates(job)`, transición forzosa a `expired` e `historical`. Desactivación de botones CTA en tarjetas, vista de detalle (`#btn-apply-main`, `#btn-apply-footer`) y tabla comparativa (`#compare-dialog`).
+  - `scripts/catalog_quality.py`: `parse_date` admite timestamps ISO con zona horaria; `effective_states` fuerza `publicationStatus: "historical"` si `opportunityStatus` es `expired`, `closed` o `withdrawn`.
+  - `collector/revalidation.py`: `revalidate_canonical_catalog` y `evaluate_temporal_freshness` detectan expiración antes de confirmar vigencia (`DEADLINE_EXPIRED` -> `RESULT_CLOSED_CONFIRMED`).
+  - `tests/test_lifecycle_expiration.py`: Suite exhaustiva con 11 pruebas unitarias cubriendo fechas civiles, timestamps, separación de campos y exclusión de Greenhouse.

@@ -515,6 +515,12 @@ Con la publicación exitosa del release `v0.7.0` en GitHub Pages y Vercel, la **
   - docs/audits/TASK-R5-05-GEOGRAPHIC-NORMALIZATION-AND-FILTERS.md
 
 - **Definición de Prioridades para Próximas Fases:**
+  - **TASK-FIX-EXP-01 (COMPLETED_VERIFIED [Local] — Pendiente de consolidación y despliegue — 27 de noviembre de 2026):**
+    - Corrección integral del ciclo de vida de oportunidades vencidas y retirada definitiva de Greenhouse.
+    - Estado de implementación: `COMPLETED_VERIFIED` (Local) | Integración Git: `PENDING_OWNER_AUTHORIZATION` (0 commits, 0 push) | Producción: `NOT_DEPLOYED` (sitios en vivo permanecen en commit `dca999d`).
+    - Decisión A ejecutada: Greenhouse retirado (`enabled: false`, `decision: "withdrawn"` en `collector/sources.json`), 236 propuestas en staging descartadas a `rejected`, 0 candidatos Greenhouse en `pending_review`.
+    - Decisión B ejecutada: Expiración determinista en `app.js` (`isDeadlineExpired`), `scripts/catalog_quality.py` (`effective_states`, `parse_date`), `collector/revalidation.py` (`revalidate_canonical_catalog`). Desactivación completa de botones de postulación (`aria-disabled="true"`, enlace nulo) para oportunidades históricas (`expired`, `closed`, `withdrawn`). Segregación estricta de métricas.
+    - Suite de regresión integral: 356 pruebas Python aprobadas, suite unitaria dedicada `tests/test_lifecycle_expiration.py` (11/11), `tests/catalog_ui.test.cjs` aprobado al 100%, 0 mutaciones no autorizadas en datos canónicos.
   - Decisión 8: Evaluación y eventual aprobación de adopción del ecosistema HiringRoom para cobertura privada en Perú.
   - Decisión 6: Definición de frecuencia y modo de ingestión automatizada de convocatorias CAS de Gob.pe.
   - Activación de ciclos programados de revalidación periódica de catálogo en background (Fase R6).

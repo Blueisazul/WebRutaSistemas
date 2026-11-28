@@ -12,7 +12,7 @@ from urllib.parse import urlsplit
 
 DEFAULT_TTL_DAYS = 7
 LOCAL_TIMEZONE = "America/Lima"
-OPPORTUNITY_STATES = {"open", "closed", "expired", "unknown"}
+OPPORTUNITY_STATES = {"open", "closed", "expired", "withdrawn", "unknown"}
 VERIFICATION_STATES = {"verified", "pending", "stale", "unverified"}
 PUBLICATION_STATES = {"active", "unconfirmed", "historical"}
 RECORD_KINDS = {"demonstration", "curated", "imported_unreviewed"}
@@ -50,12 +50,22 @@ class ValidationResult:
 def parse_date(value: object, field_name: str) -> date | None:
     if value in (None, ""):
         return None
-    if not isinstance(value, str) or not ISO_DATE.fullmatch(value):
+    if not isinstance(value, str):
         raise ValueError(f"{field_name} debe usar YYYY-MM-DD o quedar vacío")
+    val_str = value.strip()
+    if ISO_DATE.fullmatch(val_str):
+        try:
+            return date.fromisoformat(val_str)
+        except ValueError as error:
+            raise ValueError(f"{field_name} no es una fecha civil válida") from error
+    # Allow full ISO 8601 timestamp with timezone, converting to America/Lima date
     try:
-        return date.fromisoformat(value)
+        dt = datetime.fromisoformat(val_str.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            raise ValueError(f"{field_name} debe incluir zona horaria si incluye hora")
+        return dt.astimezone(LIMA_TZ).date()
     except ValueError as error:
-        raise ValueError(f"{field_name} no es una fecha civil válida") from error
+        raise ValueError(f"{field_name} debe usar YYYY-MM-DD o ISO 8601 con zona horaria") from error
 
 
 def parse_timestamp(value: object, field_name: str) -> datetime | None:
@@ -95,8 +105,10 @@ def effective_states(record: dict, *, today: date, ttl_days: int = DEFAULT_TTL_D
     checked = parse_timestamp(record.get("lastVerifiedAt"), "lastVerifiedAt")
     checked_local_date = checked.astimezone(LIMA_TZ).date() if checked else None
 
-    if deadline and deadline < today and opportunity not in {"closed", "expired"}:
+    if deadline and deadline < today and opportunity not in {"closed", "expired", "withdrawn"}:
         opportunity = "expired"
+    if opportunity in {"closed", "expired", "withdrawn"}:
+        publication = "historical"
     if verification == "verified":
         if checked_local_date is None or checked_local_date < today - timedelta(days=ttl_days):
             verification = "stale"
@@ -250,7 +262,9 @@ def validate_records(
                 result.errors.append(f"{prefix}: lastVerifiedAt está en el futuro")
             if item.get("verificationStatus") == "verified" and checked is None:
                 result.errors.append(f"{prefix}: verificada requiere lastVerifiedAt")
-            if deadline and deadline < today and item.get("opportunityStatus") not in {"expired", "closed"}:
+            if item.get("opportunityStatus") in {"closed", "expired", "withdrawn"} and item.get("publicationStatus") == "active":
+                result.errors.append(f"{prefix}: oportunidad en estado {item.get('opportunityStatus')}; no puede publicarse como activa")
+            if deadline and deadline < today and item.get("opportunityStatus") not in {"expired", "closed", "withdrawn"}:
                 result.errors.append(f"{prefix}: fecha límite pasada; marcar opportunityStatus=expired")
             if deadline and deadline < today and item.get("publicationStatus") == "active":
                 result.errors.append(f"{prefix}: fecha límite pasada; no puede publicarse como activa")

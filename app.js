@@ -71,7 +71,7 @@ function isValidCatalogPayload(payload) {
     || !isTimestamp(payload.generatedAt)
     || !Array.isArray(payload.opportunities) || payload.opportunities.length === 0) return false;
   const kinds = new Set(['demonstration', 'curated', 'imported_unreviewed']);
-  const opportunityStates = new Set(['open', 'closed', 'expired', 'unknown']);
+  const opportunityStates = new Set(['open', 'closed', 'expired', 'withdrawn', 'unknown']);
   const verificationStates = new Set(['verified', 'pending', 'stale', 'unverified']);
   const publicationStates = new Set(['active', 'unconfirmed', 'historical']);
   const ids = new Set();
@@ -92,7 +92,7 @@ function isValidCatalogPayload(payload) {
       const application = safeHttpsUrl(job.applyUrl);
       if (!application || !job.allowedHosts.includes(new URL(application).hostname.toLowerCase())) return false;
     }
-    if (job.deadline !== null && job.deadline !== undefined && !isCivilDate(job.deadline)) return false;
+    if (job.deadline !== null && job.deadline !== undefined && !isCivilDate(job.deadline) && !isTimestamp(job.deadline)) return false;
     for (const field of ['lastVerifiedAt', 'editorialDecision?.decidedAt']) {
       const value = field === 'lastVerifiedAt' ? job.lastVerifiedAt : job.editorialDecision?.decidedAt;
       if (value !== undefined && value !== null && value !== '' && !isTimestamp(value)) return false;
@@ -138,8 +138,9 @@ function currentStates(job) {
   const ttlDays = Number.isInteger(catalogConfig.verificationTtlDays) ? catalogConfig.verificationTtlDays : 7;
   const dayNumber = (isoDate) => Date.parse(`${isoDate}T00:00:00Z`);
 
-  // 1. Tratamiento estricto de cierre y fecha límite vencida
-  if (job.deadline && job.deadline < today && !['closed', 'expired'].includes(states.opportunityStatus)) {
+  // 1. Tratamiento estricto de fecha límite vencida (Decisión 9 / TASK-FIX-EXP-01)
+  const rawDeadline = job.deadline || job.deadline_at;
+  if (rawDeadline && isDeadlineExpired(rawDeadline) && !['closed', 'expired', 'withdrawn'].includes(states.opportunityStatus)) {
     states.opportunityStatus = 'expired';
   }
 
@@ -216,10 +217,10 @@ function currentStates(job) {
   if (job.recordKind === 'demonstration') {
     states.publicationStatus = 'unconfirmed';
     states.verificationStatus = 'unverified';
-    if (job.opportunityStatus === 'closed' || states.opportunityStatus === 'expired') {
+    if (['closed', 'expired', 'withdrawn'].includes(states.opportunityStatus)) {
       states.publicationStatus = 'historical';
     }
-  } else if (states.opportunityStatus === 'expired' || states.opportunityStatus === 'closed' || job.publicationStatus === 'historical') {
+  } else if (['expired', 'closed', 'withdrawn'].includes(states.opportunityStatus) || job.publicationStatus === 'historical') {
     states.publicationStatus = 'historical';
     if (structureValid && withinTtl) {
       states.verificationStatus = 'verified';
@@ -277,6 +278,26 @@ function safeNavigableWebUrl(value) {
   }
 }
 
+function isDeadlineExpired(deadlineValue, referenceDate = new Date()) {
+  if (!deadlineValue || typeof deadlineValue !== 'string') return false;
+  const trimmed = deadlineValue.trim();
+  if (!trimmed) return false;
+  // Decisión 9: Una oportunidad puede mostrarse incluso si vence el mismo día (deadline == today es vigente).
+  // Si es fecha civil (YYYY-MM-DD), expira estrictamente a partir del día siguiente (trimmed < todayStr en Lima).
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    const todayStr = limaDateString(referenceDate);
+    return trimmed < todayStr;
+  }
+  // Si incluye hora y zona horaria (ISO 8601), expira en el instante exacto indicado.
+  if (/^\d{4}-\d{2}-\d{2}T/.test(trimmed)) {
+    const parsed = new Date(trimmed);
+    if (!Number.isNaN(parsed.valueOf())) {
+      return parsed.getTime() < referenceDate.getTime();
+    }
+  }
+  return false;
+}
+
 function initials(name) {
   return name.split(/\s+/).slice(0, 2).map((part) => part[0] || '').join('').toUpperCase();
 }
@@ -285,6 +306,9 @@ function statusTag(job) {
   const state = currentStates(job);
   if (state.opportunityStatus === 'expired') {
     return '<span class="tag closed inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200">Plazo vencido</span>';
+  }
+  if (state.opportunityStatus === 'withdrawn') {
+    return '<span class="tag closed inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">Propuesta retirada</span>';
   }
   if (state.publicationStatus === 'historical' || state.opportunityStatus === 'closed') {
     return '<span class="tag closed inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">Referencia histórica</span>';
@@ -352,7 +376,7 @@ function renderCard(job) {
     ? 'Oportunidad activa · Verificada'
     : state.verificationStatus === 'stale'
       ? 'Pendiente de revalidación'
-      : (state.publicationStatus === 'historical' || state.opportunityStatus === 'expired')
+      : (state.publicationStatus === 'historical' || ['expired', 'closed', 'withdrawn'].includes(state.opportunityStatus))
         ? 'No disponible para postular'
         : 'Vigencia no confirmada';
   return `<article class="job-card group grid grid-cols-1 gap-4 rounded-xl border border-borderMuted bg-white p-4 transition-colors duration-150 hover:border-crystalBlue/50 sm:p-5 lg:grid-cols-[minmax(0,1fr)_170px_190px] lg:items-center lg:gap-5"
@@ -688,19 +712,22 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
   const state = currentStates(job);
   const sourceUrl = safeNavigableWebUrl(job.sourceUrl);
   const applyUrl = safeHttpsUrl(job.applyUrl);
-  const canApply = state.publicationStatus === 'active' && job.recordKind !== 'demonstration' && state.opportunityStatus !== 'expired';
+  const isHistorical = state.publicationStatus === 'historical' || ['closed', 'expired', 'withdrawn'].includes(state.opportunityStatus);
+  const canApply = state.publicationStatus === 'active' && job.recordKind !== 'demonstration' && !isHistorical;
   const isStale = state.verificationStatus === 'stale';
   const statusText = job.recordKind === 'demonstration'
     ? `Ficha de demostración. No tiene evidencia vigente suficiente para presentarla como postulable. Última verificación: ${formatDateTime(job.lastVerifiedAt)}; última consulta registrada: ${formatDateTime(job.lastCheckedDate)}. No se afirma que siga publicada.`
     : canApply
       ? `La fuente del empleador se revisó el ${formatDateTime(job.lastVerifiedAt)}; esta comprobación no garantiza disponibilidad posterior.`
       : state.opportunityStatus === 'expired'
-        ? 'La fecha límite de postulación ya pasó. Se conserva como referencia y no se habilita el enlace para postular.'
-        : state.publicationStatus === 'historical'
-          ? 'Registro histórico conservado para referencia. No está disponible para postular.'
-          : isStale
-            ? `Convocatoria registrada con verificación previa (${formatDateTime(job.lastVerifiedAt || job.lastCheckedDate)}) que superó el período de frescura de ${catalogConfig.verificationTtlDays || 7} días. Pendiente de revalidar vigencia con la fuente oficial antes de habilitar postulación.`
-            : `No tiene evidencia vigente suficiente para presentarla como postulable. Última verificación: ${formatDateTime(job.lastVerifiedAt)}; última consulta registrada: ${formatDateTime(job.lastCheckedDate)}. No se afirma que siga publicada.`;
+        ? 'La fecha límite de postulación ya pasó. Se conserva como referencia histórica y no se habilita el enlace para postular.'
+        : state.opportunityStatus === 'withdrawn'
+          ? 'Propuesta de oportunidad retirada de adquisición. Se conserva como referencia histórica y no se habilita el enlace para postular.'
+          : state.publicationStatus === 'historical' || state.opportunityStatus === 'closed'
+            ? 'Registro histórico conservado para referencia. No está disponible para postular.'
+            : isStale
+              ? `Convocatoria registrada con verificación previa (${formatDateTime(job.lastVerifiedAt || job.lastCheckedDate)}) que superó el período de frescura de ${catalogConfig.verificationTtlDays || 7} días. Pendiente de revalidar vigencia con la fuente oficial antes de habilitar postulación.`
+              : `No tiene evidencia vigente suficiente para presentarla como postulable. Última verificación: ${formatDateTime(job.lastVerifiedAt)}; última consulta registrada: ${formatDateTime(job.lastCheckedDate)}. No se afirma que siga publicada.`;
   const fieldEvidence = Array.isArray(job.fieldEvidence) ? job.fieldEvidence : [];
   const evidenceLabels = { employer: 'Empleador', publisher: 'Difusor', title: 'Puesto', applyUrl: 'Canal de postulación', deadline: 'Fecha límite', salary: 'Remuneración', mode: 'Modalidad', location: 'Ubicación', requirements: 'Requisitos', benefits: 'Beneficios', skills: 'Tecnologías', training: 'Formación', contractType: 'Tipo de contrato', duration: 'Duración', sector: 'Sector', family: 'Familia profesional', level: 'Nivel', kind: 'Tipo de oportunidad', growth: 'Experiencia para el siguiente paso', continuity: 'Continuidad', risk: 'Riesgos' };
   const fieldEvidenceHtml = fieldEvidence.filter((item) => evidenceLabels[item.field] && safeHttpsUrl(item.url)).map((item) => `<li><a href="${escapeHTML(safeHttpsUrl(item.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(evidenceLabels[item.field])} · evidencia ↗</a> <span>${escapeHTML(formatDateTime(item.observedAt))}</span></li>`).join('');
@@ -929,7 +956,7 @@ function renderDetailContent(job, { isStandalone = false } = {}) {
                     bg-surfaceRaised px-3 py-2 text-xs text-white"
               aria-disabled="true"
             >
-              Postulación deshabilitada
+              ${state.opportunityStatus === 'expired' ? 'Plazo de postulación vencido' : (state.opportunityStatus === 'withdrawn' ? 'Propuesta retirada' : (state.opportunityStatus === 'closed' ? 'Convocatoria cerrada' : 'Postulación deshabilitada'))}
             </span>
           `}
 
@@ -1470,7 +1497,8 @@ function renderComparison() {
             </th>
             ${jobs.map((job) => {
     const state = currentStates(job);
-    const canApply = state.publicationStatus === 'active' && job.recordKind !== 'demonstration';
+    const isHistorical = state.publicationStatus === 'historical' || ['closed', 'expired', 'withdrawn'].includes(state.opportunityStatus);
+    const canApply = state.publicationStatus === 'active' && job.recordKind !== 'demonstration' && !isHistorical;
     const applyUrl = safeHttpsUrl(job.applyUrl);
     const isDemo = job.recordKind === 'demonstration';
     return `
@@ -2239,9 +2267,10 @@ function getVisibleJobs() {
   return catalog.filter((job) => {
     const state = currentStates(job);
     const demonstration = job.recordKind === 'demonstration';
+    const isHistorical = state.publicationStatus === 'historical' || ['closed', 'expired', 'withdrawn'].includes(state.opportunityStatus);
     if (demonstration && !includeDemonstrations) return false;
-    if (!demonstration && state.publicationStatus === 'historical' && !includeHistory) return false;
-    if (!demonstration && state.publicationStatus !== 'active' && state.publicationStatus !== 'historical' && !includeUnconfirmed) return false;
+    if (!demonstration && isHistorical && !includeHistory) return false;
+    if (!demonstration && state.publicationStatus !== 'active' && !isHistorical && !includeUnconfirmed) return false;
     if (scope && getJobGeographicScope(job) !== scope) return false;
     if (department && getJobDepartment(job) !== department) return false;
     if (location && !normalized(job.location + ' ' + job.eligibility).includes(location)) return false;
@@ -2282,7 +2311,7 @@ function publicCatalogMetrics(records) {
   const metrics = { active: 0, expiredOrHistorical: 0, unconfirmed: 0 };
   records.filter((job) => job.recordKind !== 'demonstration').forEach((job) => {
     const state = currentStates(job);
-    if (['expired', 'closed'].includes(state.opportunityStatus) || state.publicationStatus === 'historical') {
+    if (['expired', 'closed', 'withdrawn'].includes(state.opportunityStatus) || state.publicationStatus === 'historical') {
       metrics.expiredOrHistorical += 1;
     } else if (state.publicationStatus === 'active') {
       if (state.verificationStatus === 'stale') {

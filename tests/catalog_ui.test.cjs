@@ -545,6 +545,67 @@ for (const corrupt of [
   assert.equal(payloadContext.result, false, 'malformed or incomplete public snapshot is rejected');
 }
 
+// --- TASK-FIX-EXP-01: Lifecycle expiration, deadline rules, and withdrawn status ---
+const expContext = vm.createContext({
+  URL,
+  catalogConfig: { verificationTtlDays: 7 },
+  limaDateString: (d) => {
+    const target = d ? (d instanceof Date ? d : new Date(d)) : new Date('2026-11-27T12:00:00Z');
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Lima', year: 'numeric', month: '2-digit', day: '2-digit',
+    }).formatToParts(target);
+    const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+    return `${values.year}-${values.month}-${values.day}`;
+  },
+  isTimestamp: (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(v) && !Number.isNaN(new Date(v).valueOf()),
+  result: null,
+});
+
+vm.runInContext(`${source.slice(safeUrlStart, initialsStart)}\n${stateFunction}`, expContext);
+
+// 1. isDeadlineExpired civil date evaluation in America/Lima
+const refDate = new Date('2026-11-27T12:00:00-05:00');
+assert.equal(expContext.isDeadlineExpired('2026-11-20', refDate), true, 'past civil date is expired');
+assert.equal(expContext.isDeadlineExpired('2026-11-27', refDate), false, 'today civil date is valid through end of calendar day in Lima');
+assert.equal(expContext.isDeadlineExpired('2026-11-28', refDate), false, 'future civil date is not expired');
+assert.equal(expContext.isDeadlineExpired(null, refDate), false, 'missing deadline is not expired');
+
+// 2. isDeadlineExpired ISO timestamp with time evaluation
+assert.equal(expContext.isDeadlineExpired('2026-11-27T10:00:00-05:00', refDate), true, 'past hour today is expired');
+assert.equal(expContext.isDeadlineExpired('2026-11-27T18:00:00-05:00', refDate), false, 'future hour today is not expired');
+
+// 3. currentStates transitions expired deadlines to historical
+const expiredJob = JSON.parse(JSON.stringify(baseCurated));
+expiredJob.deadline = '2026-11-20';
+expiredJob.opportunityStatus = 'open';
+expiredJob.publicationStatus = 'active';
+const expResult = expContext.currentStates(expiredJob);
+assert.equal(expResult.opportunityStatus, 'expired', 'past deadline forces opportunityStatus to expired');
+assert.equal(expResult.publicationStatus, 'historical', 'expired opportunity transitions publicationStatus to historical');
+
+// 4. Withdrawn opportunity transitions to historical
+const withdrawnJob = JSON.parse(JSON.stringify(baseCurated));
+withdrawnJob.opportunityStatus = 'withdrawn';
+withdrawnJob.publicationStatus = 'active';
+const withdrawnResult = expContext.currentStates(withdrawnJob);
+assert.equal(withdrawnResult.opportunityStatus, 'withdrawn', 'withdrawn opportunity preserves withdrawn state');
+assert.equal(withdrawnResult.publicationStatus, 'historical', 'withdrawn opportunity transitions publicationStatus to historical');
+
+// 5. metrics count expired and withdrawn under expiredOrHistorical, not active
+const testCatalog = [
+  { id: 'ACT-1', recordKind: 'curated', publicationStatus: 'active', opportunityStatus: 'open', employer: 'E1', title: 'T1' },
+  { id: 'EXP-1', recordKind: 'curated', publicationStatus: 'historical', opportunityStatus: 'expired', employer: 'E2', title: 'T2' },
+  { id: 'WITH-1', recordKind: 'curated', publicationStatus: 'historical', opportunityStatus: 'withdrawn', employer: 'E3', title: 'T3' },
+  { id: 'CLS-1', recordKind: 'curated', publicationStatus: 'historical', opportunityStatus: 'closed', employer: 'E4', title: 'T4' },
+];
+const testMetricsContext = vm.createContext({
+  catalog: testCatalog,
+  currentStates: (job) => ({ publicationStatus: job.publicationStatus, opportunityStatus: job.opportunityStatus }),
+  result: null,
+});
+vm.runInContext(`${functions}\nresult = publicCatalogMetrics(catalog);`, testMetricsContext);
+assert.deepEqual(JSON.parse(JSON.stringify(testMetricsContext.result)), { active: 1, expiredOrHistorical: 3, unconfirmed: 0 }, 'metrics exclude expired, closed, and withdrawn from active');
+
 const renderStart = source.indexOf('function render() {');
 const renderEnd = source.indexOf('\nfunction normalized(', renderStart);
 const updateStart = source.indexOf('function updateCatalogView() {');

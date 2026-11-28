@@ -70,7 +70,7 @@ class SourceEvaluationTests(unittest.TestCase):
     def test_canonical_remains_pending_and_cannot_be_fetched(self):
         source = find_source(load_source_registry(), "canonical-careers")
         self.assertIsNotNone(source)
-        self.assertEqual(source["decision"], "pending_review")
+        self.assertEqual(source["decision"], "withdrawn")
         self.assertFalse(source["enabled"])
         self.assertEqual(source["maxRequestsPerRun"], 0)
         result = authorize_fetch(source, "https://canonical.com/careers", 0)

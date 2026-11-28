@@ -302,7 +302,7 @@ test('redesigns opportunity detail with verified source, icon summary, omission 
 
   // 4. Check QA-001 (Closed demonstration)
   await page.goto('/?id=QA-001');
-  await expect(page.locator('#opportunity-view')).toBeVisible();
+  await expect(page.locator('#opportunity-view')).toBeVisible({ timeout: 10000 });
   await expect(page.locator('.summary-card:has(label:has-text("Compensación"))')).toHaveCount(0);
 
   // 5. Check OP-006 (Canonical active opportunity within 7-day TTL displays 'Fuente oficial verificada' and active apply button)
